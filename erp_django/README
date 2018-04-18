@@ -1,0 +1,5 @@
+
+python manage.py runserver 8000
+
+cd ../erp_angular/erp-app
+ng build -dev -ec --output-path=../../erp_django/core/static --watch

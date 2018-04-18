@@ -1,4 +1,6 @@
-from django.http import JsonResponse
+import json
+
+from django.http import JsonResponse, QueryDict
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
@@ -21,13 +23,33 @@ def index(request):
 
 @csrf_exempt
 def heroes(request):
+    if request.method == 'POST':
+        post = json.loads(request.body)
+        post.update({'id': len(HEROES)})
+        HEROES.append(post)
+        return JsonResponse(post, safe=False)
+
+    if 'name' in request.GET:
+        return JsonResponse(list(filter(lambda x: x['name'].startswith(request.GET['name']), HEROES)), safe=False)
+
     return JsonResponse(HEROES, safe=False)
 
 @csrf_exempt
 def hero(request, id):
-
     heroitem = [x for x in HEROES if x['id']==id]
+
     if heroitem:
+        if request.method == 'PUT':
+            put = json.loads(request.body)
+            heroitem[0]['name'] = put['name']
+            return JsonResponse(heroitem[0], safe=False)
+
+        if request.method == 'DELETE':
+            for index, x in enumerate(HEROES):
+                if x['id'] == id:
+                    del HEROES[index]
+            return JsonResponse('', safe=False)
+
         return JsonResponse(heroitem[0], safe=False)
     return JsonResponse(heroitem,safe=False)
 
