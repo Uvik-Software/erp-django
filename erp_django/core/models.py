@@ -17,6 +17,16 @@ class GeneralInfo(models.Model):
         return self.manager_surname
 
 
+class Developer(models.Model):
+    name = models.CharField(max_length=20)
+    surname = models.CharField(max_length=50)
+    email = models.EmailField(unique=True)
+    hours = models.FloatField()
+
+    def __str__(self):
+        return self.email
+
+
 class Project(models.Model):
     project_name = models.CharField(max_length=200)
     client_address = models.TextField()
@@ -24,6 +34,7 @@ class Project(models.Model):
     currency = models.CharField(max_length=20)
     basic_price = models.FloatField()
     general_info = models.ForeignKey(GeneralInfo, on_delete=models.CASCADE)
+    developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.project_name

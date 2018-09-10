@@ -1,5 +1,5 @@
 from rest_framework.test import RequestsClient
-from .models import GeneralInfo, Project, Invoice, Services
+from .models import GeneralInfo, Project, Invoice, Services, Developer
 import pytest
 import datetime
 import json
@@ -21,6 +21,14 @@ class TestEndpoints:
             bank_requisites="some_bank_requisites"
         )
 
+        # creating developer
+        developer = Developer.objects.create(
+            name="some_developer_name",
+            surname="some_developer_surname",
+            email="some_dev_email@gmail.com",
+            hours=198.9
+        )
+
         # creating project
         project = Project.objects.create(
             project_name="some_project_name",
@@ -28,7 +36,8 @@ class TestEndpoints:
             project_type="OUTSTAFF",
             currency="usd",
             basic_price="19.0",
-            general_info=general_info
+            general_info=general_info,
+            developer=developer
         )
 
         # creating invoice
@@ -83,12 +92,14 @@ class TestEndpoints:
     @pytest.mark.django_db
     def test_projects_endpoint(self):
         general_info = GeneralInfo.objects.get(manager_surname="some_surname")
+        developer = Developer.objects.get(email="some_dev_email@gmail.com")
         data = {"project_name": "some_project_name",
                 "client_address": "some_client_address",
                 "project_type": "OUTSTAFF",
                 "currency": "usd",
                 "basic_price": 19.0,
-                "general_info": general_info.id}
+                "general_info": general_info.id,
+                "developer": developer.id}
         client = RequestsClient()
         response = client.post(BASE_URL + "/projects/", data)
         assert response.status_code == 201
@@ -123,3 +134,24 @@ class TestEndpoints:
         # test total cost
         response_data = json.loads(response.content)
         assert response_data["total_cost"] == data["price"] * data["quantity"]
+
+    @pytest.mark.django_db
+    def test_developer_endpoint(self):
+        data = {"name": "some_developer_name",
+                "surname": "some_developer_surname",
+                "email": "some_dev_email2@gmail.com",
+                "hours": 198.9}
+        client = RequestsClient()
+        response = client.post(BASE_URL + "/developer/", data)
+        assert response.status_code == 201
+
+        # providing existing email. should fail as it should be unique
+        data["email"] = "some_dev_email2@gmail.com"
+        response = client.post(BASE_URL + "/developer/", data)
+        assert response.status_code == 400
+
+        # providing email in a wrong format
+        data["email"] = "some_dev_email"
+        response = client.post(BASE_URL + "/developer/", data)
+        assert response.status_code == 400
+
