@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+    table, th, td {
+        border: 1px solid grey;
+        border-collapse: collapse;
+    }
+    .padding {
+        padding: 5px
+    }
+
+    </style>
+</head>
+<h1 align="center">Invoice # {{ invoice.id }}</h1>
+<body>
+<table style="width:100%" class="padding">
+    <tr>
+        <td><b>Date: </b> {{ invoice.date }}</td>
+    </tr>
+    <tr>
+        <td><b>Supplier: </b> <br/>
+            <b>Business name: </b> {{ general_info.company_name }} <br/>
+            <b>Address: </b> {{ general_info.address }} <br/>
+            <b>Email: </b> {{ general_info.manager_email }} <br/>
+            <b>Represented by: </b> {{ general_info.manager_name }} {{ general_info.manager_surname }}</td>
+    </tr>
+    <tr>
+        <td><b>Customer: </b> <br/>
+            <b>Person: </b> {{ client_info.name }} <br/>
+            <b>Position: </b> {{ client_info.position }} <br/>
+            <b>Company name: </b> {{ client_info.company_name }} <br/>
+            <b>Address: </b> {{ client_info.address }} <br/>
+            <b>Company Identification Number: </b> {{ client_info.identification_number }} </td>
+    </tr>
+    <tr>
+        <td><b>Description: </b> {{ project.project_description }} <br/>
+            <b>Currency: </b> {{ project.currency }} <br/>
+            {% if project.basic_price %}
+            <b>Price: </b> {{ project.basic_price }} <br/>
+            {% endif %}
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+            <b>Bank Information: </b> <br/>
+            <b>Beneficiary: </b> {{ company_details.beneficiary }} <br/>
+            <b>Account: </b> {{ company_details.bank_account_number }} <br/>
+            <b>IBAN: </b> {{ company_details.iban }} <br/>
+            <b>SWIFT: </b> {{ company_details.swift }} <br/>
+            <b>Bank Address: </b> {{ company_details.bank_address }} <br/>
+        </td>
+    </tr>
+</table>
+<table style="width:100%">
+    <thead>
+    <tr class="padding">
+        <th>Description</th>
+        <th>Workhours</th>
+        <th>Hourly Rate</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for developer in developers_on_project %}
+    <tr class="padding">
+        <td>{{ developer.description }}</td>
+        {% if not project.basic_price %}
+        <td>{{ developer.worked_hours }}</td>
+        <td>{{ developer.hourly_rate }}</td>
+        <td>{{ developer.cost }}</td>
+        {% endif %}
+        {% if project.basic_price %}
+        <td>160</td>
+        <td> - </td>
+        <td> - </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<table style="width:100%">
+
+    <tbody>
+    <td></td>
+    <td></td>
+    <td class="padding"><b>Total: </b></td>
+    <td class="padding">{{ total_cost }}</td>
+
+
+    </tbody>
+</table>
+<div class="padding">
+    <b>Payments due: </b> {{ invoice.expected_payout_date }} <br/>
+    Please notify us before the end of this period if you are not able to pay in time.
+</div>
+<div class="padding">
+    {% load staticfiles %}
+    <img src="{{company_details.sign}}">
+</div>
+<div class="padding">
+    <b>Supplier: </b> {{ general_info.manager_name }} {{ general_info.manager_surname }}, {{ general_info.manager_position }} <br/>
+</div>
+</body>
+</html>

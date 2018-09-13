@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+PROJECT_ROOT = os.path.realpath(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -28,6 +28,15 @@ CORS_ORIGIN_ALLOW_ALL=True
 
 ALLOWED_HOSTS = []
 
+MEDIA_ROOT = PROJECT_ROOT
+MEDIA_URL = '/media/'
+
+# CELERY STUFF
+BROKER_URL = 'redis://:6WAaEMTLqd8byg9XHcK3daybA3uPpQcT@redis-10535.c55.eu-central-1-1.ec2.cloud.redislabs.com:10535'
+#CELERY_RESULT_BACKEND = 'redis://:6WAaEMTLqd8byg9XHcK3daybA3uPpQcT@redis-10535.c55.eu-central-1-1.ec2.cloud.redislabs.com:10535'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 # Application definition
 INSTALLED_APPS = [
@@ -124,3 +133,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 25
+}

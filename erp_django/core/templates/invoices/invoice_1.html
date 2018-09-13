@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th,
+        .table td {
+            padding: 5px;
+            vertical-align: top;
+            border-top: 1px solid #000;
+            text-align: center;
+        }
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <h1 align="center">Invoice # {{ invoice.id }}</h1>
+
+    <div>
+        <b>Date: </b> {{ invoice.date }}
+    </div>
+    <hr>
+    <div>
+        <b>Supplier: </b> <br/>
+        <b>Business name: </b> {{ general_info.company_name }} <br/>
+        <b>Address: </b> {{ general_info.address }} <br/>
+        <b>Email: </b> {{ general_info.manager_email }} <br/>
+        <b>Represented by: </b> {{ general_info.manager_name }} {{ general_info.manager_surname }}<br/>
+    </div>
+    <hr>
+    <div>
+        <b>Customer: </b> <br/>
+        <b>Person: </b> {{ client_info.name }} <br/>
+        <b>Position: </b> {{ client_info.position }} <br/>
+        <b>Company name: </b> {{ client_info.company_name }} <br/>
+        <b>Address: </b> {{ client_info.address }} <br/>
+        <b>Company Identification Number: </b> {{ client_info.identification_number }} <br/>
+    </div>
+    <hr>
+    <div>
+        <b>Description: </b> {{ project.project_description }} <br/>
+        <b>Currency: </b> {{ project.currency }} <br/>
+        {% if project.basic_price %}
+            <b>Price: </b> {{ project.basic_price }} <br/>
+        {% endif %}
+    </div>
+    <hr>
+    <div>
+        <b>Bank Information: </b> <br/>
+        <b>Beneficiary: </b> {{ company_details.beneficiary }} <br/>
+        <b>Account: </b> {{ company_details.bank_account_number }} <br/>
+        <b>IBAN: </b> {{ company_details.iban }} <br/>
+        <b>SWIFT: </b> {{ company_details.swift }} <br/>
+        <b>Bank Address: </b> {{ company_details.bank_address }} <br/>
+    </div>
+    <br/>
+    <table class="table">
+            <thead>
+            <tr>
+                <th>Description</th>
+                <th>Workhours</th>
+                <th>Hourly Rate</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for developer in developers_on_project %}
+                <tr>
+                    <td>{{ developer.description }}</td>
+                    <td>{{ developer.worked_hours }}</td>
+                    <td>{{ developer.hourly_rate }}</td>
+                    <td>{{ developer.cost }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    <div style="text-align: right">
+        <b>Total: </b> {{ total_cost }} <br/>
+    </div>
+
+    <div>
+        <b>Payments due: </b> {{ invoice.expected_payout_date }} <br/>
+        Please notify us before the end of this period if you are not able to pay in time.
+    </div>
+
+    <div>
+        <b>Supplier: </b> {{ general_info.manager_name }} {{ general_info.manager_surname }}, {{ general_info.manager_position }} <br/>
+    </div>
+</body>
+</html>
