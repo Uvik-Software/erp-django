@@ -15,30 +15,25 @@ app = Celery('erp_django')
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
-# every hour crontab(minute=0, hour='*/1') erp_django.celery.longtime_add
+
 app.conf.beat_schedule = {
-    'send-report-every-min': {
-        'task': 'erp_django.celery.longtime_add',
-        'schedule': crontab(hour="*/1"),
+    'check-events-every-hour': {
+        'task': 'erp_django.celery.notification_worker',
+        'schedule': crontab(hour="*/1"),  # every hour crontab(minute=0, hour='*/1')
     },
 }
 
 
-""""@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    # Calls test('hello') every 10 seconds.
-    sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
-
-    # Calls test('world') every 30 seconds
-    sender.add_periodic_task(30.0, test.s('world'), expires=10)
-
 @app.task
-def test(arg):
-    print("IAMHERE!!!!!")
-    logger.debug("something2")
-    print(arg)"""
+def notification_worker():
+    from erp_django.core.models import Invoice, Developer, Project
+    from erp_django.core.utils import outdated_invoice_checker, project_deadline_checker, dev_birthday_checker
 
-@app.task
-def longtime_add():
-    logger.debug("something")
-    print('long time task finished11111')
+    invoices = Invoice.objects.all().filter(status="SENT")
+    outdated_invoice_checker(invoices)
+
+    developers = Developer.objects.all()
+    dev_birthday_checker(developers)
+
+    projects = Project.objects.all().filter(deadline__isnull=False)
+    project_deadline_checker(projects)

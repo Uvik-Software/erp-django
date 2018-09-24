@@ -1,8 +1,19 @@
 from django.db import models
-from .constants import PROJECT_TYPE_VARIATIONS, INVOICE_STATUS
+from .constants import PROJECT_TYPE_VARIATIONS, INVOICE_STATUS, NOTIFICATION_TYPES
+from django.contrib.auth.models import AbstractUser
 
 
-class GeneralInfo(models.Model):
+class User(AbstractUser):
+    user_type = models.CharField(choices=(
+        ("MANAGER", "manager"),
+        ("DEVELOPER", "developer"),
+        ("CLIENT", "client")
+    ), max_length=30)
+
+# TODO add permissions to Meta
+
+
+class ManagerInfo(models.Model):
     manager_name = models.CharField(max_length=50)
     manager_surname = models.CharField(max_length=100)
     manager_email = models.EmailField()
@@ -11,7 +22,7 @@ class GeneralInfo(models.Model):
     company_name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.manager_surname
+        return self.manager_email
 
 
 class Client(models.Model):
@@ -23,8 +34,13 @@ class Client(models.Model):
     phone = models.CharField(max_length=50)
     identification_number = models.IntegerField()
 
+    class Meta:
+        permissions = (
+            ("core.view_client", "View client"),
+        )
+
     def __str__(self):
-        return self.name
+        return self.email
 
 
 class Developer(models.Model):
@@ -45,10 +61,11 @@ class Project(models.Model):
     project_description = models.TextField()
     currency = models.CharField(max_length=20)
     basic_price = models.FloatField(null=True)
-    general_info = models.ForeignKey(GeneralInfo, on_delete=models.CASCADE)
+    general_info = models.ForeignKey(ManagerInfo, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     all_time_money_spent = models.IntegerField()
     deadline = models.DateField(null=True)
+    project_started_date = models.DateField(null=True)
 
     def __str__(self):
         return self.project_name
@@ -66,10 +83,9 @@ class Invoice(models.Model):
     expected_payout_date = models.DateField()
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.CharField(choices=INVOICE_STATUS, max_length=50)
-    #spent_hours = models.FloatField(null=True)
 
     def __str__(self):
-        return str(self.number)
+        return str(self.project_id)
 
 
 class Services(models.Model):
@@ -112,3 +128,23 @@ class DevSalary(models.Model):
     date = models.DateField()
     comment = models.TextField()
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
+
+
+class SentNotifications(models.Model):
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
+    date = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return self.notification_type
+
+
+class InvoiceNotifications(SentNotifications):
+    event_id = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+
+
+class BirthdayNotification(SentNotifications):
+    event_id = models.ForeignKey(Developer, on_delete=models.CASCADE)
+
+
+class DeadlineNotifications(SentNotifications):
+    event_id = models.ForeignKey(Project, on_delete=models.CASCADE)

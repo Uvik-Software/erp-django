@@ -7,6 +7,8 @@ import json
 BASE_URL = "http://127.0.0.1:8000"
 CURRENT_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
 
+# TODO: fix tests. they are made long time ago for the first version of ERP
+
 
 class TestEndpoints:
 

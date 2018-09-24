@@ -1,15 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_guardian import filters
 
 from django.http import JsonResponse, HttpResponse
 
 from django.forms.models import model_to_dict
-from .models import Invoice, GeneralInfo, Project, Services, Developer, DevelopersOnProject, Client, Company
-from .serializers import InvoiceSerializer, GeneralInfoSerializer, ProjectSerializer, ServicesSerializer, \
+from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Company, \
+    SentNotifications, BirthdayNotification, User
+from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, ServicesSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
-    get_project_details, get_company_details_by_currency, gmail_html_sender
+    get_project_details, get_company_details_by_currency, gmail_sender, is_manager
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
 
@@ -17,16 +20,19 @@ import json
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+    permission_classes = (IsAuthenticated,)
 
 
-class GeneralInfoViewSet(viewsets.ModelViewSet):
-    queryset = GeneralInfo.objects.all()
-    serializer_class = GeneralInfoSerializer
+class ManagerInfoViewSet(viewsets.ModelViewSet):
+    queryset = ManagerInfo.objects.all()
+    serializer_class = ManagerInfoSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ServicesViewSet(viewsets.ModelViewSet):
@@ -37,16 +43,19 @@ class ServicesViewSet(viewsets.ModelViewSet):
 class DeveloperViewSet(viewsets.ModelViewSet):
     queryset = Developer.objects.all()
     serializer_class = DeveloperSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
     queryset = DevelopersOnProject.objects.all()
     serializer_class = DevelopersOnProjectSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         project_id = self.request.GET.get('project_id', None)
@@ -57,6 +66,7 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
 
 
 class GenerateInvoice(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         data = request.data
@@ -69,9 +79,12 @@ class GenerateInvoice(APIView):
             project = get_project_details(project_id)
             company_details = get_company_details_by_currency(project.currency)
             client_info = Client.objects.get(id=project.client.id)
-            general_info = GeneralInfo.objects.get(id=project.general_info.id)
+            general_info = ManagerInfo.objects.get(id=project.general_info.id)
             developers, all_time_cost = get_project_developers_and_cost(project)
             total_cost = all_time_cost - project.all_time_money_spent
+
+            # commented not to save projects and not to send files to google drive during dev.
+            # should be uncommented later.
 
             #project.project.all_time_money_spent = total_cost
             #project.save()
@@ -91,9 +104,7 @@ class GenerateInvoice(APIView):
 
             pdf_response, html = generate_pdf_from_html("invoices/invoice_2.html", data)
             #pdf_to_google_drive(html)
-            #gmail_html_sender(html, client_info.email)
-
-            # TODO add here email sending to a customer
+            #gmail_sender(html, client_info.email, "Invoice")
 
             if not download:
                 data["company_details"]["sign"] = json.dumps(str(data["company_details"]["sign"]))
@@ -102,3 +113,14 @@ class GenerateInvoice(APIView):
 
         return JsonResponse({"status": "Not all the required fields are filled up. %s are required."
                                        % INVOICE_REQUIRED_FIELDS})
+
+
+class Draft(APIView):
+    from .permissions import CustomObjectPermissions
+    permission_classes = (CustomObjectPermissions,)
+    filter_backends = (filters.DjangoObjectPermissionsFilter,)
+
+    def get_queryset(self):
+        from .models import User
+
+        return User.objects.all()
