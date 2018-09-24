@@ -10,7 +10,8 @@ class User(AbstractUser):
         ("CLIENT", "client")
     ), max_length=30)
 
-# TODO add permissions to Meta
+# TODO: add permissions to Meta
+# TODO: do normalization
 
 
 class ManagerInfo(models.Model):
@@ -20,6 +21,14 @@ class ManagerInfo(models.Model):
     manager_position = models.CharField(max_length=50)
     address = models.TextField()
     company_name = models.CharField(max_length=100)
+
+    class Meta:
+        permissions = (
+            ("core.view_managerinfo", "View Manager Info"),
+            ("core.add_managerinfo", "Add Manager Info"),
+            ("core.change_managerinfo", "Change Manager Info"),
+            ("core.delete_managerinfo", "Delete Manager Info")
+        )
 
     def __str__(self):
         return self.manager_email
@@ -36,7 +45,10 @@ class Client(models.Model):
 
     class Meta:
         permissions = (
-            ("core.view_client", "View client"),
+            ("core.view_client", "View Client"),
+            ("core.add_client", "Add Client"),
+            ("core.change_client", "Change Client"),
+            ("core.delete_client", "Delete Client")
         )
 
     def __str__(self):
@@ -50,6 +62,14 @@ class Developer(models.Model):
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
     monthly_salary = models.IntegerField()
+
+    class Meta:
+        permissions = (
+            ("core.view_developer", "View Developer"),
+            ("core.add_developer", "Add Developer"),
+            ("core.change_developer", "Change Developer"),
+            ("core.delete_developer", "Delete Developer")
+        )
 
     def __str__(self):
         return self.email
@@ -67,6 +87,14 @@ class Project(models.Model):
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
 
+    class Meta:
+        permissions = (
+            ("core.view_project", "View Project"),
+            ("core.add_project", "Add Project"),
+            ("core.change_project", "Change Project"),
+            ("core.delete_project", "Delete Project")
+        )
+
     def __str__(self):
         return self.project_name
 
@@ -77,6 +105,14 @@ class DevelopersOnProject(models.Model):
     description = models.TextField()
     hours = models.FloatField(null=True)
 
+    class Meta:
+        permissions = (
+            ("core.view_developersonproject", "View Developers on Project"),
+            ("core.add_developersonproject", "Add Developers on Project"),
+            ("core.change_developersonproject", "Change Developers on Project"),
+            ("core.delete_developersonproject", "Delete Developers on Project")
+        )
+
 
 class Invoice(models.Model):
     date = models.DateField()
@@ -84,10 +120,19 @@ class Invoice(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.CharField(choices=INVOICE_STATUS, max_length=50)
 
+    class Meta:
+        permissions = (
+            ("core.view_invoice", "View Invoice"),
+            ("core.add_invoice", "Add Invoice"),
+            ("core.change_invoice", "Change Invoice"),
+            ("core.delete_invoice", "Delete Invoice")
+        )
+
     def __str__(self):
         return str(self.project_id)
 
 
+# TODO: remove this model and its references
 class Services(models.Model):
     # not sure if we need this any more as now we are using Project and Developer for that purposes
     price = models.FloatField()
@@ -114,6 +159,12 @@ class Company(models.Model):
     class Meta:
         verbose_name = "Company Currency"
         verbose_name_plural = "Company Currency"
+        permissions = (
+            ("core.view_company", "View Company"),
+            ("core.add_company", "Add Company"),
+            ("core.change_company", "Change Company"),
+            ("core.delete_company", "Delete Company")
+        )
 
 
 class Vacation(models.Model):
@@ -123,11 +174,27 @@ class Vacation(models.Model):
     comments = models.TextField(null=True)
     approved = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = (
+            ("core.view_vacation", "View Vacation"),
+            ("core.add_vacation", "Add Vacation"),
+            ("core.change_vacation", "Change Vacation"),
+            ("core.delete_vacation", "Delete Vacation")
+        )
+
 
 class DevSalary(models.Model):
     date = models.DateField()
     comment = models.TextField()
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
+
+    class Meta:
+        permissions = (
+            ("core.view_devsalary", "View Developer's Salary"),
+            ("core.add_devsalary", "Add Developer's Salary"),
+            ("core.change_devsalary", "Change Developer's Salary"),
+            ("core.delete_devsalary", "Delete Developer's Salary")
+        )
 
 
 class SentNotifications(models.Model):
