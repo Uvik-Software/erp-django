@@ -10,7 +10,27 @@ class User(AbstractUser):
         ("CLIENT", "client")
     ), max_length=30)
 
-# TODO: add permissions to Meta
+    """__user_type = None
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.__user_type = self.user_type
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.user_type != self.__user_type and self.user_type == "MANAGER":
+            print("IAMHERELDSLDLKDKFJFHHFKDKDHJFJ")
+            from guardian.shortcuts import assign_perm
+            assign_perm("core.change_client", self)
+        from guardian.shortcuts import assign_perm
+        print('saasaasasasasas', self.__dict__)
+        assign_perm("core.change_client", self)
+        print("here", self.has_perm("core.change_client"))
+
+        print(self.__dict__)
+
+        super(User, self).save(force_insert, force_update, *args, **kwargs)"""
+
+
 # TODO: do normalization
 
 
@@ -21,14 +41,7 @@ class ManagerInfo(models.Model):
     manager_position = models.CharField(max_length=50)
     address = models.TextField()
     company_name = models.CharField(max_length=100)
-
-    class Meta:
-        permissions = (
-            ("core.view_managerinfo", "View Manager Info"),
-            ("core.add_managerinfo", "Add Manager Info"),
-            ("core.change_managerinfo", "Change Manager Info"),
-            ("core.delete_managerinfo", "Delete Manager Info")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.manager_email
@@ -42,14 +55,7 @@ class Client(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=50)
     identification_number = models.IntegerField()
-
-    class Meta:
-        permissions = (
-            ("core.view_client", "View Client"),
-            ("core.add_client", "Add Client"),
-            ("core.change_client", "Change Client"),
-            ("core.delete_client", "Delete Client")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.email
@@ -62,14 +68,7 @@ class Developer(models.Model):
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
     monthly_salary = models.IntegerField()
-
-    class Meta:
-        permissions = (
-            ("core.view_developer", "View Developer"),
-            ("core.add_developer", "Add Developer"),
-            ("core.change_developer", "Change Developer"),
-            ("core.delete_developer", "Delete Developer")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.email
@@ -86,14 +85,7 @@ class Project(models.Model):
     all_time_money_spent = models.IntegerField()
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
-
-    class Meta:
-        permissions = (
-            ("core.view_project", "View Project"),
-            ("core.add_project", "Add Project"),
-            ("core.change_project", "Change Project"),
-            ("core.delete_project", "Delete Project")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.project_name
@@ -104,14 +96,7 @@ class DevelopersOnProject(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     description = models.TextField()
     hours = models.FloatField(null=True)
-
-    class Meta:
-        permissions = (
-            ("core.view_developersonproject", "View Developers on Project"),
-            ("core.add_developersonproject", "Add Developers on Project"),
-            ("core.change_developersonproject", "Change Developers on Project"),
-            ("core.delete_developersonproject", "Delete Developers on Project")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
 
 class Invoice(models.Model):
@@ -119,14 +104,7 @@ class Invoice(models.Model):
     expected_payout_date = models.DateField()
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.CharField(choices=INVOICE_STATUS, max_length=50)
-
-    class Meta:
-        permissions = (
-            ("core.view_invoice", "View Invoice"),
-            ("core.add_invoice", "Add Invoice"),
-            ("core.change_invoice", "Change Invoice"),
-            ("core.delete_invoice", "Delete Invoice")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.project_id)
@@ -152,6 +130,7 @@ class Company(models.Model):
     swift = models.CharField(max_length=50)
     bank_address = models.TextField()
     sign = models.ImageField(upload_to='static/signs/')
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.currency
@@ -159,12 +138,6 @@ class Company(models.Model):
     class Meta:
         verbose_name = "Company Currency"
         verbose_name_plural = "Company Currency"
-        permissions = (
-            ("core.view_company", "View Company"),
-            ("core.add_company", "Add Company"),
-            ("core.change_company", "Change Company"),
-            ("core.delete_company", "Delete Company")
-        )
 
 
 class Vacation(models.Model):
@@ -173,28 +146,14 @@ class Vacation(models.Model):
     to_date = models.DateField()
     comments = models.TextField(null=True)
     approved = models.BooleanField(default=False)
-
-    class Meta:
-        permissions = (
-            ("core.view_vacation", "View Vacation"),
-            ("core.add_vacation", "Add Vacation"),
-            ("core.change_vacation", "Change Vacation"),
-            ("core.delete_vacation", "Delete Vacation")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
 
 class DevSalary(models.Model):
     date = models.DateField()
     comment = models.TextField()
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-
-    class Meta:
-        permissions = (
-            ("core.view_devsalary", "View Developer's Salary"),
-            ("core.add_devsalary", "Add Developer's Salary"),
-            ("core.change_devsalary", "Change Developer's Salary"),
-            ("core.delete_devsalary", "Delete Developer's Salary")
-        )
+    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
 
 
 class SentNotifications(models.Model):
