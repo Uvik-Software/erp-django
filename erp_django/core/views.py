@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from .permissions import ManagerFullAccess, CustomObjectPermissions
 
 from django.http import JsonResponse, HttpResponse
 
@@ -46,10 +47,12 @@ class DeveloperViewSet(viewsets.ModelViewSet):
 
 
 class ClientViewSet(viewsets.ModelViewSet):
-    from .permissions import CustomObjectPermissions, IsOwnerOrReadOnly
-    permission_classes = (IsOwnerOrReadOnly, IsAuthenticated)
+    permission_classes = (IsAuthenticated, ManagerFullAccess,)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
@@ -116,18 +119,12 @@ class GenerateInvoice(APIView):
 
 
 class Draft(APIView):
-    from .permissions import CustomObjectPermissions
-    permission_classes = (CustomObjectPermissions,)
+    # draft view used for testing
+    permission_classes = (ManagerFullAccess,)
+
+    def get(self, request):
+        return JsonResponse({"ok": True})
 
     def get_queryset(self):
         from .models import User
-        user = User.objects.get(id=3)
-        print("here", user.has_perm("core.change_client"))
-        print(user.__dict__)
-        #all_model_perms = [perm for perm in get_perms_for_model(Client)]
-        #print(all_model_perms)
-        #return get_objects_for_user(self.request.user, all_model_perms)
-        #import pdb
-        #pdb.set_trace()
-        #assign_perm("core.view_client", user)
         return User.objects.all()

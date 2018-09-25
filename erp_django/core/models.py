@@ -7,8 +7,9 @@ class User(AbstractUser):
     user_type = models.CharField(choices=(
         ("MANAGER", "manager"),
         ("DEVELOPER", "developer"),
-        ("CLIENT", "client")
-    ), max_length=30)
+        ("CLIENT", "client"),
+        ("JUST_CREATED", "just created")
+    ), max_length=30, default="JUST_CREATED")
 
     """__user_type = None
 
@@ -41,7 +42,7 @@ class ManagerInfo(models.Model):
     manager_position = models.CharField(max_length=50)
     address = models.TextField()
     company_name = models.CharField(max_length=100)
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.manager_email
@@ -55,7 +56,7 @@ class Client(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=50)
     identification_number = models.IntegerField()
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.email
@@ -68,7 +69,7 @@ class Developer(models.Model):
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
     monthly_salary = models.IntegerField()
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.email
@@ -85,7 +86,7 @@ class Project(models.Model):
     all_time_money_spent = models.IntegerField()
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.project_name
@@ -96,7 +97,7 @@ class DevelopersOnProject(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     description = models.TextField()
     hours = models.FloatField(null=True)
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Invoice(models.Model):
@@ -104,7 +105,7 @@ class Invoice(models.Model):
     expected_payout_date = models.DateField()
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.CharField(choices=INVOICE_STATUS, max_length=50)
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.project_id)
@@ -130,7 +131,7 @@ class Company(models.Model):
     swift = models.CharField(max_length=50)
     bank_address = models.TextField()
     sign = models.ImageField(upload_to='static/signs/')
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.currency
@@ -146,14 +147,14 @@ class Vacation(models.Model):
     to_date = models.DateField()
     comments = models.TextField(null=True)
     approved = models.BooleanField(default=False)
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class DevSalary(models.Model):
     date = models.DateField()
     comment = models.TextField()
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    owner = models.ForeignKey('core.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class SentNotifications(models.Model):

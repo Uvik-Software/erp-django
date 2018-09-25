@@ -3,6 +3,7 @@ from .models import ManagerInfo, Project, Invoice, Services, Developer, Develope
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Invoice
@@ -10,12 +11,14 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 
 class ManagerInfoSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = ManagerInfo
         fields = "__all__"
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Project
@@ -31,6 +34,7 @@ class ServicesSerializer(serializers.ModelSerializer):
 
 
 class DeveloperSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Developer
@@ -45,6 +49,7 @@ class DevelopersOnProjectSerializer(serializers.ModelSerializer):
     developer_hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)
 
     project_name = serializers.CharField(source='project.project_name', read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = DevelopersOnProject
@@ -53,6 +58,7 @@ class DevelopersOnProjectSerializer(serializers.ModelSerializer):
 
 
 class ClientSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Client
