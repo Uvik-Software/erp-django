@@ -137,7 +137,6 @@ STATIC_URL = '/static/'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
 )
 
 REST_FRAMEWORK = {
@@ -151,7 +150,4 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
         'core.permissions.CustomObjectPermissions',
     ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoObjectPermissionsFilter',
-      ),
 }

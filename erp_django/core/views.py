@@ -47,7 +47,7 @@ class DeveloperViewSet(viewsets.ModelViewSet):
 
 class ClientViewSet(viewsets.ModelViewSet):
     from .permissions import CustomObjectPermissions, IsOwnerOrReadOnly
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsOwnerOrReadOnly, IsAuthenticated)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
