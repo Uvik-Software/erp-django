@@ -25,3 +25,14 @@ class ManagerFullAccess(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.user_type == "MANAGER":
             return True
+
+
+class DeveloperFullAccess(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.user_type == "DEVELOPER" and obj.owner == request.user:
+            return True
+
+    def has_permission(self, request, view):
+        if request.user.user_type == "DEVELOPER":
+            return True

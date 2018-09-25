@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .permissions import ManagerFullAccess, CustomObjectPermissions
+from .permissions import ManagerFullAccess, DeveloperFullAccess
 
 from django.http import JsonResponse, HttpResponse
 
@@ -20,34 +20,35 @@ import json
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class ManagerInfoViewSet(viewsets.ModelViewSet):
     queryset = ManagerInfo.objects.all()
     serializer_class = ManagerInfoSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class ServicesViewSet(viewsets.ModelViewSet):
     queryset = Services.objects.all()
     serializer_class = ServicesSerializer
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class DeveloperViewSet(viewsets.ModelViewSet):
     queryset = Developer.objects.all()
     serializer_class = DeveloperSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class ClientViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, ManagerFullAccess,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
@@ -58,7 +59,7 @@ class ClientViewSet(viewsets.ModelViewSet):
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
     queryset = DevelopersOnProject.objects.all()
     serializer_class = DevelopersOnProjectSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
     def get_queryset(self):
         project_id = self.request.GET.get('project_id', None)
@@ -69,7 +70,7 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
 
 
 class GenerateInvoice(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
     def post(self, request):
         data = request.data
@@ -116,15 +117,3 @@ class GenerateInvoice(APIView):
 
         return JsonResponse({"status": "Not all the required fields are filled up. %s are required."
                                        % INVOICE_REQUIRED_FIELDS})
-
-
-class Draft(APIView):
-    # draft view used for testing
-    permission_classes = (ManagerFullAccess,)
-
-    def get(self, request):
-        return JsonResponse({"ok": True})
-
-    def get_queryset(self):
-        from .models import User
-        return User.objects.all()
