@@ -144,6 +144,7 @@ class DaysOff(APIView):
         if customer_email and next_month_days_off:
             # TODO: create html template and load info from it
             html = str(next_month_days_off)
-            gmail_sender(html, customer_email, "Ukrainian holidays")
+            # uncomment to send a real email
+            #gmail_sender(html, customer_email, "Ukrainian holidays")
             return JsonResponse({"ok": True,
                                  "message": "Email to %s is succesfully sent" % customer_email})
