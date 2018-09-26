@@ -1,15 +1,36 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import User
+from .models import Developer, Project
+from .utils import create_g_calendar_event
 
 
-@receiver(post_save, sender=User)
-def do_something_when_user_updated(sender, instance, created, update_fields, **kwargs):
+def disconnect_signal(signal, receiver, sender):
+    disconnect = getattr(signal, 'disconnect')
+    disconnect(receiver, sender)
 
-    def disconnect_signal(signal, receiver, sender):
-        disconnect = getattr(signal, 'disconnect')
-        disconnect(receiver, sender)
 
-    def reconnect_signal(signal, receiver, sender):
-        connect = getattr(signal, 'connect')
-        connect(receiver, sender=sender)
+def reconnect_signal(signal, receiver, sender):
+    connect = getattr(signal, 'connect')
+    connect(receiver, sender=sender)
+
+
+@receiver(post_save, sender=Developer)
+def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
+    if created:
+        dev = instance
+        message = "%s has a birthday today" % dev.name + dev.surname
+        create_g_calendar_event(dev.birthday_date, dev.birthday_date, message)
+
+
+@receiver(post_save, sender=Project)
+def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
+
+    # TODO: check if deadline is changed, not just set. and if True, then remove previous google event and add a new one
+    # Links that will help:
+    # https://bitbucket.org/kingmray/django-google-calendar/src/3856538e28822c5ffaba39a3258a9e833ffe413a/calendar_api/calendar_api.py?at=master&fileviewer=file-view-default
+    # https://stackoverflow.com/questions/36719566/identify-the-changed-fields-in-django-post-save-signal
+
+    project = instance
+    if project.deadline:
+        message = "Deadline for project '%s'" % project.project_name
+        create_g_calendar_event(project.deadline, project.deadline, message)
