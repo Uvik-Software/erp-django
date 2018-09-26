@@ -23,7 +23,7 @@ def add_birthday_to_google_calendar(sender, instance, created, update_fields, **
 
 
 @receiver(post_save, sender=Project)
-def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
+def add_project_deadline_google_calendar(sender, instance, created, update_fields, **kwargs):
 
     # TODO: check if deadline is changed, not just set. and if True, then remove previous google event and add a new one
     # Links that will help:
@@ -33,4 +33,19 @@ def add_birthday_to_google_calendar(sender, instance, created, update_fields, **
     project = instance
     if project.deadline:
         message = "Deadline for project '%s'" % project.project_name
-        create_g_calendar_event(project.deadline, project.deadline, message)
+        # uncomment to create an actual event in google calendar
+        #create_g_calendar_event(project.deadline, project.deadline, message)
+        print(message)
+
+
+@receiver(post_save, sender=Project)
+def add_project_started_date_google_calendar(sender, instance, created, update_fields, **kwargs):
+
+    # TODO: also check if this field is changed. same as for deadline
+
+    project = instance
+    if project.project_started_date:
+        message = "project '%s' is started" % project.project_name
+        # uncomment to create an actual event in google calendar
+        #create_g_calendar_event(project.project_started_date, project.project_started_date, message)
+        print(message)
