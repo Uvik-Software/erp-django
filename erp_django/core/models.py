@@ -11,27 +11,6 @@ class User(AbstractUser):
         ("JUST_CREATED", "just created")
     ), max_length=30, default="JUST_CREATED")
 
-    """__user_type = None
-
-    def __init__(self, *args, **kwargs):
-        super(User, self).__init__(*args, **kwargs)
-        self.__user_type = self.user_type
-
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.user_type != self.__user_type and self.user_type == "MANAGER":
-            print("IAMHERELDSLDLKDKFJFHHFKDKDHJFJ")
-            from guardian.shortcuts import assign_perm
-            assign_perm("core.change_client", self)
-        from guardian.shortcuts import assign_perm
-        print('saasaasasasasas', self.__dict__)
-        assign_perm("core.change_client", self)
-        print("here", self.has_perm("core.change_client"))
-
-        print(self.__dict__)
-
-        super(User, self).save(force_insert, force_update, *args, **kwargs)"""
-
-
 # TODO: do normalization
 
 
@@ -153,7 +132,6 @@ class Vacation(models.Model):
 class DevSalary(models.Model):
     date = models.DateField()
     comment = models.TextField()
-    developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
@@ -175,3 +153,11 @@ class BirthdayNotification(SentNotifications):
 
 class DeadlineNotifications(SentNotifications):
     event_id = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+
+class Cv(models.Model):
+    developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
+    g_drive_link = models.URLField()
+
+    def __str__(self):
+        return self.g_drive_link

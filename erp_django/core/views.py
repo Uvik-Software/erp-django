@@ -7,7 +7,7 @@ from django.http import JsonResponse, HttpResponse
 
 from django.forms.models import model_to_dict
 from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Company, \
-    SentNotifications, BirthdayNotification, User
+    SentNotifications, BirthdayNotification, User, Cv
 from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, ServicesSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
@@ -148,3 +148,25 @@ class DaysOff(APIView):
             #gmail_sender(html, customer_email, "Ukrainian holidays")
             return JsonResponse({"ok": True,
                                  "message": "Email to %s is succesfully sent" % customer_email})
+
+
+class CvSearch(APIView):
+    permission_classes = (ManagerFullAccess,)
+
+    def get(self, request):
+        data = request.query_params
+
+        if "name" in data:
+            cv = [cv for cv in Cv.objects.filter(developer__name__contains=data["name"]).values()]
+            return JsonResponse({"ok": True,
+                                 "message": cv})
+        if "surname" in data:
+            cv = [cv for cv in Cv.objects.filter(developer__surname__contains=data["surname"]).values()]
+            return JsonResponse({"ok": True,
+                                 "message": cv})
+
+        return JsonResponse({"ok": False,
+                             "message": "Should provide name or surname"})
+
+    def post(self, request):
+        pass
