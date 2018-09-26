@@ -22,6 +22,7 @@ GMAIL_EMAIL = "dmitry.ko@uvik.net"
 GMAIL_PASSWORD = "uDEFpm74!!"
 
 G_CALENDAR_ID = "uvik.net_l0ns61ouq9va8surjs4f690fik@group.calendar.google.com"
+G_API_KEY = "AIzaSyAP6cEUZ0ngz7pNgk8RDGLjuiDpe87BsqI"
 
 # VARS FOR NOTIFICATIONS
 NUMBER_OF_DAYS_FOR_OUTDATED_INVOICE = 15

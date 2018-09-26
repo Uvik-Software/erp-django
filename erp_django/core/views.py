@@ -12,10 +12,10 @@ from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerial
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
-    get_project_details, get_company_details_by_currency, gmail_sender, is_manager
+    get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
-
+import requests
 
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
@@ -117,3 +117,32 @@ class GenerateInvoice(APIView):
 
         return JsonResponse({"status": "Not all the required fields are filled up. %s are required."
                                        % INVOICE_REQUIRED_FIELDS})
+
+
+class DaysOff(APIView):
+    permission_classes = (ManagerFullAccess,)
+
+    def get(self, request):
+        next_month_days_off = get_ua_days_off()
+        return JsonResponse({"ok": True,
+                             "message": next_month_days_off})
+
+    def post(self, request):
+        data = request.data
+        if "email" not in data:
+            return JsonResponse({"ok": False,
+                                 "message": "Should provide customer's email"})
+
+        customer_email = request.data["email"]
+        next_month_days_off = get_ua_days_off()
+
+        if not next_month_days_off:
+            return JsonResponse({"ok": True,
+                                 "message": "No holidays in next 30 days"})
+
+        if customer_email and next_month_days_off:
+            # TODO: create html template and load info from it
+            html = str(next_month_days_off)
+            gmail_sender(html, customer_email, "Ukrainian holidays")
+            return JsonResponse({"ok": True,
+                                 "message": "Email to %s is succesfully sent" % customer_email})
