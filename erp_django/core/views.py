@@ -15,7 +15,11 @@ from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_deve
     get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
-import requests
+from rest_framework_swagger.views import get_swagger_view
+
+
+schema_view = get_swagger_view(title='UVIK ERP API')
+
 
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
