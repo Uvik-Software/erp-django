@@ -140,6 +140,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+# TODO: add token based auth
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
@@ -150,7 +152,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
         'core.permissions.CustomObjectPermissions',
-        'core.permissions.ManagerFullAccess',
-        'core.permissions.DeveloperFullAccess'
     ),
 }
