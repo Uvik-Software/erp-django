@@ -16,7 +16,8 @@ from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_deve
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
 from rest_framework_swagger.views import get_swagger_view
-
+from rest_framework.schemas import AutoSchema
+import coreapi
 
 schema_view = get_swagger_view(title='UVIK ERP API')
 
@@ -75,6 +76,22 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
 
 class GenerateInvoice(APIView):
     permission_classes = (IsAuthenticated, ManagerFullAccess)
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field(name="project_id",
+                          type="integer",
+                          required=True),
+            coreapi.Field(name="invoice_date",
+                          description='Invoice date in "YYYY-MM-DD" format.',
+                          required=True),
+            coreapi.Field(name="due_date",
+                          required=True,
+                          description='Due date in "YYYY-MM-DD" format.'),
+            coreapi.Field(name="download",
+                          type="boolean",
+                          required=True)
+        ]
+    )
 
     def post(self, request):
         data = request.data
