@@ -1,18 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .permissions import ManagerFullAccess, DeveloperFullAccess
+from .permissions import ManagerFullAccess
 
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 
 from django.forms.models import model_to_dict
-from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Company, \
-    SentNotifications, BirthdayNotification, User, Cv
+from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv
 from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, ServicesSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
-    get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off
+    get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off, \
+    json_response_error, json_response_success
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
 from rest_framework_swagger.views import get_swagger_view
@@ -133,11 +133,13 @@ class GenerateInvoice(APIView):
 
             if not download:
                 data["company_details"]["sign"] = json.dumps(str(data["company_details"]["sign"]))
-                return JsonResponse(data)
+                return json_response_success(data)
             return HttpResponse(pdf_response.getvalue(), content_type='application/pdf')
 
-        return JsonResponse({"status": "Not all the required fields are filled up. %s are required."
-                                       % INVOICE_REQUIRED_FIELDS})
+        return json_response_error("Not all the required fields are filled up. %s are required."
+                                       % INVOICE_REQUIRED_FIELDS)
+
+# TODO: add swagger for other APIViews. https://github.com/m-haziq/django-rest-swagger-docs can help
 
 
 class DaysOff(APIView):
@@ -146,29 +148,24 @@ class DaysOff(APIView):
     def get(self, request):
         # TODO: can be added a param to show all holidays till the end of the year
         next_month_days_off = get_ua_days_off()
-        return JsonResponse({"ok": True,
-                             "message": next_month_days_off})
+        return json_response_success(next_month_days_off)
 
     def post(self, request):
-        data = request.data
-        if "email" not in data:
-            return JsonResponse({"ok": False,
-                                 "message": "Should provide customer's email"})
+        email = request.data.get("email", None)
+        if not email:
+            return json_response_error("Should provide customer's email")
 
-        customer_email = request.data["email"]
         next_month_days_off = get_ua_days_off()
 
         if not next_month_days_off:
-            return JsonResponse({"ok": True,
-                                 "message": "No holidays in next 30 days"})
+            return json_response_success("No holidays in next 30 days")
 
-        if customer_email and next_month_days_off:
+        if next_month_days_off:
             # TODO: create html template and load info from it
             html = str(next_month_days_off)
             # uncomment to send a real email
             #gmail_sender(html, customer_email, "Ukrainian holidays")
-            return JsonResponse({"ok": True,
-                                 "message": "Email to %s is succesfully sent" % customer_email})
+            return json_response_success("Email to %s is succesfully sent" % email)
 
 
 class CvSearch(APIView):
@@ -179,15 +176,12 @@ class CvSearch(APIView):
 
         if "name" in data:
             cv = [cv for cv in Cv.objects.filter(developer__name__contains=data["name"]).values()]
-            return JsonResponse({"ok": True,
-                                 "message": cv})
+            return json_response_success(cv)
         if "surname" in data:
             cv = [cv for cv in Cv.objects.filter(developer__surname__contains=data["surname"]).values()]
-            return JsonResponse({"ok": True,
-                                 "message": cv})
+            return json_response_success(cv)
 
-        return JsonResponse({"ok": False,
-                             "message": "Should provide name or surname"})
+        return json_response_error("Should provide name or surname")
 
     def post(self, request):
         pass

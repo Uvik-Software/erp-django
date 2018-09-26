@@ -236,3 +236,13 @@ def get_ua_days_off(next_month_only=True):
                 next_month_holidays[day] = days_off[day]
         return next_month_holidays
     return days_off
+
+
+def json_response_error(message):
+    return JsonResponse({"ok": False,
+                         "message": message})
+
+
+def json_response_success(message):
+    return JsonResponse({"ok": True,
+                         "message": message})
