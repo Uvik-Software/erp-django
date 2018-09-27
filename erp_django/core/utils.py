@@ -228,7 +228,7 @@ def get_ua_days_off(next_month_only=True):
                 "day_of_ukrainian_army": datetime.date(current_date.year, 10, 14),
                 "easter": easter,
                 "troica": troica}
-    if next_month_only:
+    if next_month_only is True:
         till_date = current_date + timedelta(days=30)
         next_month_holidays = dict()
         for day in days_off:
