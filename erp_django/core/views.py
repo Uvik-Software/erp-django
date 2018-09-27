@@ -22,6 +22,9 @@ import json
 from rest_framework.schemas import AutoSchema
 import coreapi
 
+# TODO: generate salary report for dev like we did for customer
+# TODO: split views to files?
+
 
 @api_view()
 @renderer_classes([SwaggerUIRenderer, OpenAPIRenderer, renderers.CoreJSONRenderer])
