@@ -28,7 +28,6 @@ import coreapi
 
 from django.shortcuts import get_object_or_404
 
-schema_view = get_swagger_view(title='UVIK ERP API')
 # TODO: generate salary report for dev like we did for customer
 # TODO: split views to files?
 
