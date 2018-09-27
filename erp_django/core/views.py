@@ -166,8 +166,10 @@ class DaysOff(APIView):
     permission_classes = (IsAuthenticated, ManagerFullAccess,)
 
     def get(self, request):
-        # TODO: can be added a param to show all holidays till the end of the year
-        next_month_days_off = get_ua_days_off()
+        data = request.query_params
+        next_month_only = data.get("next_month_only", True)
+
+        next_month_days_off = get_ua_days_off(next_month_only)
         return json_response_success(next_month_days_off)
 
     def post(self, request):
