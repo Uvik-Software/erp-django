@@ -21,7 +21,6 @@ class ManagerInfo(models.Model):
     manager_position = models.CharField(max_length=50)
     address = models.TextField()
     company_name = models.CharField(max_length=100)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.manager_email
@@ -48,8 +47,7 @@ class Developer(models.Model):
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
     monthly_salary = models.IntegerField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    #user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.email

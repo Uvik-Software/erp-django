@@ -227,7 +227,7 @@ class SetGetVacation(APIView):
             return json_response_error("You must point 'From date' and 'To date' fields")
 
         if is_developer(request.user):
-            developer = request.user.id
+            developer = get_object_or_404(Developer, user=request.user.id)
             dev_vacation = Vacation(from_date=from_date,
                                     to_date=to_date,
                                     developer=developer.id,

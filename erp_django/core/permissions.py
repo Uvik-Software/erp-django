@@ -38,7 +38,7 @@ class PermsForVacation(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (request.user.user_type == "DEVELOPER" and obj.owner == request.user) or \
-                (request.user.user_type == "MANAGER" and obj.owner == request.user)
+                (request.user.user_type == "MANAGER")
 
     def has_permission(self, request, view):
         return request.user.user_type == "DEVELOPER" or request.user.user_type == "MANAGER"

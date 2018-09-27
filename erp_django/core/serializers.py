@@ -11,7 +11,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 
 class ManagerInfoSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = ManagerInfo
@@ -35,7 +34,6 @@ class ServicesSerializer(serializers.ModelSerializer):
 
 
 class DeveloperSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Developer
