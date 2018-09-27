@@ -11,3 +11,4 @@ celery==4.2.1
 redis==2.10.6
 xhtml2pdf==0.2.3
 rest_framework_swagger==2.2.0
+djangorestframework-jwt==1.11.0
