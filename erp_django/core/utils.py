@@ -131,7 +131,7 @@ def dev_birthday_checker(devs):
 
 
 def is_manager(user):
-    return user.groups.filter(name='managers').exists()
+    return user.user_type == "MANAGER"
 
 
 def get_orthodox_easter(year, method=2):
@@ -246,3 +246,7 @@ def json_response_error(message):
 def json_response_success(message):
     return JsonResponse({"ok": True,
                          "message": message})
+
+
+def is_developer(user):
+    return user.user_type == "DEVELOPER"

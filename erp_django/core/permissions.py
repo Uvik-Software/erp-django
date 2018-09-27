@@ -19,20 +19,26 @@ class CustomObjectPermissions(permissions.DjangoObjectPermissions):
 class ManagerFullAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if request.user.user_type == "MANAGER" and obj.owner == request.user:
-            return True
+        return request.user.user_type == "MANAGER" and obj.owner == request.user
 
     def has_permission(self, request, view):
-        if request.user.user_type == "MANAGER":
-            return True
+        return request.user.user_type == "MANAGER"
 
 
 class DeveloperFullAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if request.user.user_type == "DEVELOPER" and obj.owner == request.user:
-            return True
+        return request.user.user_type == "DEVELOPER" and obj.owner == request.user
 
     def has_permission(self, request, view):
-        if request.user.user_type == "DEVELOPER":
-            return True
+        return request.user.user_type == "DEVELOPER"
+
+
+class PermsForVacation(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        return (request.user.user_type == "DEVELOPER" and obj.owner == request.user) or \
+                (request.user.user_type == "MANAGER")
+
+    def has_permission(self, request, view):
+        return request.user.user_type == "DEVELOPER" or request.user.user_type == "MANAGER"
