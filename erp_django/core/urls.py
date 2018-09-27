@@ -8,7 +8,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 
 router = routers.DefaultRouter()
 router.register(r'invoices', InvoiceViewSet)
-router.register(r'general_info', ManagerInfoViewSet)
+router.register(r'manager_info', ManagerInfoViewSet)
 router.register(r'projects', ProjectViewSet)
 router.register(r'services', ServicesViewSet)
 router.register(r'developer', DeveloperViewSet)
