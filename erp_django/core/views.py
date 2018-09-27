@@ -1,23 +1,27 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .permissions import ManagerFullAccess
+from .permissions import ManagerFullAccess, DeveloperFullAccess, PermsForVacation
 
 from django.http import HttpResponse
 
 from django.forms.models import model_to_dict
-from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv
+from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv, Company, \
+    SentNotifications, BirthdayNotification, User, Vacation
 from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, ServicesSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
     get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off, \
-    json_response_error, json_response_success
+    json_response_error, json_response_success, is_developer
+
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework.schemas import AutoSchema
 import coreapi
+
+from django.shortcuts import get_object_or_404
 
 schema_view = get_swagger_view(title='UVIK ERP API')
 
@@ -185,3 +189,60 @@ class CvSearch(APIView):
 
     def post(self, request):
         pass
+
+
+class SetGetVacation(APIView):
+    permission_classes = (IsAuthenticated, PermsForVacation)
+
+    def get(self, request):
+        data = request.query_params
+        vacation_id = data.get("vacation_id", None)
+        if not vacation_id:
+            vacation = [vac for vac in Vacation.objects.all().values()]
+            return json_response_success(vacation)
+
+        vacation = get_object_or_404(Vacation, pk=vacation_id)
+        return json_response_success(vacation)
+
+    def put(self, request):
+        data = request.data
+        comments = data.get("comments", None)
+        is_approved = data.get("is_approved", False)
+        vacation_id = data.get("vacation_id", None)
+        dev_vacation = get_object_or_404(Vacation, pk=vacation_id)
+        dev_vacation.comments = comments
+        dev_vacation.approved = is_approved
+        dev_vacation.save()
+
+        return json_response_success("Vacation data has been changed")
+
+    def post(self, request):
+        data = request.data
+        from_date = data.get("from_date", None)
+        to_date = data.get("to_date", None)
+        developer_id = data.get("developer_id", None)
+        is_approved = data.get("is_approved", False)
+
+        if not from_date and not to_date:
+            return json_response_error("You must point 'From date' and 'To date' fields")
+
+        if is_developer(request.user):
+            developer = request.user.id
+            dev_vacation = Vacation(from_date=from_date,
+                                    to_date=to_date,
+                                    developer=developer.id,
+                                    approved=False)
+            dev_vacation.save()
+            return json_response_success("Ok, good luck on your vacations")
+
+        if is_manager(request.user):
+            developer = get_object_or_404(Developer, pk=developer_id)
+            dev_vacation = Vacation(from_date=from_date,
+                                    to_date=to_date,
+                                    approved=is_approved,
+                                    developer=developer.id)
+            dev_vacation.save()
+            return json_response_success("You created the vacation for developer " +
+                                         developer.surname + developer.name)
+
+        return json_response_error("Only 'MANAGER' or 'DEVELOPER' can ")
