@@ -1,6 +1,7 @@
 from django.db import models
 from .constants import PROJECT_TYPE_VARIATIONS, INVOICE_STATUS, NOTIFICATION_TYPES
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(AbstractUser):
@@ -130,7 +131,8 @@ class Vacation(models.Model):
 
 
 class DevSalary(models.Model):
-    date = models.DateField()
+    date = models.IntegerField(default=12,
+                               validators=[MaxValueValidator(31), MinValueValidator(1)])
     comment = models.TextField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
