@@ -1,4 +1,10 @@
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.decorators import api_view, renderer_classes, authentication_classes, permission_classes
 from rest_framework.views import APIView
+from rest_framework import viewsets, renderers, schemas, response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_swagger.renderers import SwaggerUIRenderer, OpenAPIRenderer
+
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .permissions import ManagerFullAccess, DeveloperFullAccess, PermsForVacation
@@ -17,13 +23,24 @@ from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_deve
 
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
-from rest_framework_swagger.views import get_swagger_view
 from rest_framework.schemas import AutoSchema
 import coreapi
 
 from django.shortcuts import get_object_or_404
 
 schema_view = get_swagger_view(title='UVIK ERP API')
+# TODO: generate salary report for dev like we did for customer
+# TODO: split views to files?
+
+
+@api_view()
+@renderer_classes([SwaggerUIRenderer, OpenAPIRenderer, renderers.CoreJSONRenderer])
+@authentication_classes((TokenAuthentication, SessionAuthentication))
+@permission_classes((AllowAny,))
+def schema_view(request):
+    generator = schemas.SchemaGenerator(
+        title='UVIK ERP API end points')
+    return response.Response(generator.get_schema(request=request))
 
 
 class InvoiceViewSet(viewsets.ModelViewSet):
@@ -147,7 +164,7 @@ class GenerateInvoice(APIView):
 
 
 class DaysOff(APIView):
-    permission_classes = (ManagerFullAccess,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess,)
 
     def get(self, request):
         # TODO: can be added a param to show all holidays till the end of the year
@@ -173,7 +190,17 @@ class DaysOff(APIView):
 
 
 class CvSearch(APIView):
-    permission_classes = (ManagerFullAccess,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess,)
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field(name="name",
+                          type="string",
+                          required=False),
+            coreapi.Field(name="surname",
+                          type="string",
+                          required=False),
+        ]
+    )
 
     def get(self, request):
         data = request.query_params
