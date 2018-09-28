@@ -5,6 +5,7 @@ import datetime
 import json
 import factory
 from django.db.models import signals
+from rest_framework.test import APIClient
 
 BASE_URL = "http://127.0.0.1:8000"
 CURRENT_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -28,7 +29,8 @@ class TestEndpoints:
             manager_email="manager_email@uvik.net",
             manager_position="manager",
             address="some_address",
-            company_name="UVIK"
+            company_name="UVIK",
+            owner=superuser
         )
 
         # creating developer
@@ -118,11 +120,27 @@ class TestEndpoints:
             data[key] = temp
             assert response.status_code == 400
 
-    @staticmethod
-    def happy_flow(endpoint, data):
-        client = RequestsClient()
+    def happy_flow_post(self, endpoint, data):
+        client = self.login_as_manager()
         response = client.post(BASE_URL + endpoint, data)
         assert response.status_code == 201
+
+    def happy_flow_get(self, endpoint, params=None):
+        if params is None:
+            params = ""
+        else:
+            params += "/"
+        client = self.login_as_manager()
+        response = client.get(BASE_URL + endpoint + params)
+        assert response.status_code == 200
+        return json.loads(response.content)
+
+    @staticmethod
+    def login_as_manager():
+        user = User.objects.get(username='uvik_manager')
+        client = APIClient()
+        client.force_authenticate(user=user)
+        return client
 
     @pytest.mark.django_db
     def test_projects_general_info(self):
@@ -132,28 +150,21 @@ class TestEndpoints:
 
     @pytest.mark.django_db
     def test_manager_info_endpoint(self):
+        user = User.objects.get(username='uvik_manager')
         data = {"manager_name": "some_name",
                 "manager_surname": "some_surname",
                 "manager_email": "manager_email@gmail.com",
                 "manager_position": "marketing manager",
                 "address": "some_address",
-                "company_name": "general info company name"}
+                "company_name": "general info company name",
+                "owner": user.id}
+        self.happy_flow_post("/manager_info/", data)
 
-        """from rest_framework.authtoken.models import Token
-        from rest_framework.test import APIClient
+        response = self.happy_flow_get("/manager_info/")
+        assert len(response["results"]) == 2
 
-        # Include an appropriate `Authorization:` header on all requests.
-        user = User.objects.get(username='uvik_manager')
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION='Token ' + user.auth_token)
-
-
-        response = client.post(BASE_URL + "/manager_info/", data)
-        assert response.status_code == 201
-        general_info = [info for info in ManagerInfo.objects.all()]
-        assert len(general_info) == 2
-
-        self.verify_missing_data("/manager_info/", data)"""
+        response = self.happy_flow_get("/manager_info/", "2")
+        assert set(response.items()).issubset(set(data.items())) is False
 
     """@pytest.mark.django_db
     def test_projects_endpoint(self):
