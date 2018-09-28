@@ -162,8 +162,12 @@ class GenerateInvoice(APIView):
     def get(self, request):
         data = request.query_params
         invoice_id = data.get("invoice_id", None)
-        
-        pass
+        if not invoice_id:
+            invoices = [invoice for invoice in Invoice.objects.all().values()]
+            return json_response_success(data=invoices)
+
+        invoice = get_object_or_404(Invoice, pk=invoice_id)
+        return json_response_success(data=invoice)
 
     def delete(self, request, pk):
         invoice = get_object_or_404(Invoice, pk=pk)
