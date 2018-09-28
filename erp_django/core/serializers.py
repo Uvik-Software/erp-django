@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ManagerInfo, Project, Invoice, Services, Developer, DevelopersOnProject, Client, Vacation
+from .models import ManagerInfo, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation
 
 
 class InvoiceSerializer(serializers.ModelSerializer):

@@ -1,5 +1,5 @@
 from rest_framework.test import RequestsClient
-from .models import ManagerInfo, Project, Invoice, Developer, Client, DevelopersOnProject, Company, User
+from .models import ManagerInfo, Project, Invoice, Developer, Client, DevelopersOnProject, Company, User, Vacation, Cv
 import pytest
 import datetime
 import json
@@ -15,8 +15,8 @@ class TestEndpoints:
     @pytest.mark.django_db
     def setup(self):
         superuser = User.objects.create(username="uvik_main", password="some_password", is_superuser=True)
-        manager = User.objects.create(username="uvik_manager", password="some_password", user_type="MANAGER")
-        developer = User.objects.create(username="uvik_dev", password="some_password", user_type="DEVELOPER")
+        manager_user = User.objects.create(username="uvik_manager", password="some_password", user_type="MANAGER")
+        developer_user = User.objects.create(username="uvik_dev", password="some_password", user_type="DEVELOPER")
 
         # creating general info
         manager_info = ManagerInfo.objects.create(
@@ -36,7 +36,6 @@ class TestEndpoints:
             hourly_rate=35,
             birthday_date=CURRENT_DATE,
             monthly_salary=4500,
-            user=manager.id
         )
 
         # creating client
@@ -61,10 +60,11 @@ class TestEndpoints:
         )
 
         # creating invoice
-        """invoice = Invoice.objects.create(
+        invoice = Invoice.objects.create(
             date=CURRENT_DATE,
             expected_payout_date=CURRENT_DATE,
-            project_id=project
+            project_id=project,
+            status="WAITING_FOR_PAYMENT"
         )
 
         # adding developer to project
@@ -86,7 +86,19 @@ class TestEndpoints:
             sign="some_url"
         )
 
-    @staticmethod
+        vacation = Vacation.objects.create(
+            developer=developer.id,
+            from_date=CURRENT_DATE,
+            to_date=CURRENT_DATE,
+            comments="some comment"
+        )
+
+        cv = Cv.objects.create(
+            developer=developer.id,
+            g_drive_link="http://somelinktoresume.com"
+        )
+
+    """@staticmethod
     def verify_missing_data(endpoint, data):
         client = RequestsClient()
         for key in data.keys():

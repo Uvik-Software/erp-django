@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 
-from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv, Vacation
+from .models import Invoice, ManagerInfo, Project, Developer, DevelopersOnProject, Client, Cv, Vacation
 from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
