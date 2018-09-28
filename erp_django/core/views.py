@@ -160,6 +160,12 @@ class GenerateInvoice(APIView):
                                        % INVOICE_REQUIRED_FIELDS)
 
     def get(self, request):
+        """
+            parameters:
+            - name: invoice_id
+              required: false
+              type: int
+        """
         data = request.query_params
         invoice_id = data.get("invoice_id", None)
         if not invoice_id:
@@ -174,13 +180,18 @@ class GenerateInvoice(APIView):
         invoice.delete()
         return json_response_success("Invoice is deleted")
 
-# TODO: add swagger for other APIViews. https://github.com/m-haziq/django-rest-swagger-docs can help
-
 
 class DaysOff(APIView):
     permission_classes = (IsAuthenticated, ManagerFullAccess,)
 
     def get(self, request):
+        """
+            parameters:
+            - name: next_month_only
+              description: show only next month days off
+              required: false
+              type: bool
+        """
         data = request.query_params
         next_month_only = data.get("next_month_only", True)
 
@@ -188,6 +199,13 @@ class DaysOff(APIView):
         return json_response_success(data=next_month_days_off)
 
     def post(self, request):
+        """
+            parameters:
+            - name: email
+              description: client's email to whom we should send an email
+              required: true
+              type: string
+        """
         email = request.data.get("email", None)
         if not email:
             return json_response_error("Should provide customer's email")
@@ -219,6 +237,17 @@ class DevelopersCv(APIView):
     )
 
     def get(self, request):
+        """
+            parameters:
+            - name: name
+              description: Developer's name
+              required: false
+              type: string
+            - name: surname
+              description: Developer's surname
+              required: false
+              type: string
+        """
         data = request.query_params
 
         if "name" in data:
@@ -230,6 +259,17 @@ class DevelopersCv(APIView):
         return json_response_error("Should provide name or surname")
 
     def post(self, request):
+        """
+            parameters:
+            - name: dev_id
+              description: Developer's id
+              required: true
+              type: int
+            - name: cv_link
+              description: link to google drive where we have dev's resume
+              required: true
+              type: string
+         """
         data = request.data
         dev_id = data.get("dev_id", None)
         cv_link = data.get("cv_link", None)
@@ -243,6 +283,17 @@ class DevelopersCv(APIView):
         return json_response_error("Not all the required fields are filled")
 
     def put(self, request):
+        """
+            parameters:
+            - name: dev_id
+              description: Developer's id
+              required: true
+              type: int
+            - name: cv_link
+              description: link to google drive where we have dev's resume
+              required: true
+              type: string
+         """
         data = request.data
         dev_id = data.get("dev_id", None)
         cv_link = data.get("cv_link", None)
@@ -264,6 +315,12 @@ class SetGetVacation(APIView):
     permission_classes = (IsAuthenticated, PermsForVacation)
 
     def get(self, request):
+        """
+            parameters:
+            - name: vacation_id
+              required: false
+              type: int
+         """
         data = request.query_params
         vacation_id = data.get("vacation_id", None)
         if not vacation_id:
@@ -274,6 +331,20 @@ class SetGetVacation(APIView):
         return json_response_success(data=vacation)
 
     def put(self, request):
+        """
+            parameters:
+            - name: vacation_id
+              required: true
+              type: int
+            - name: comments
+              description: comment to vacation
+              required: false
+              type: string
+            - name: is_approved
+              description: approve dev's vacation
+              required: false
+              type: bool
+         """
         data = request.data
         comments = data.get("comments", None)
         is_approved = data.get("is_approved", False)
@@ -286,6 +357,22 @@ class SetGetVacation(APIView):
         return json_response_success("Vacation data has been changed", dev_vacation)
 
     def post(self, request):
+        """
+            parameters:
+            - name: developer_id
+              required: true
+              type: int
+            - name: from_date
+              required: true
+              type: string
+            - name: to_date
+              required: true
+              type: string
+            - name: is_approved
+              description: approve dev's vacation
+              required: false
+              type: bool
+         """
         data = request.data
         from_date = data.get("from_date", None)
         to_date = data.get("to_date", None)
@@ -293,7 +380,7 @@ class SetGetVacation(APIView):
         is_approved = data.get("is_approved", False)
 
         if not from_date and not to_date:
-            return json_response_error("You must point 'From date' and 'To date' fields")
+            return json_response_error("You must fill 'From date' and 'To date' fields")
 
         if is_developer(request.user):
             developer = get_object_or_404(Developer, user=request.user.id)

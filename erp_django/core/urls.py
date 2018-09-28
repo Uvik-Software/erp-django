@@ -21,7 +21,7 @@ urlpatterns = [url(r'', include(router.urls)),
                url(r'^auth-jwt-verify/', verify_jwt_token),
                url(r'^generate_invoice/$', GenerateInvoice.as_view()),
                url(r'^days_off/$', DaysOff.as_view()),
-               url(r'^cv_search/$', DevelopersCv.as_view()),
+               url(r'^cv/$', DevelopersCv.as_view()),
                url(r'^swagger/$', schema_view),
                url(r'^vacations/$', SetGetVacation.as_view())] \
               + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
