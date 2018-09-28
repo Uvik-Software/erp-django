@@ -173,6 +173,8 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization'
         }
     },
-    'USE_SESSION_AUTH': False,
+    'USE_SESSION_AUTH': True,
     'JSON_EDITOR': True,
+    'LOGIN_URL': 'rest_framework:login',
+    'LOGOUT_URL': 'rest_framework:logout',
 }
