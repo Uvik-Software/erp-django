@@ -11,6 +11,7 @@ BASE_URL = "http://127.0.0.1:8000"
 CURRENT_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
 
 # TODO: fix tests. they are made long time ago for the first version of ERP
+# TODO: verify restrictions for dif users in dif endpoints
 
 
 class TestEndpoints:
@@ -136,8 +137,31 @@ class TestEndpoints:
         return json.loads(response.content)
 
     @staticmethod
-    def login_as_manager():
-        user = User.objects.get(username='uvik_manager')
+    def get_superuser():
+        return User.objects.get(username='uvik_main')
+
+    @staticmethod
+    def get_manager():
+        return User.objects.get(username='uvik_manager')
+
+    @staticmethod
+    def get_developer():
+        return User.objects.get(username='uvik_developer')
+
+    def login_as_superuser(self):
+        user = self.get_superuser()
+        client = APIClient()
+        client.force_authenticate(user=user)
+        return client
+
+    def login_as_manager(self):
+        user = self.get_manager()
+        client = APIClient()
+        client.force_authenticate(user=user)
+        return client
+
+    def login_as_developer(self):
+        user = self.get_developer()
         client = APIClient()
         client.force_authenticate(user=user)
         return client
@@ -150,7 +174,7 @@ class TestEndpoints:
 
     @pytest.mark.django_db
     def test_manager_info_endpoint(self):
-        user = User.objects.get(username='uvik_manager')
+        user = self.get_manager()
         data = {"manager_name": "some_name",
                 "manager_surname": "some_surname",
                 "manager_email": "manager_email@gmail.com",
