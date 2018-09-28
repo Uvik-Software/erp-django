@@ -62,7 +62,7 @@ class Project(models.Model):
     basic_price = models.FloatField(null=True)
     manager_info = models.ForeignKey(ManagerInfo, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    all_time_money_spent = models.IntegerField()
+    all_time_money_spent = models.IntegerField(default=0)
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
