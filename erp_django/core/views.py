@@ -368,6 +368,7 @@ class SetGetVacation(APIView):
         to_date = data.get("to_date", None)
         developer_id = data.get("developer_id", None)
         is_approved = data.get("is_approved", False)
+        print(request.data)
 
         if not from_date and not to_date:
             return json_response_error("You must fill 'From date' and 'To date' fields")

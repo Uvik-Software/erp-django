@@ -51,7 +51,7 @@ class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.email
+        return self.name + self.surname
 
 
 class Project(models.Model):
@@ -66,6 +66,25 @@ class Project(models.Model):
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    __original_deadline = None
+    __original_project_started_date = None
+
+    def __init__(self, *args, **kwargs):
+        super(Project, self).__init__(*args, **kwargs)
+        self.__original_deadline = self.deadline
+        self.__original_project_started_date = self.project_started_date
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if (self.deadline != self.__original_deadline) or \
+                (self.project_started_date != self.__original_project_started_date):
+            print("ITS CHANGED")
+        else:
+            print("ITS DOESNT CHANGED")
+
+        super(Project, self).save(force_insert, force_update, *args, **kwargs)
+        self.__original_deadline = self.deadline
+        self.__original_project_started_date = self.project_started_date
 
     def __str__(self):
         return self.project_name
@@ -115,6 +134,21 @@ class Vacation(models.Model):
     comments = models.TextField(null=True)
     approved = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    __original_approved = None
+
+    def __init__(self, *args, **kwargs):
+        super(Vacation, self).__init__(*args, **kwargs)
+        self.__original_approved = self.approved
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.approved != self.__original_approved:
+            print("ITS CHANGED")
+        else:
+            print("ITS DOESNT CHANGED")
+
+        super(Vacation, self).save(force_insert, force_update, *args, **kwargs)
+        self.__original_approved = self.approved
 
 
 class DevSalary(models.Model):
