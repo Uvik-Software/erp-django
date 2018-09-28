@@ -4,16 +4,15 @@ from rest_framework.views import APIView
 from rest_framework import viewsets, renderers, schemas, response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_swagger.renderers import SwaggerUIRenderer, OpenAPIRenderer
+from rest_framework.schemas import AutoSchema
 
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from .permissions import ManagerFullAccess, DeveloperFullAccess, PermsForVacation
+from .permissions import ManagerFullAccess, PermsForVacation
 
 from django.http import HttpResponse
-
 from django.forms.models import model_to_dict
-from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv, Company, \
-    SentNotifications, BirthdayNotification, User, Vacation
+from django.shortcuts import get_object_or_404
+
+from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv, Vacation
 from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, ServicesSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
@@ -23,10 +22,7 @@ from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_deve
 
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
-from rest_framework.schemas import AutoSchema
 import coreapi
-
-from django.shortcuts import get_object_or_404
 
 # TODO: generate salary report for dev like we did for customer
 # TODO: split views to files?
