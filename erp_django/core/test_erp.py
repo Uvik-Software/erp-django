@@ -3,6 +3,8 @@ from .models import ManagerInfo, Project, Invoice, Developer, Client, Developers
 import pytest
 import datetime
 import json
+import factory
+from django.db.models import signals
 
 BASE_URL = "http://127.0.0.1:8000"
 CURRENT_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -12,6 +14,7 @@ CURRENT_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
 
 class TestEndpoints:
 
+    @factory.django.mute_signals(signals.post_save)
     @pytest.mark.django_db
     def setup(self):
         superuser = User.objects.create(username="uvik_main", password="some_password", is_superuser=True)
@@ -36,6 +39,7 @@ class TestEndpoints:
             hourly_rate=35,
             birthday_date=CURRENT_DATE,
             monthly_salary=4500,
+            user=developer_user
         )
 
         # creating client
@@ -46,7 +50,8 @@ class TestEndpoints:
             address="client's address",
             email="client_email@gmail.com",
             phone="(063) 534 52 43",
-            identification_number=1234567890
+            identification_number=1234567890,
+            owner=manager_user
         )
 
         # creating project
@@ -56,7 +61,8 @@ class TestEndpoints:
             project_description="some_project_description",
             currency="usd",
             manager_info=manager_info,
-            client=client
+            client=client,
+            owner=manager_user
         )
 
         # creating invoice
@@ -64,7 +70,8 @@ class TestEndpoints:
             date=CURRENT_DATE,
             expected_payout_date=CURRENT_DATE,
             project_id=project,
-            status="WAITING_FOR_PAYMENT"
+            status="WAITING_FOR_PAYMENT",
+            owner = manager_user
         )
 
         # adding developer to project
@@ -72,7 +79,8 @@ class TestEndpoints:
             project=project,
             developer=developer,
             description="back end development",
-            hours=132.4
+            hours=132.4,
+            owner=manager_user
         )
 
         # creating company info
@@ -83,22 +91,24 @@ class TestEndpoints:
             iban="CDK394848",
             swift="FSM93837",
             bank_address="some bank address",
-            sign="some_url"
+            sign="some_url",
+            owner=manager_user
         )
 
         vacation = Vacation.objects.create(
-            developer=developer.id,
+            developer=developer,
             from_date=CURRENT_DATE,
             to_date=CURRENT_DATE,
-            comments="some comment"
+            comments="some comment",
+            owner=manager_user
         )
 
         cv = Cv.objects.create(
-            developer=developer.id,
+            developer=developer,
             g_drive_link="http://somelinktoresume.com"
         )
 
-    """@staticmethod
+    @staticmethod
     def verify_missing_data(endpoint, data):
         client = RequestsClient()
         for key in data.keys():
@@ -117,8 +127,8 @@ class TestEndpoints:
     @pytest.mark.django_db
     def test_projects_general_info(self):
         project = Project.objects.get(project_name="some_project_name")
-        general_info = ManagerInfo.objects.get(manager_surname="some_surname")
-        assert project.general_info == general_info"""
+        manager_info = ManagerInfo.objects.get(manager_surname="some_surname")
+        assert project.manager_info == manager_info
 
     """@pytest.mark.django_db
     def test_manager_info_endpoint(self):
