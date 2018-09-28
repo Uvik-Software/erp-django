@@ -71,7 +71,7 @@ class TestEndpoints:
             expected_payout_date=CURRENT_DATE,
             project_id=project,
             status="WAITING_FOR_PAYMENT",
-            owner = manager_user
+            owner=manager_user
         )
 
         # adding developer to project
@@ -130,7 +130,7 @@ class TestEndpoints:
         manager_info = ManagerInfo.objects.get(manager_surname="some_surname")
         assert project.manager_info == manager_info
 
-    """@pytest.mark.django_db
+    @pytest.mark.django_db
     def test_manager_info_endpoint(self):
         data = {"manager_name": "some_name",
                 "manager_surname": "some_surname",
@@ -139,15 +139,23 @@ class TestEndpoints:
                 "address": "some_address",
                 "company_name": "general info company name"}
 
-        client = RequestsClient()
-        response = client.post(BASE_URL + "/general_info/", data)
+        """from rest_framework.authtoken.models import Token
+        from rest_framework.test import APIClient
+
+        # Include an appropriate `Authorization:` header on all requests.
+        user = User.objects.get(username='uvik_manager')
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + user.auth_token)
+
+
+        response = client.post(BASE_URL + "/manager_info/", data)
         assert response.status_code == 201
-        general_info = [info for info in GeneralInfo.objects.all()]
+        general_info = [info for info in ManagerInfo.objects.all()]
         assert len(general_info) == 2
 
-        self.verify_missing_data("/general_info/", data)
+        self.verify_missing_data("/manager_info/", data)"""
 
-    @pytest.mark.django_db
+    """@pytest.mark.django_db
     def test_projects_endpoint(self):
         general_info = GeneralInfo.objects.get(manager_surname="some_surname")
         client = Client.objects.get(email="client_email@gmail.com")
