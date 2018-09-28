@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.conf.urls import url, include
 from rest_framework import routers
 from .views import InvoiceViewSet, ManagerInfoViewSet, ProjectViewSet, ServicesViewSet, DeveloperViewSet, \
-    DevelopersOnProjectViewSet, ClientViewSet, GenerateInvoice, DaysOff, CvSearch, schema_view, SetGetVacation
+    DevelopersOnProjectViewSet, ClientViewSet, GenerateInvoice, DaysOff, DevelopersCv, schema_view, SetGetVacation
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 router = routers.DefaultRouter()
@@ -21,7 +21,7 @@ urlpatterns = [url(r'', include(router.urls)),
                url(r'^auth-jwt-verify/', verify_jwt_token),
                url(r'^generate_invoice/$', GenerateInvoice.as_view()),
                url(r'^days_off/$', DaysOff.as_view()),
-               url(r'^cv_search/$', CvSearch.as_view()),
+               url(r'^cv_search/$', DevelopersCv.as_view()),
                url(r'^swagger/$', schema_view),
                url(r'^vacations/$', SetGetVacation.as_view())] \
               + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

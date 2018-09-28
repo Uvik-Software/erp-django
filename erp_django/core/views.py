@@ -153,11 +153,22 @@ class GenerateInvoice(APIView):
 
             if not download:
                 data["company_details"]["sign"] = json.dumps(str(data["company_details"]["sign"]))
-                return json_response_success(data)
+                return json_response_success(data=data)
             return HttpResponse(pdf_response.getvalue(), content_type='application/pdf')
 
         return json_response_error("Not all the required fields are filled up. %s are required."
                                        % INVOICE_REQUIRED_FIELDS)
+
+    def get(self, request):
+        data = request.query_params
+        invoice_id = data.get("invoice_id", None)
+        
+        pass
+
+    def delete(self, request, pk):
+        invoice = get_object_or_404(Invoice, pk=pk)
+        invoice.delete()
+        return json_response_success("Invoice is deleted")
 
 # TODO: add swagger for other APIViews. https://github.com/m-haziq/django-rest-swagger-docs can help
 
@@ -170,7 +181,7 @@ class DaysOff(APIView):
         next_month_only = data.get("next_month_only", True)
 
         next_month_days_off = get_ua_days_off(next_month_only)
-        return json_response_success(next_month_days_off)
+        return json_response_success(data=next_month_days_off)
 
     def post(self, request):
         email = request.data.get("email", None)
@@ -190,7 +201,7 @@ class DaysOff(APIView):
             return json_response_success("Email to %s is succesfully sent" % email)
 
 
-class CvSearch(APIView):
+class DevelopersCv(APIView):
     permission_classes = (IsAuthenticated, ManagerFullAccess,)
     schema = AutoSchema(
         manual_fields=[
@@ -208,15 +219,41 @@ class CvSearch(APIView):
 
         if "name" in data:
             cv = [cv for cv in Cv.objects.filter(developer__name__contains=data["name"]).values()]
-            return json_response_success(cv)
+            return json_response_success(data=cv)
         if "surname" in data:
             cv = [cv for cv in Cv.objects.filter(developer__surname__contains=data["surname"]).values()]
-            return json_response_success(cv)
-
+            return json_response_success(data=cv)
         return json_response_error("Should provide name or surname")
 
     def post(self, request):
-        pass
+        data = request.data
+        dev_id = data.get("dev_id", None)
+        cv_link = data.get("cv_link", None)
+
+        if dev_id and cv_link:
+            developer = get_object_or_404(Developer, pk=dev_id)
+            cv = Cv(developer=developer.id,
+                    g_drive_link=cv_link)
+            cv.save()
+            return json_response_success("CV is created", cv)
+        return json_response_error("Not all the required fields are filled")
+
+    def put(self, request):
+        data = request.data
+        dev_id = data.get("dev_id", None)
+        cv_link = data.get("cv_link", None)
+
+        if dev_id and cv_link:
+            cv = get_object_or_404(Cv, developer=dev_id)
+            cv.g_drive_link = cv_link
+            cv.save()
+            return json_response_success("Link is updated", cv)
+        return json_response_error("Not all the required fields are filled")
+
+    def delete(self, request, pk):
+        cv = get_object_or_404(Cv, pk=pk)
+        cv.delete()
+        return json_response_success("Cv is deleted")
 
 
 class SetGetVacation(APIView):
@@ -227,10 +264,10 @@ class SetGetVacation(APIView):
         vacation_id = data.get("vacation_id", None)
         if not vacation_id:
             vacation = [vac for vac in Vacation.objects.all().values()]
-            return json_response_success(vacation)
+            return json_response_success(data=vacation)
 
         vacation = get_object_or_404(Vacation, pk=vacation_id)
-        return json_response_success(vacation)
+        return json_response_success(data=vacation)
 
     def put(self, request):
         data = request.data
@@ -242,7 +279,7 @@ class SetGetVacation(APIView):
         dev_vacation.approved = is_approved
         dev_vacation.save()
 
-        return json_response_success("Vacation data has been changed")
+        return json_response_success("Vacation data has been changed", dev_vacation)
 
     def post(self, request):
         data = request.data
@@ -261,7 +298,8 @@ class SetGetVacation(APIView):
                                     developer=developer.id,
                                     approved=False)
             dev_vacation.save()
-            return json_response_success("Ok, good luck on your vacations")
+            return json_response_success("Vacation is created. Feel free to contact a manager in order to approve it",
+                                         dev_vacation)
 
         if is_manager(request.user):
             developer = get_object_or_404(Developer, pk=developer_id)
@@ -271,6 +309,11 @@ class SetGetVacation(APIView):
                                     developer=developer.id)
             dev_vacation.save()
             return json_response_success("You created the vacation for developer " +
-                                         developer.surname + developer.name)
+                                         developer.surname + developer.name, dev_vacation)
 
-        return json_response_error("Only 'MANAGER' or 'DEVELOPER' can ")
+        return json_response_error("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
+
+    def delete(self, request, pk):
+        vacation = get_object_or_404(Vacation, pk=pk)
+        vacation.delete()
+        return json_response_success("Vacation is deleted")

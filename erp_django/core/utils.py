@@ -238,14 +238,19 @@ def get_ua_days_off(next_month_only=True):
     return days_off
 
 
-def json_response_error(message):
+def json_response_error(message=None):
     return JsonResponse({"ok": False,
                          "message": message})
 
 
-def json_response_success(message):
+def json_response_success(message=None, data=None):
+    if data is None:
+        data = dict()
+    if message is None:
+        message = ""
     return JsonResponse({"ok": True,
-                         "message": message})
+                         "message": message,
+                         "data": data})
 
 
 def is_developer(user):
