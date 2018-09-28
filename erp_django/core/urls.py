@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url, include
 from rest_framework import routers
-from .views import InvoiceViewSet, ManagerInfoViewSet, ProjectViewSet, ServicesViewSet, DeveloperViewSet, \
+from .views import InvoiceViewSet, ManagerInfoViewSet, ProjectViewSet, DeveloperViewSet, \
     DevelopersOnProjectViewSet, ClientViewSet, GenerateInvoice, DaysOff, DevelopersCv, schema_view, SetGetVacation
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
@@ -10,7 +10,6 @@ router = routers.DefaultRouter()
 router.register(r'invoices', InvoiceViewSet)
 router.register(r'manager_info', ManagerInfoViewSet)
 router.register(r'projects', ProjectViewSet)
-router.register(r'services', ServicesViewSet)
 router.register(r'developer', DeveloperViewSet)
 router.register(r'developers_on_project', DevelopersOnProjectViewSet)
 router.register(r'clients', ClientViewSet)

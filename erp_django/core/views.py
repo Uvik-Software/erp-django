@@ -13,7 +13,7 @@ from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 
 from .models import Invoice, ManagerInfo, Project, Services, Developer, DevelopersOnProject, Client, Cv, Vacation
-from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, ServicesSerializer, \
+from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
@@ -53,12 +53,6 @@ class ManagerInfoViewSet(viewsets.ModelViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
-
-
-class ServicesViewSet(viewsets.ModelViewSet):
-    queryset = Services.objects.all()
-    serializer_class = ServicesSerializer
     permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 

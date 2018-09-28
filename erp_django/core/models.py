@@ -90,18 +90,6 @@ class Invoice(models.Model):
         return str(self.project_id)
 
 
-# TODO: remove this model and its references
-class Services(models.Model):
-    # not sure if we need this any more as now we are using Project and Developer for that purposes
-    price = models.FloatField()
-    quantity = models.FloatField()
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-
-    @property
-    def total_cost(self):
-        return self.price * self.quantity
-
-
 class Company(models.Model):
     currency = models.CharField(max_length=3)
     bank_account_number = models.IntegerField()

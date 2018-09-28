@@ -25,14 +25,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ServicesSerializer(serializers.ModelSerializer):
-    total_cost = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Services
-        fields = "__all__"
-
-
 class DeveloperSerializer(serializers.ModelSerializer):
 
     class Meta:
