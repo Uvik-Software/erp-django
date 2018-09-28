@@ -121,12 +121,12 @@ class TestEndpoints:
             data[key] = temp
             assert response.status_code == 400
 
-    def happy_flow_post(self, endpoint, data):
+    def manager_happy_flow_post(self, endpoint, data):
         client = self.login_as_manager()
         response = client.post(BASE_URL + endpoint, data)
         assert response.status_code == 201
 
-    def happy_flow_get(self, endpoint, params=None):
+    def manager_happy_flow_get(self, endpoint, params=None):
         if params is None:
             params = ""
         else:
@@ -135,6 +135,23 @@ class TestEndpoints:
         response = client.get(BASE_URL + endpoint + params)
         assert response.status_code == 200
         return json.loads(response.content)
+
+    def manager_happy_flow_put(self, endpoint, data):
+        client = self.login_as_manager()
+        response = client.put(BASE_URL + endpoint, data)
+        assert response.status_code == 200
+        return json.loads(response.content)
+
+    def manager_happy_flow_put(self, endpoint, data):
+        client = self.login_as_manager()
+        response = client.put(BASE_URL + endpoint, data)
+        assert response.status_code == 200
+        return json.loads(response.content)
+
+    def manager_happy_flow_delete(self, endpoint):
+        client = self.login_as_manager()
+        response = client.delete(BASE_URL + endpoint)
+        assert response.status_code == 204
 
     @staticmethod
     def get_superuser():
@@ -182,13 +199,22 @@ class TestEndpoints:
                 "address": "some_address",
                 "company_name": "general info company name",
                 "owner": user.id}
-        self.happy_flow_post("/manager_info/", data)
 
-        response = self.happy_flow_get("/manager_info/")
+        self.manager_happy_flow_post("/manager_info/", data)
+
+        response = self.manager_happy_flow_get("/manager_info/")
         assert len(response["results"]) == 2
 
-        response = self.happy_flow_get("/manager_info/", "2")
+        response = self.manager_happy_flow_get("/manager_info/", "2")
         assert set(response.items()).issubset(set(data.items())) is False
+
+        data["manager_name"] = "another_name"
+        response = self.manager_happy_flow_put("/manager_info/2/", data)
+        assert response["manager_name"] == data["manager_name"]
+
+        assert len([i for i in ManagerInfo.objects.all()]) == 2
+        self.manager_happy_flow_delete("/manager_info/2/")
+        assert len([i for i in ManagerInfo.objects.all()]) == 1
 
     """@pytest.mark.django_db
     def test_projects_endpoint(self):
