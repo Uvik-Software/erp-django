@@ -1,5 +1,5 @@
 from rest_framework.test import RequestsClient
-from .models import GeneralInfo, Project, Invoice, Services, Developer, Client, DevelopersOnProject, Company
+from .models import GeneralInfo, Project, Invoice, Developer, Client, DevelopersOnProject, Company
 import pytest
 import datetime
 import json
@@ -61,18 +61,6 @@ class TestEndpoints:
             project_id=project
         )
 
-        # creating services for the invoice
-        services = [{"price": 12.21, "quantity": 2, "invoice": invoice},
-                    {"price": 14.71, "quantity": 7, "invoice": invoice},
-                    {"price": 9.99, "quantity": 45, "invoice": invoice}]
-
-        for service in services:
-            Services.objects.create(
-                price=service["price"],
-                quantity=service["quantity"],
-                invoice=service["invoice"]
-            )
-
         # adding developer to project
         developer_on_project = DevelopersOnProject.objects.create(
             project=project,
@@ -109,19 +97,13 @@ class TestEndpoints:
         assert response.status_code == 201
 
     @pytest.mark.django_db
-    def test_invoice_services(self):
-        invoice = Invoice.objects.get(id=1)
-        services = [service for service in Services.objects.filter(invoice=invoice)]
-        assert len(services) == 3
-
-    @pytest.mark.django_db
     def test_projects_general_info(self):
         project = Project.objects.get(project_name="some_project_name")
         general_info = GeneralInfo.objects.get(manager_surname="some_surname")
         assert project.general_info == general_info
 
     @pytest.mark.django_db
-    def test_general_info_endpoint(self):
+    def test_manager_info_endpoint(self):
         data = {"manager_name": "some_name",
                 "manager_surname": "some_surname",
                 "manager_email": "manager_email@gmail.com",

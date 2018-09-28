@@ -114,7 +114,7 @@ class GenerateInvoice(APIView):
             project = get_project_details(project_id)
             company_details = get_company_details_by_currency(project.currency)
             client_info = Client.objects.get(id=project.client.id)
-            general_info = ManagerInfo.objects.get(id=project.general_info.id)
+            manager_info = ManagerInfo.objects.get(id=project.manager_info.id)
             developers, all_time_cost = get_project_developers_and_cost(project)
             total_cost = all_time_cost - project.all_time_money_spent
 
@@ -134,7 +134,7 @@ class GenerateInvoice(APIView):
                         project=model_to_dict(project),
                         client_info=model_to_dict(client_info),
                         invoice=model_to_dict(invoice),
-                        general_info=model_to_dict(general_info),
+                        manager_info=model_to_dict(manager_info),
                         total_cost=total_cost)
 
             pdf_response, html = generate_pdf_from_html("invoices/invoice_2.html", data)

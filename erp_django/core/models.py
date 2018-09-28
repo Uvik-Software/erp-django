@@ -60,7 +60,7 @@ class Project(models.Model):
     project_description = models.TextField()
     currency = models.CharField(max_length=20)
     basic_price = models.FloatField(null=True)
-    general_info = models.ForeignKey(ManagerInfo, on_delete=models.CASCADE)
+    manager_info = models.ForeignKey(ManagerInfo, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     all_time_money_spent = models.IntegerField()
     deadline = models.DateField(null=True)

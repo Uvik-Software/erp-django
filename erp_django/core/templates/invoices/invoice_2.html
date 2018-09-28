@@ -22,10 +22,10 @@
     </tr>
     <tr>
         <td><b>Supplier: </b> <br/>
-            <b>Business name: </b> {{ general_info.company_name }} <br/>
-            <b>Address: </b> {{ general_info.address }} <br/>
-            <b>Email: </b> {{ general_info.manager_email }} <br/>
-            <b>Represented by: </b> {{ general_info.manager_name }} {{ general_info.manager_surname }}</td>
+            <b>Business name: </b> {{ manager_info.company_name }} <br/>
+            <b>Address: </b> {{ manager_info.address }} <br/>
+            <b>Email: </b> {{ manager_info.manager_email }} <br/>
+            <b>Represented by: </b> {{ manager_info.manager_name }} {{ manager_info.manager_surname }}</td>
     </tr>
     <tr>
         <td><b>Customer: </b> <br/>
@@ -102,7 +102,7 @@
     <img src="{{company_details.sign}}">
 </div>
 <div class="padding">
-    <b>Supplier: </b> {{ general_info.manager_name }} {{ general_info.manager_surname }}, {{ general_info.manager_position }} <br/>
+    <b>Supplier: </b> {{ manager_info.manager_name }} {{ manager_info.manager_surname }}, {{ manager_info.manager_position }} <br/>
 </div>
 </body>
 </html>
