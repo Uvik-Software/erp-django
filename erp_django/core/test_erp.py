@@ -142,16 +142,61 @@ class TestEndpoints:
         assert response.status_code == 200
         return json.loads(response.content)
 
-    def manager_happy_flow_put(self, endpoint, data):
+    def manager_happy_flow_delete(self, endpoint):
+        client = self.login_as_manager()
+        response = client.delete(BASE_URL + endpoint)
+        assert response.status_code == 204
+
+    def dev_happy_flow_get(self, endpoint, params=None):
+        if params is None:
+            params = ""
+        else:
+            params += "/"
+        client = self.login_as_manager()
+        response = client.get(BASE_URL + endpoint + params)
+        assert response.status_code == 200
+        return json.loads(response.content)
+
+    def dev_happy_flow_put(self, endpoint, data):
         client = self.login_as_manager()
         response = client.put(BASE_URL + endpoint, data)
         assert response.status_code == 200
         return json.loads(response.content)
 
-    def manager_happy_flow_delete(self, endpoint):
+    def dev_happy_flow_post(self, endpoint, data):
+        client = self.login_as_manager()
+        response = client.post(BASE_URL + endpoint, data)
+        assert response.status_code == 200
+        return json.loads(response.content)
+
+    def dev_happy_flow_delete(self, endpoint):
         client = self.login_as_manager()
         response = client.delete(BASE_URL + endpoint)
         assert response.status_code == 204
+
+    def restricted_dev_get(self, endpoint, params=None):
+        if params is None:
+            params = ""
+        else:
+            params += "/"
+        client = self.login_as_developer()
+        response = client.get(BASE_URL + endpoint + params)
+        assert response.status_code == 403
+
+    def restricted_dev_put(self, endpoint, data):
+        client = self.login_as_developer()
+        response = client.put(BASE_URL + endpoint, data)
+        assert response.status_code == 403
+
+    def restricted_dev_post(self, endpoint, data):
+        client = self.login_as_developer()
+        response = client.post(BASE_URL + endpoint, data)
+        assert response.status_code == 403
+
+    def restricted_dev_delete(self, endpoint):
+        client = self.login_as_developer()
+        response = client.delete(BASE_URL + endpoint)
+        assert response.status_code == 403
 
     @staticmethod
     def get_superuser():
@@ -163,7 +208,7 @@ class TestEndpoints:
 
     @staticmethod
     def get_developer():
-        return User.objects.get(username='uvik_developer')
+        return User.objects.get(username='uvik_dev')
 
     def login_as_superuser(self):
         user = self.get_superuser()
@@ -214,6 +259,12 @@ class TestEndpoints:
 
         assert len([i for i in ManagerInfo.objects.all()]) == 2
         self.manager_happy_flow_delete("/manager_info/2/")
+        assert len([i for i in ManagerInfo.objects.all()]) == 1
+
+        self.restricted_dev_get("/manager_info/")
+        self.restricted_dev_post("/manager_info/", data)
+        self.restricted_dev_put("/manager_info/1/", data)
+        self.restricted_dev_delete("/manager_info/1/")
         assert len([i for i in ManagerInfo.objects.all()]) == 1
 
     """@pytest.mark.django_db
