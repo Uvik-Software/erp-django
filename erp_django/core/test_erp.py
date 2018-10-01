@@ -308,6 +308,9 @@ class TestEndpoints:
                 "status": "PAID",
                 "owner": user.id}
         self.manager_happy_flow_post("/invoices/", data)
+        self.manager_happy_flow_put("/invoices/2/", data)
+        self.manager_happy_flow_get("/invoices/1/")
+        self.manager_happy_flow_delete("/invoices/2/")
 
         self.verify_missing_data("/invoices/", data)
 
@@ -316,39 +319,22 @@ class TestEndpoints:
         self.restricted_dev_put("/invoices/1/", data)
         self.restricted_dev_delete("/invoices/1/")
 
-        """@pytest.mark.django_db
-    def test_services_endpoint(self):
-        invoice = Invoice.objects.get(id=1)
-        data = {"price": 12.3,
-                "quantity": 2,
-                "invoice": invoice.id}
-
-        client = RequestsClient()
-        response = client.post(BASE_URL + "/services/", data)
-        assert response.status_code == 201
-
-        # test total cost
-        response_data = json.loads(response.content)
-        assert response_data["total_cost"] == data["price"] * data["quantity"]
-
+    @factory.django.mute_signals(signals.post_save)
     @pytest.mark.django_db
     def test_developer_endpoint(self):
+        developer_user = self.get_developer()
         data = {"name": "some_developer_name",
                 "surname": "some_developer_surname",
                 "email": "some_dev_email2@gmail.com",
-                "hourly_rate": 35}
-        self.happy_flow("/developer/", data)
-
-        client = RequestsClient()
-        # providing existing email. should fail as it should be unique
-        data["email"] = "some_dev_email2@gmail.com"
-        response = client.post(BASE_URL + "/developer/", data)
-        assert response.status_code == 400
-
-        # providing email in a wrong format
-        data["email"] = "some_dev_email"
-        response = client.post(BASE_URL + "/developer/", data)
-        assert response.status_code == 400
+                "hourly_rate": 35,
+                "birthday_date": CURRENT_DATE,
+                "monthly_salary": 4500,
+                "user": developer_user.id
+        }
+        self.manager_happy_flow_post("/developer/", data)
+        self.manager_happy_flow_put("/developer/2/", data)
+        self.manager_happy_flow_get("/developer/1/")
+        self.manager_happy_flow_delete("/developer/2/")
 
         self.verify_missing_data("/developer/", data)
 
@@ -356,10 +342,18 @@ class TestEndpoints:
     def test_developers_on_project_endpoint(self):
         project = Project.objects.get(id=1)
         developer = Developer.objects.get(id=1)
+        user = self.get_manager()
         data = {"project": project.id,
                 "developer": developer.id,
                 "description": "bugs fixes",
-                "hours": 143.8}
-        self.happy_flow("/developers_on_project/", data)"""
+                "hours": 143.8,
+                "owner": user.id}
+        self.manager_happy_flow_post("/developers_on_project/", data)
+        self.manager_happy_flow_put("/developers_on_project/2/", data)
+        self.manager_happy_flow_get("/developers_on_project/1/")
+        self.manager_happy_flow_delete("/developers_on_project/2/")
 
-
+        self.restricted_dev_get("/developers_on_project/")
+        self.restricted_dev_post("/developers_on_project/", data)
+        self.restricted_dev_put("/developers_on_project/1/", data)
+        self.restricted_dev_delete("/developers_on_project/1/")
