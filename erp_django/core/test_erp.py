@@ -111,9 +111,8 @@ class TestEndpoints:
             g_drive_link="http://somelinktoresume.com"
         )
 
-    @staticmethod
-    def verify_missing_data(endpoint, data):
-        client = RequestsClient()
+    def verify_missing_data(self, endpoint, data):
+        client = self.login_as_manager()
         for key in data.keys():
             temp = data[key]
             data.pop(key)
@@ -124,6 +123,7 @@ class TestEndpoints:
     def manager_happy_flow_post(self, endpoint, data):
         client = self.login_as_manager()
         response = client.post(BASE_URL + endpoint, data)
+        print(response.content)
         assert response.status_code == 201
 
     def manager_happy_flow_get(self, endpoint, params=None):
@@ -267,38 +267,56 @@ class TestEndpoints:
         self.restricted_dev_delete("/manager_info/1/")
         assert len([i for i in ManagerInfo.objects.all()]) == 1
 
-    """@pytest.mark.django_db
+    @pytest.mark.django_db
     def test_projects_endpoint(self):
-        general_info = GeneralInfo.objects.get(manager_surname="some_surname")
+        manager_info = ManagerInfo.objects.get(manager_surname="some_surname")
         client = Client.objects.get(email="client_email@gmail.com")
+        user = self.get_manager()
         data = {"project_name": "some_project_name",
                 "project_type": "OUTSTAFF",
                 "project_description": "bugs fixes",
                 "currency": "usd",
                 "basic_price": 19.0,
-                "general_info": general_info.id,
-                "client": client.id}
-        self.happy_flow("/projects/", data)
+                "manager_info": manager_info.id,
+                "client": client.id,
+                "owner": user.id}
+        self.manager_happy_flow_post("/projects/", data)
+        self.manager_happy_flow_put("/projects/2/", data)
+        self.manager_happy_flow_get("/projects/1/")
+        self.manager_happy_flow_delete("/projects/2/")
 
         # test invalid project type
         data["project_type"] = 123453
-        client = RequestsClient()
+        client = self.login_as_manager()
         response = client.post(BASE_URL + "/projects/", data)
         assert response.status_code == 400
 
         self.verify_missing_data("/projects/", data)
 
+        self.restricted_dev_get("/projects/")
+        self.restricted_dev_post("/projects/", data)
+        self.restricted_dev_put("/projects/1/", data)
+        self.restricted_dev_delete("/projects/1/")
+
     @pytest.mark.django_db
     def test_invoice_endpoint(self):
         project = Project.objects.get(project_name="some_project_name")
+        user = self.get_manager()
         data = {"date": CURRENT_DATE,
                 "expected_payout_date": CURRENT_DATE,
-                "project_id": project.id}
-        self.happy_flow("/invoices/", data)
+                "project_id": project.id,
+                "status": "PAID",
+                "owner": user.id}
+        self.manager_happy_flow_post("/invoices/", data)
 
         self.verify_missing_data("/invoices/", data)
 
-    @pytest.mark.django_db
+        self.restricted_dev_get("/invoices/")
+        self.restricted_dev_post("/invoices/", data)
+        self.restricted_dev_put("/invoices/1/", data)
+        self.restricted_dev_delete("/invoices/1/")
+
+        """@pytest.mark.django_db
     def test_services_endpoint(self):
         invoice = Invoice.objects.get(id=1)
         data = {"price": 12.3,
