@@ -144,7 +144,7 @@ class TestEndpoints:
     def manager_happy_flow_delete(self, endpoint):
         client = self.login_as_manager()
         response = client.delete(BASE_URL + endpoint)
-        assert response.status_code == 204
+        assert response.status_code == 204 or 200
 
     def dev_happy_flow_get(self, endpoint, params=None):
         if params is None:
@@ -362,19 +362,13 @@ class TestEndpoints:
         self.restricted_dev_put("/developers_on_project/1/", data)
         self.restricted_dev_delete("/developers_on_project/1/")
 
-
     @pytest.mark.django_db
     def test_cv_endpoint(self):
         developer = Developer.objects.get(id=1)
         data = {"cv_link": "http://some_link.com/",
                 "dev_id": developer.id}
         self.manager_happy_flow_post("/cv/", data)
-        #self.manager_happy_flow_put("/cv/", data)
+        self.manager_happy_flow_put("/cv/?id=2", data)
         self.manager_happy_flow_get("/cv/?id=2/")
         self.manager_happy_flow_get("/cv/")
-        #self.manager_happy_flow_delete("/cv/?id=2/")
-
-        """self.restricted_dev_get("/cv/")
-        self.restricted_dev_post("/cv/", data)
-        self.restricted_dev_put("/cv/1/", data)
-        self.restricted_dev_delete("/cv/1/")"""
+        self.manager_happy_flow_delete("/cv/?id=2")

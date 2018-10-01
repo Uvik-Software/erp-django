@@ -287,9 +287,11 @@ class DevelopersCv(APIView):
         data = request.data
         dev_id = data.get("dev_id", None)
         cv_link = data.get("cv_link", None)
+        data = request.query_params
+        cv_id = data.get("id", None)
 
         if dev_id and cv_link:
-            cv = get_object_or_404(Cv, developer=dev_id)
+            cv = get_object_or_404(Cv, id=cv_id)
             cv.g_drive_link = cv_link
             cv.save()
             return json_response_success("Link is updated", model_to_dict(cv))
