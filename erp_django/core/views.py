@@ -269,7 +269,7 @@ class DevelopersCv(APIView):
             cv = Cv(developer=developer,
                     g_drive_link=cv_link)
             cv.save()
-            return json_response_success("CV is created", model_to_dict(cv))
+            return json_response_success("CV is created", model_to_dict(cv), status=201)
         return json_response_error("Not all the required fields are filled")
 
     def put(self, request):
@@ -303,7 +303,7 @@ class DevelopersCv(APIView):
         if cv_id:
             cv = get_object_or_404(Cv, id=cv_id)
             cv.delete()
-            return json_response_success("Cv is deleted")
+            return json_response_success("Cv is deleted", status=204)
         return json_response_error("Id should be provided")
 
 
@@ -386,7 +386,7 @@ class SetGetVacation(APIView):
                                     approved=False)
             dev_vacation.save()
             return json_response_success("Vacation is created. Feel free to contact a manager in order to approve it",
-                                         dev_vacation)
+                                         dev_vacation, status=201)
 
         if is_manager(request.user):
             developer = get_object_or_404(Developer, pk=developer_id)
@@ -396,7 +396,7 @@ class SetGetVacation(APIView):
                                     developer=developer.id)
             dev_vacation.save()
             return json_response_success("You created the vacation for developer " +
-                                         developer.surname + developer.name, dev_vacation)
+                                         developer.surname + developer.name, dev_vacation, status=201)
 
         return json_response_error("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
@@ -406,5 +406,5 @@ class SetGetVacation(APIView):
         if vac_id:
             vacation = get_object_or_404(Vacation, id=vac_id)
             vacation.delete()
-            return json_response_success("Vacation is deleted")
+            return json_response_success("Vacation is deleted", status=204)
         return json_response_error("please provide a vacation id")

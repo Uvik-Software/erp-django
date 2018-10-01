@@ -243,14 +243,14 @@ def json_response_error(message=None):
                          "message": message})
 
 
-def json_response_success(message=None, data=None):
+def json_response_success(message=None, data=None, status=200):
     if data is None:
         data = dict()
     if message is None:
         message = ""
     return JsonResponse({"ok": True,
                          "message": message,
-                         "data": data})
+                         "data": data}, status=status)
 
 
 def is_developer(user):
