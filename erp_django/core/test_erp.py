@@ -123,8 +123,7 @@ class TestEndpoints:
     def manager_happy_flow_post(self, endpoint, data):
         client = self.login_as_manager()
         response = client.post(BASE_URL + endpoint, data)
-        print(response.content)
-        assert response.status_code == 201
+        assert response.status_code == 201 or 200
 
     def manager_happy_flow_get(self, endpoint, params=None):
         if params is None:
@@ -338,6 +337,11 @@ class TestEndpoints:
 
         self.verify_missing_data("/developer/", data)
 
+        self.restricted_dev_get("/developer/")
+        self.restricted_dev_post("/developer/", data)
+        self.restricted_dev_put("/developer/1/", data)
+        self.restricted_dev_delete("/developer/1/")
+
     @pytest.mark.django_db
     def test_developers_on_project_endpoint(self):
         project = Project.objects.get(id=1)
@@ -357,3 +361,20 @@ class TestEndpoints:
         self.restricted_dev_post("/developers_on_project/", data)
         self.restricted_dev_put("/developers_on_project/1/", data)
         self.restricted_dev_delete("/developers_on_project/1/")
+
+
+    @pytest.mark.django_db
+    def test_cv_endpoint(self):
+        developer = Developer.objects.get(id=1)
+        data = {"cv_link": "http://some_link.com/",
+                "dev_id": developer.id}
+        self.manager_happy_flow_post("/cv/", data)
+        #self.manager_happy_flow_put("/cv/", data)
+        self.manager_happy_flow_get("/cv/?id=2/")
+        self.manager_happy_flow_get("/cv/")
+        #self.manager_happy_flow_delete("/cv/?id=2/")
+
+        """self.restricted_dev_get("/cv/")
+        self.restricted_dev_post("/cv/", data)
+        self.restricted_dev_put("/cv/1/", data)
+        self.restricted_dev_delete("/cv/1/")"""

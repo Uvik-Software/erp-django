@@ -246,7 +246,7 @@ class DevelopersCv(APIView):
         if "surname" in data:
             cv = [cv for cv in Cv.objects.filter(developer__surname__contains=data["surname"]).values()]
             return json_response_success(data=cv)
-        return json_response_error("Should provide name or surname")
+        return json_response_success([cv for cv in Cv.objects.all().values()])
 
     def post(self, request):
         """
@@ -266,10 +266,10 @@ class DevelopersCv(APIView):
 
         if dev_id and cv_link:
             developer = get_object_or_404(Developer, pk=dev_id)
-            cv = Cv(developer=developer.id,
+            cv = Cv(developer=developer,
                     g_drive_link=cv_link)
             cv.save()
-            return json_response_success("CV is created", cv)
+            return json_response_success("CV is created", model_to_dict(cv))
         return json_response_error("Not all the required fields are filled")
 
     def put(self, request):
@@ -292,13 +292,17 @@ class DevelopersCv(APIView):
             cv = get_object_or_404(Cv, developer=dev_id)
             cv.g_drive_link = cv_link
             cv.save()
-            return json_response_success("Link is updated", cv)
+            return json_response_success("Link is updated", model_to_dict(cv))
         return json_response_error("Not all the required fields are filled")
 
-    def delete(self, request, pk):
-        cv = get_object_or_404(Cv, pk=pk)
-        cv.delete()
-        return json_response_success("Cv is deleted")
+    def delete(self, request):
+        data = request.query_params
+        cv_id = data.get("id", None)
+        if cv_id:
+            cv = get_object_or_404(Cv, id=cv_id)
+            cv.delete()
+            return json_response_success("Cv is deleted")
+        return json_response_error("Id should be provided")
 
 
 class SetGetVacation(APIView):
@@ -394,7 +398,11 @@ class SetGetVacation(APIView):
 
         return json_response_error("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
-    def delete(self, request, pk):
-        vacation = get_object_or_404(Vacation, pk=pk)
-        vacation.delete()
-        return json_response_success("Vacation is deleted")
+    def delete(self, request):
+        data = request.query_params
+        vac_id = data.get("id", None)
+        if vac_id:
+            vacation = get_object_or_404(Vacation, id=vac_id)
+            vacation.delete()
+            return json_response_success("Vacation is deleted")
+        return json_response_error("please provide a vacation id")
