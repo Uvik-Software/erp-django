@@ -123,7 +123,7 @@ class TestEndpoints:
     def manager_happy_flow_post(self, endpoint, data):
         client = self.login_as_manager()
         response = client.post(BASE_URL + endpoint, data)
-        assert response.status_code == 201 or 200
+        assert response.status_code == 201
 
     def manager_happy_flow_get(self, endpoint, params=None):
         if params is None:
@@ -144,7 +144,7 @@ class TestEndpoints:
     def manager_happy_flow_delete(self, endpoint):
         client = self.login_as_manager()
         response = client.delete(BASE_URL + endpoint)
-        assert response.status_code == 204 or 200
+        assert response.status_code == 204
 
     def dev_happy_flow_get(self, endpoint, params=None):
         if params is None:
