@@ -1,5 +1,5 @@
 from rest_framework import permissions
-
+from .models import Developer
 
 class CustomObjectPermissions(permissions.DjangoObjectPermissions):
     """
@@ -19,26 +19,28 @@ class CustomObjectPermissions(permissions.DjangoObjectPermissions):
 class ManagerFullAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return request.user.user_type == "MANAGER" and obj.owner == request.user
+        if not isinstance(obj, Developer):
+            return request.user.user_type == "MANAGER" and obj.owner == request.user or request.user.is_superuser
+        return request.user.user_type == "MANAGER" or request.user.is_superuser
 
     def has_permission(self, request, view):
-        return request.user.user_type == "MANAGER"
+        return request.user.user_type == "MANAGER" or request.user.is_superuser
 
 
 class DeveloperFullAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return request.user.user_type == "DEVELOPER" and obj.owner == request.user
+        return request.user.user_type == "DEVELOPER" and obj.owner == request.user or request.user.is_superuser
 
     def has_permission(self, request, view):
-        return request.user.user_type == "DEVELOPER"
+        return request.user.user_type == "DEVELOPER" or request.user.is_superuser
 
 
 class PermsForVacation(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (request.user.user_type == "DEVELOPER" and obj.owner == request.user) or \
-                (request.user.user_type == "MANAGER")
+                (request.user.user_type == "MANAGER") or request.user.is_superuser
 
     def has_permission(self, request, view):
-        return request.user.user_type == "DEVELOPER" or request.user.user_type == "MANAGER"
+        return request.user.user_type == "DEVELOPER" or request.user.user_type == "MANAGER" or request.user.is_superuser

@@ -3,7 +3,7 @@ from .models import ManagerInfo, Project, Invoice, Developer, DevelopersOnProjec
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Invoice
@@ -18,7 +18,7 @@ class ManagerInfoSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Project
@@ -40,7 +40,7 @@ class DevelopersOnProjectSerializer(serializers.ModelSerializer):
     developer_hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)
 
     project_name = serializers.CharField(source='project.project_name', read_only=True)
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = DevelopersOnProject
@@ -49,7 +49,7 @@ class DevelopersOnProjectSerializer(serializers.ModelSerializer):
 
 
 class ClientSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Client
@@ -57,7 +57,7 @@ class ClientSerializer(serializers.ModelSerializer):
 
 
 class VacationSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Vacation
