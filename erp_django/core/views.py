@@ -342,15 +342,32 @@ class SetGetVacation(APIView):
               type: bool
          """
         data = request.data
+        from_date = data.get("from_date", None)
+        to_date = data.get("to_date", None)
         comments = data.get("comments", None)
         is_approved = data.get("is_approved", False)
         vacation_id = data.get("vacation_id", None)
-        dev_vacation = get_object_or_404(Vacation, pk=vacation_id)
-        dev_vacation.comments = comments
-        dev_vacation.approved = is_approved
-        dev_vacation.save()
 
-        return json_response_success("Vacation data has been changed", dev_vacation)
+        if is_developer(request.user):
+            dev_vacation_upd = get_object_or_404(Vacation, pk=vacation_id)
+            dev_vacation_upd.from_date = from_date
+            dev_vacation_upd.to_date = to_date
+            dev_vacation_upd.save()
+
+            return json_response_success("Vacation is updated. Feel free to contact a manager in order to approve it",
+                                         status=200)
+
+        if is_manager(request.user):
+            dev_vacation_upd = get_object_or_404(Vacation, pk=vacation_id)
+            dev_vacation_upd.from_date = from_date
+            dev_vacation_upd.to_date = to_date
+            dev_vacation_upd.comments = comments
+            dev_vacation_upd.approved = is_approved
+            dev_vacation_upd.save()
+
+            return json_response_success("Vacation data has been changed", status=200)
+
+        return json_response_error("Only 'MANAGER' or 'DEVELOPER' can update a vacations")
 
     def post(self, request):
         """
@@ -374,7 +391,7 @@ class SetGetVacation(APIView):
         to_date = data.get("to_date", None)
         developer_id = data.get("developer_id", None)
         is_approved = data.get("is_approved", False)
-        print(request.data)
+        # print(request.data)
 
         if not from_date and not to_date:
             return json_response_error("You must fill 'From date' and 'To date' fields")
@@ -383,29 +400,42 @@ class SetGetVacation(APIView):
             developer = get_object_or_404(Developer, user=request.user.id)
             dev_vacation = Vacation(from_date=from_date,
                                     to_date=to_date,
-                                    developer=developer.id,
-                                    approved=False)
+                                    developer=developer,
+                                    approved=False,
+                                    owner=request.user)
             dev_vacation.save()
             return json_response_success("Vacation is created. Feel free to contact a manager in order to approve it",
-                                         dev_vacation, status=201)
+                                         status=201)
 
         if is_manager(request.user):
             developer = get_object_or_404(Developer, pk=developer_id)
             dev_vacation = Vacation(from_date=from_date,
                                     to_date=to_date,
                                     approved=is_approved,
-                                    developer=developer.id)
+                                    developer=developer,
+                                    owner=request.user)
             dev_vacation.save()
             return json_response_success("You created the vacation for developer " +
-                                         developer.surname + developer.name, dev_vacation, status=201)
+                                         developer.surname + ' ' + developer.name, status=201)
 
         return json_response_error("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
     def delete(self, request):
-        data = request.query_params
-        vac_id = data.get("id", None)
-        if vac_id:
-            vacation = get_object_or_404(Vacation, id=vac_id)
-            vacation.delete()
-            return json_response_success("Vacation is deleted", status=204)
-        return json_response_error("please provide a vacation id")
+        data = request.data
+        vacation_id = data.get("vacation_id", None)
+        # print(vacation_id)
+
+        if vacation_id:
+            if is_developer(request.user):
+                developer = get_object_or_404(Developer, user=request.user.id)
+                vacation = get_object_or_404(Vacation, id=vacation_id)
+                if developer.id == vacation.developer.id:
+                    vacation.delete()
+                    return json_response_success("You deleted your vacation", status=204)
+                return json_response_error("You can't delete vacation that is not yours")
+
+            if is_manager(request.user):
+                vacation = get_object_or_404(Vacation, id=vacation_id)
+                vacation.delete()
+                return json_response_success("Vacation is deleted", status=204)
+        return json_response_error("Please provide a vacation id")

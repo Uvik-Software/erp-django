@@ -1,5 +1,5 @@
 from rest_framework.test import RequestsClient
-from .models import ManagerInfo, Project, Invoice, Developer, Client, DevelopersOnProject, Company, User, Vacation, Cv
+from core.models import ManagerInfo, Project, Invoice, Developer, Client, DevelopersOnProject, Company, User, Vacation, Cv
 import pytest
 import datetime
 import json

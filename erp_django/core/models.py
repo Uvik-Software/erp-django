@@ -25,7 +25,7 @@ class ManagerInfo(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.manager_email
+        return "{0} {1}, {2}".format(self.manager_surname, self.manager_name, self.manager_email)
 
 
 class Client(models.Model):
@@ -52,7 +52,7 @@ class Developer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name + self.surname
+        return "{0} {1}, {2}".format(self.surname, self.name, self.email)
 
 
 class Project(models.Model):
@@ -79,9 +79,9 @@ class Project(models.Model):
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         if (self.deadline != self.__original_deadline) or \
                 (self.project_started_date != self.__original_project_started_date):
-            print("ITS CHANGED")
+            pass  # print("IT CHANGED")    # ------------------------ change to send mail
         else:
-            print("ITS DOESNT CHANGED")
+            pass  # print("IT DIDNT CHANGE")   # ------------------------ change to send mail
 
         super(Project, self).save(force_insert, force_update, *args, **kwargs)
         self.__original_deadline = self.deadline
@@ -144,9 +144,9 @@ class Vacation(models.Model):
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         if self.approved != self.__original_approved:
-            print("ITS CHANGED")
+            pass  # print("IT CHANGED")  # ------------------------ change to send mail
         else:
-            print("ITS DOESNT CHANGED")
+            pass  # print("IT DIDNT CHANGE")   # ------------------------ change to send mail
 
         super(Vacation, self).save(force_insert, force_update, *args, **kwargs)
         self.__original_approved = self.approved
