@@ -1,5 +1,5 @@
 from rest_framework.test import RequestsClient
-from core.models import ManagerInfo, Project, Invoice, Developer, Client, DevelopersOnProject, Company, User, Vacation, Cv
+from core.models import Manager, Project, Invoice, Developer, Client, DevelopersOnProject, Company, User, Vacation, Cv
 import pytest
 import datetime
 import json
@@ -24,11 +24,11 @@ class TestEndpoints:
         developer_user = User.objects.create(username="uvik_dev", password="some_password", user_type="DEVELOPER")
 
         # creating general info
-        manager_info = ManagerInfo.objects.create(
-            manager_name="some_name",
-            manager_surname="some_surname",
-            manager_email="manager_email@uvik.net",
-            manager_position="manager",
+        manager_info = Manager.objects.create(
+            name="some_name",
+            surname="some_surname",
+            email="manager_email@uvik.net",
+            position="manager",
             address="some_address",
             company_name="UVIK",
             owner=superuser
@@ -230,16 +230,16 @@ class TestEndpoints:
     @pytest.mark.django_db
     def test_projects_general_info(self):
         project = Project.objects.get(project_name="some_project_name")
-        manager_info = ManagerInfo.objects.get(manager_surname="some_surname")
+        manager_info = Manager.objects.get(surname="some_surname")
         assert project.manager_info == manager_info
 
     @pytest.mark.django_db
     def test_manager_info_endpoint(self):
         user = self.get_manager()
-        data = {"manager_name": "some_name",
-                "manager_surname": "some_surname",
-                "manager_email": "manager_email@gmail.com",
-                "manager_position": "marketing manager",
+        data = {"name": "some_name",
+                "surname": "some_surname",
+                "email": "manager_email@gmail.com",
+                "position": "marketing manager",
                 "address": "some_address",
                 "company_name": "general info company name",
                 "owner": user.id}
@@ -252,23 +252,23 @@ class TestEndpoints:
         response = self.manager_happy_flow_get("/manager_info/", "2")
         assert set(response.items()).issubset(set(data.items())) is False
 
-        data["manager_name"] = "another_name"
+        data["name"] = "another_name"
         response = self.manager_happy_flow_put("/manager_info/2/", data)
-        assert response["manager_name"] == data["manager_name"]
+        assert response["name"] == data["name"]
 
-        assert len([i for i in ManagerInfo.objects.all()]) == 2
+        assert len([i for i in Manager.objects.all()]) == 2
         self.manager_happy_flow_delete("/manager_info/2/")
-        assert len([i for i in ManagerInfo.objects.all()]) == 1
+        assert len([i for i in Manager.objects.all()]) == 1
 
         self.restricted_dev_get("/manager_info/")
         self.restricted_dev_post("/manager_info/", data)
         self.restricted_dev_put("/manager_info/1/", data)
         self.restricted_dev_delete("/manager_info/1/")
-        assert len([i for i in ManagerInfo.objects.all()]) == 1
+        assert len([i for i in Manager.objects.all()]) == 1
 
     @pytest.mark.django_db
     def test_projects_endpoint(self):
-        manager_info = ManagerInfo.objects.get(manager_surname="some_surname")
+        manager_info = Manager.objects.get(surname="some_surname")
         client = Client.objects.get(email="client_email@gmail.com")
         user = self.get_manager()
         data = {"project_name": "some_project_name",

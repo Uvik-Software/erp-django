@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 
-from core.models import Vacation, Developer, User, ManagerInfo
+from core.models import Vacation, Developer, User, Manager
 import datetime
 
 # from rest_framework.test import APIClient
@@ -30,11 +30,11 @@ class TestVacation(TestCase):
             user=developer_user
         )
 
-        man = ManagerInfo.objects.create(
-            manager_name="some_name",
-            manager_surname="some_surname",
-            manager_email="manager_email@uvik.net",
-            manager_position="manager",
+        man = Manager.objects.create(
+            name="some_name",
+            surname="some_surname",
+            email="manager_email@uvik.net",
+            position="manager",
             address="some_address",
             company_name="UVIK",
             owner=manager_user

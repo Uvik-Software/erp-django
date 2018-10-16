@@ -15,17 +15,17 @@ class User(AbstractUser):
 # TODO: do normalization
 
 
-class ManagerInfo(models.Model):
-    manager_name = models.CharField(max_length=50)
-    manager_surname = models.CharField(max_length=100)
-    manager_email = models.EmailField()
-    manager_position = models.CharField(max_length=50)
+class Manager(models.Model):
+    name = models.CharField(max_length=50)
+    surname = models.CharField(max_length=100)
+    email = models.EmailField()
+    position = models.CharField(max_length=50)
     address = models.TextField()
     company_name = models.CharField(max_length=100)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} {1}, {2}".format(self.manager_surname, self.manager_name, self.manager_email)
+        return "{0} {1}, {2}".format(self.surname, self.name, self.email)
 
 
 class Client(models.Model):
@@ -61,7 +61,7 @@ class Project(models.Model):
     project_description = models.TextField()
     currency = models.CharField(max_length=20)
     basic_price = models.FloatField(null=True)
-    manager_info = models.ForeignKey(ManagerInfo, on_delete=models.CASCADE)
+    manager_info = models.ForeignKey(Manager, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     all_time_money_spent = models.IntegerField(default=0)
     deadline = models.DateField(null=True)

@@ -3,7 +3,7 @@ from pydrive.drive import GoogleDrive
 from xhtml2pdf import pisa
 from io import BytesIO
 from django.template.loader import get_template
-from .models import DevelopersOnProject, Developer, Project, Company, SentNotifications, Invoice, ManagerInfo, \
+from .models import DevelopersOnProject, Developer, Project, Company, SentNotifications, Invoice, Manager, \
     InvoiceNotifications, BirthdayNotification, DeadlineNotifications
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
@@ -123,7 +123,7 @@ def dev_birthday_checker(devs):
             subject = "Birthday notification"
             msg = "%s will have a birthday soon" % dev.name + dev.surname
             dev_emails = [dev.email for dev in devs]
-            managers_emails = [manager.manager_email for manager in ManagerInfo.objects.all()]
+            managers_emails = [manager.email for manager in Manager.objects.all()]
             to_email = dev_emails + managers_emails
             BirthdayNotification.objects.create(notification_type="BIRTHDAY",
                                                 event_id=dev.id).save()

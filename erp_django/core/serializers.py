@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ManagerInfo, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation
+from .models import Manager, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -10,10 +10,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ManagerInfoSerializer(serializers.ModelSerializer):
+class ManagerSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ManagerInfo
+        model = Manager
         fields = "__all__"
 
 

@@ -12,8 +12,8 @@ from django.http import HttpResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 
-from .models import Invoice, ManagerInfo, Project, Developer, DevelopersOnProject, Client, Cv, Vacation
-from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, \
+from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, Client, Cv, Vacation, User
+from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
@@ -23,6 +23,8 @@ from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_deve
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
 import coreapi
+
+from django.contrib.auth.hashers import make_password
 
 # TODO: generate salary report for dev like we did for customer
 # TODO: split views to files?
@@ -44,9 +46,9 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
-class ManagerInfoViewSet(viewsets.ModelViewSet):
-    queryset = ManagerInfo.objects.all()
-    serializer_class = ManagerInfoSerializer
+class ManagerViewSet(viewsets.ModelViewSet):
+    queryset = Manager.objects.all()
+    serializer_class = ManagerSerializer
     permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
@@ -114,7 +116,7 @@ class GenerateInvoice(APIView):
             project = get_project_details(project_id)
             company_details = get_company_details_by_currency(project.currency)
             client_info = Client.objects.get(id=project.client.id)
-            manager_info = ManagerInfo.objects.get(id=project.manager_info.id)
+            manager_info = Manager.objects.get(id=project.manager_info.id)
             developers, all_time_cost = get_project_developers_and_cost(project)
             total_cost = all_time_cost - project.all_time_money_spent
 
@@ -439,3 +441,71 @@ class SetGetVacation(APIView):
                 vacation.delete()
                 return json_response_success("Vacation is deleted", status=204)
         return json_response_error("Please provide a vacation id")
+
+
+class CreateUser(APIView):
+    permission_classes = ()
+
+    def post(self, request):
+        data = request.data
+
+        user_name = data.get("user_name", None)
+        user_password = data.get("user_password", None)
+        user_role = data.get("user_role", None)
+
+        if (not user_name) or (not user_password) or (not user_role):
+            return json_response_error("You must fill 'User name', 'User password' and 'User role' fields")
+
+        if user_role == "MANAGER":
+            manager_name = data.get("manager_name", None)
+            manager_surname = data.get("manager_surname", None)
+            manager_email = data.get("manager_email", None)
+            manager_position = data.get("manager_position", None)
+            manager_address = data.get("manager_address", None)
+            manager_company_name = data.get("manager_company_name", None)
+
+            user_manager = User.objects.create(username=user_name, password=make_password(user_password),
+                                               user_type=user_role, email=manager_email, last_name=manager_surname,
+                                               first_name=manager_name)
+            manager = Manager.objects.create(
+                name=manager_name,
+                surname=manager_surname,
+                email=manager_email,
+                position=manager_position,
+                address=manager_address,
+                company_name=manager_company_name,
+                owner=user_manager
+            )
+
+            user_manager.save()
+            manager.save()
+
+            return json_response_success("Thank you for registration.", status=201)
+
+        if user_role == "DEVELOPER":
+            developer_name = data.get("developer_name", None)
+            developer_surname = data.get("developer_surname", None)
+            developer_email = data.get("developer_email", None)
+            developer_hourly_rate = data.get("developer_hourly_rate", None)
+            developer_birthday_date = data.get("developer_birthday_date", None)
+            developer_monthly_salary = data.get("developer_monthly_salary", None)
+
+            user_developer = User.objects.create(username=user_name, password=make_password(user_password),
+                                                 user_type=user_role, email=developer_email, last_name=developer_surname,
+                                                 first_name=developer_name)
+            developer = Developer.objects.create(
+                name=developer_name,
+                surname=developer_surname,
+                email=developer_email,
+                hourly_rate=developer_hourly_rate,
+                birthday_date=developer_birthday_date,
+                monthly_salary=developer_monthly_salary,
+                user=user_developer
+            )
+
+            user_developer.save()
+            developer.save()
+
+            return json_response_success("Thank you for registration.", status=201)
+
+        return json_response_error("You must provide all required fields.")
