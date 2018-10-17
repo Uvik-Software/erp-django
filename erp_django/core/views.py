@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Invoice, ManagerInfo, Project, Developer, DevelopersOnProject, Client, Cv, Vacation
 from .serializers import InvoiceSerializer, ManagerInfoSerializer, ProjectSerializer, \
-    DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
+    DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
     get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off, \
@@ -36,6 +36,13 @@ def schema_view(request):
     generator = schemas.SchemaGenerator(
         title='UVIK ERP API end points')
     return response.Response(generator.get_schema(request=request))
+
+
+def jwt_response_payload_handler(token, user=None, request=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user).data
+    }
 
 
 class InvoiceViewSet(viewsets.ModelViewSet):
@@ -82,6 +89,20 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
             return DevelopersOnProject.objects.all().filter(project_id=project_id)
 
         return DevelopersOnProject.objects.all()
+
+
+class DashboardReport(APIView):
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
+
+    def get(self, request):
+        developers = Developer.objects.all().count()
+        clients = Client.objects.all().count()
+        managers = ManagerInfo.objects.all().count()
+        projects = Project.objects.all().count()
+        return json_response_success(data=dict(number_of_developers=developers,
+                                               number_of_managers=managers,
+                                               number_of_clients=clients,
+                                               number_of_projects=projects))
 
 
 class GenerateInvoice(APIView):
