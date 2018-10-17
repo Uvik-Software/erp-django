@@ -36,6 +36,12 @@ export const menus = [
         'link': '/dashboard/projects',
         'icon': 'folder',
     },
+  {
+        'name': 'Users',
+        'open': false,
+        'link': '/dashboard/users',
+        'icon': 'account_box',
+    },
     {
         'name': 'Material Widget',
         'icon': 'widgets',

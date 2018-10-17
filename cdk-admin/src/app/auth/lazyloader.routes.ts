@@ -22,5 +22,6 @@ export const appRoutes: Routes = [{
         { path: 'managers', loadChildren: '../managers/managers.module#ManagersModule' },
         { path: 'projects', loadChildren: '../projects/projects.module#ProjectsModule' },
         { path: 'vacations', loadChildren: '../vacations/vacations.module#VacationsModule' },
+        { path: 'users', loadChildren: '../users/users.module#UsersModule' },
     ]
 }];

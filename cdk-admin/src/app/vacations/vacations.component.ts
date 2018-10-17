@@ -18,8 +18,7 @@ export class VacationsComponent implements OnInit {
 
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
 
-  constructor(private vacationsService: VacationsService,
-              private developersService: DevelopersService) {}
+  constructor(private vacationsService: VacationsService) {}
 
   ngOnInit() {
 
