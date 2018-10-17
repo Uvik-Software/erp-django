@@ -3,6 +3,7 @@ import { CalendarComponent } from 'ng-fullcalendar';
 import { Options } from 'fullcalendar';
 import {VacationsService} from "./vacations.service";
 import {ClientListResponse} from "../interfaces/client";
+import {DevelopersService} from "../developers/developers.service";
 
 @Component({
   selector: 'app-vacations',
@@ -17,23 +18,17 @@ export class VacationsComponent implements OnInit {
 
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
 
-  constructor(private vacationsService: VacationsService) {}
+  constructor(private vacationsService: VacationsService,
+              private developersService: DevelopersService) {}
 
   ngOnInit() {
-    this.vacationsService.getUkrainianDaysOff().subscribe((response:any) => {
-      for (let holidayData in response.data) {
-        let holiday = {title: holidayData,
-                    start: response.data[holidayData]};
 
-        /*
-        title: 'Meeting',
-        start: yearMonth + '-12T10:30:00',
-        end: yearMonth + '-12T12:30:00'
-        */
+    this.getAllDaysOff();
+  }
 
-        this.events.push(holiday);
-      }
-      this.calendarOptions = {
+  getAllDaysOff() {
+    this.vacationsService.getAllVacations().subscribe((response:any) => {
+        this.calendarOptions = {
         editable: true,
         eventLimit: false,
         header: {
@@ -41,12 +36,10 @@ export class VacationsComponent implements OnInit {
           center: 'title',
           right: 'month,agendaWeek,agendaDay,listMonth'
         },
-        events: this.events
+        events: response.data
       };
       })
   }
-
-
 
   clickButton(model: any) {
     this.displayEvent = model;
@@ -62,7 +55,7 @@ export class VacationsComponent implements OnInit {
         // other params
       },
       duration: {}
-    }
+    };
     this.displayEvent = model;
   }
   updateEvent(model: any) {

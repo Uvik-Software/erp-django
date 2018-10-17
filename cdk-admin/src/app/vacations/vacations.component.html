@@ -2,7 +2,7 @@
 
 <div fxLayout="column"  class="components-container-gt-xs"  [ngClass.xs]="'components-container-xs'"  fxLayoutGap="20px">
 
-<div *ngIf="calendarOptions" style="padding:5%; background-color: white">
+<div *ngIf="calendarOptions" style="padding:5%; background-color: white; font-family: Roboto">
     <ng-fullcalendar #ucCalendar [options]="calendarOptions" [(eventsModel)]="events"></ng-fullcalendar>
 </div>
 </div>

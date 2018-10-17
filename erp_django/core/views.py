@@ -99,7 +99,7 @@ class DashboardReport(APIView):
     def get(self, request):
         developers = Developer.objects.all().count()
         clients = Client.objects.all().count()
-        managers = ManagerInfo.objects.all().count()
+        managers = Manager.objects.all().count()
         projects = Project.objects.all().count()
         return json_response_success(data=dict(number_of_developers=developers,
                                                number_of_managers=managers,
@@ -463,8 +463,32 @@ class SetGetVacation(APIView):
         return json_response_error("Please provide a vacation id")
 
 
+class GetAllHolidays(APIView):
+    permission_classes = (IsAuthenticated, PermsForVacation)
+
+    def get(self, request):
+        response = list()
+        ua_holidays = get_ua_days_off(False)
+
+        for project in Project.objects.all():
+            if project.deadline or project.project_started_date:
+                response.append(dict(title=project.name,
+                                     start=project.project_started_date,
+                                     end=project.deadline))
+
+        for holiday in ua_holidays:
+            response.append(dict(title=holiday.replace("_", " "),
+                                 start=ua_holidays[holiday]))
+
+        for developer in Developer.objects.all():
+            response.append(dict(title=developer.name + " " + developer.surname + " Birthday",
+                                 start=developer.birthday_date))
+
+        return json_response_success(data=response)
+
+
 class CreateUser(APIView):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, PermsForVacation)
 
     def post(self, request):
         data = request.data

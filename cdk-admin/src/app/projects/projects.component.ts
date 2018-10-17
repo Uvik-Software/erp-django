@@ -63,6 +63,7 @@ export class ProjectsComponent implements OnInit {
     } else {
       let dialogRef = this.dialog.open(ProjectEditDialog).afterClosed().subscribe(response => {
           if (response && response.changed) {
+            console.log(response.data)
             response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
             response.data.manager_info = JSON.parse(localStorage.getItem('currentUser')).user.id;
             response.data.client = response.data.client.id;
@@ -186,7 +187,7 @@ export class ProjectEditDialog {
   }
 
   changeClient(event) {
-    this.client = this.clients.find(o => o.name === event);
+    this.client = this.clients.find(o => o.id === event);
   }
 
 }
