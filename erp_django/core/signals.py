@@ -22,12 +22,12 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-# @receiver(post_save, sender=Developer)
-# def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
-#     if created:
-#         dev = instance
-#         message = "%s has a birthday today" % dev.name + dev.surname
-#         create_g_calendar_event(dev.birthday_date, dev.birthday_date, message)
+"""@receiver(post_save, sender=Developer)
+def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
+    if created:
+        dev = instance
+        message = "%s has a birthday today" % dev.name + dev.surname
+        create_g_calendar_event(dev.birthday_date, dev.birthday_date, message)
 
 
 @receiver(post_save, sender=Project)
@@ -70,4 +70,4 @@ def notify_dev_if_comment_is_left(sender, instance, created, update_fields, **kw
         msg = "Comment about your vacation is updated"
         # uncomment to send a real email
         # gmail_sender(msg, vacation.developer.email, sbj)
-        print(msg)
+        print(msg)"""

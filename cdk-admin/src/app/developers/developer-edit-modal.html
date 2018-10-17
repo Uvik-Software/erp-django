@@ -1,0 +1,30 @@
+<div style="width:80%">
+
+  <h1 class="mat-headline center-align">Edit {{dev_data.name}} {{dev_data.surname}} information</h1>
+
+  <form [formGroup]="developerEditForm" (ngSubmit)="save()">
+  <div class="form-group">
+    <mat-form-field>
+      <input matInput placeholder="First name" formControlName="name">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Last name" formControlName="surname">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="E-mail" type="email" formControlName="email">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Hourly rate" formControlName="hourly_rate">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Monthly Salary" formControlName="monthly_salary">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Birthday Date" type="date" formControlName="birthday_date">
+    </mat-form-field>
+  </div>
+  <button mat-raised-button color="warn" style="margin: 1%" (click)="discard()">Discard</button>
+  <button mat-raised-button color="primary" style="margin: 1%" type="submit" [disabled]="!developerEditForm.valid">Save</button>
+</form>
+
+</div>

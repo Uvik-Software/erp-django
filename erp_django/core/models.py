@@ -22,7 +22,7 @@ class Manager(models.Model):
     position = models.CharField(max_length=50)
     address = models.TextField()
     company_name = models.CharField(max_length=100)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} {1}, {2}".format(self.surname, self.name, self.email)
@@ -39,7 +39,7 @@ class Client(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.email
+        return self.name
 
 
 class Developer(models.Model):
@@ -94,7 +94,7 @@ class Project(models.Model):
 class DevelopersOnProject(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    description = models.TextField()
+    description = models.TextField(null=True)
     hours = models.FloatField(null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 

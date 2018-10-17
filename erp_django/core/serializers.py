@@ -1,5 +1,12 @@
 from rest_framework import serializers
-from .models import Manager, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation
+from .models import Manager, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation, User
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = "__all__"
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -22,6 +29,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
+        #depth = 1
         fields = "__all__"
 
 
@@ -33,11 +41,11 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
 
 class DevelopersOnProjectSerializer(serializers.ModelSerializer):
-    developer_name = serializers.CharField(source='developer.name', read_only=True)
-    developer_surname = serializers.CharField(source='developer.surname', read_only=True)
-    developer_email = serializers.EmailField(source='developer.email', read_only=True)
+    name = serializers.CharField(source='developer.name', read_only=True)
+    surname = serializers.CharField(source='developer.surname', read_only=True)
+    email = serializers.EmailField(source='developer.email', read_only=True)
     #developer_hours = serializers.FloatField(source='developer.hours', read_only=True)
-    developer_hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)
+    hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)
 
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     #owner = serializers.ReadOnlyField(source='owner.username')
