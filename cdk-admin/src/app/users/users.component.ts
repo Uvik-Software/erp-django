@@ -87,7 +87,7 @@ export class userCreateDialog {
 
   user_data: any = {};
   userTypes = [
-    'MANAGER', 'CLIENT', 'DEVELOPER'
+    'MANAGER', 'DEVELOPER'
   ];
 
   userCreateForm = new FormGroup ({

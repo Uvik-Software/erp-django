@@ -46,16 +46,32 @@ export class ClientsComponent implements OnInit {
     const dialogConfig = new MatDialogConfig();
     //dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
-    dialogConfig.data = this.clients.find(o => o.id === id);
-    let dialogRef = this.dialog.open(ClientEditDialog, dialogConfig).afterClosed()
-      .subscribe(response => {
-        if (response && response.changed) {
-          this.clientsService.update_client(response.data).subscribe((response:ClientInterface) => {
-            this.getClients();
-      })
-        }
-      });
 
+    if (id) {
+      dialogConfig.data = this.clients.find(o => o.id === id);
+      let dialogRef = this.dialog.open(ClientEditDialog, dialogConfig).afterClosed()
+        .subscribe(response => {
+          if (response && response.changed) {
+            this.clientsService.update_client(response.data).subscribe((response: ClientInterface) => {
+              this.getClients();
+            })
+          }
+        });
+
+    } else {
+      dialogConfig.data = {};
+      let dialogRef = this.dialog.open(ClientEditDialog).afterClosed()
+        .subscribe(response => {
+          if (response && response.changed) {
+            response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
+            if (response && response.changed) {
+            this.clientsService.createClient(response.data).subscribe((response: any) => {
+              this.getClients();
+            })
+          }
+          }
+        });
+    }
   }
 }
 
@@ -81,7 +97,7 @@ export class ClientEditDialog {
   constructor(public dialogRef: MatDialogRef<ClientEditDialog>,
               private fb: FormBuilder,
               @Inject(MAT_DIALOG_DATA) data) {
-    this.client_data = data;
+    this.client_data = data || {};
     this.createForm()
   }
 

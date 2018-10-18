@@ -14,4 +14,8 @@ export class ClientsService {
     update_client(data) {
       return this.http.put<ClientInterface>(`${environment.baseUrl}/clients/` + data.id + `/`, data)
     }
+
+    createClient(data) {
+        return this.http.post<ClientListResponse>(`${environment.baseUrl}/clients/`, data)
+    }
 }
