@@ -487,26 +487,30 @@ class GetAllHolidays(APIView):
         return json_response_success(data=response)
 
 
-class CreateUser(APIView):
+class UserEndpoint(APIView):
     permission_classes = (IsAuthenticated, PermsForVacation)
+
+    def get(self, request):
+        users = [user for user in User.objects.all().values()]
+        return json_response_success(data=users)
 
     def post(self, request):
         data = request.data
 
         user_name = data.get("user_name", None)
-        user_password = data.get("user_password", None)
+        user_password = data.get("password", None)
         user_role = data.get("user_role", None)
 
         if (not user_name) or (not user_password) or (not user_role):
             return json_response_error("You must fill 'User name', 'User password' and 'User role' fields")
 
         if user_role == "MANAGER":
-            manager_name = data.get("manager_name", None)
-            manager_surname = data.get("manager_surname", None)
-            manager_email = data.get("manager_email", None)
-            manager_position = data.get("manager_position", None)
-            manager_address = data.get("manager_address", None)
-            manager_company_name = data.get("manager_company_name", None)
+            manager_name = data.get("first_name", None)
+            manager_surname = data.get("last_name", None)
+            manager_email = data.get("email", None)
+            manager_position = data.get("position", None)
+            manager_address = data.get("address", None)
+            manager_company_name = data.get("company_name", None)
 
             user_manager = User.objects.create(username=user_name, password=make_password(user_password),
                                                user_type=user_role, email=manager_email, last_name=manager_surname,
@@ -518,7 +522,7 @@ class CreateUser(APIView):
                 position=manager_position,
                 address=manager_address,
                 company_name=manager_company_name,
-                owner=user_manager
+                user=user_manager
             )
 
             user_manager.save()
@@ -527,12 +531,12 @@ class CreateUser(APIView):
             return json_response_success("Thank you for registration.", status=201)
 
         if user_role == "DEVELOPER":
-            developer_name = data.get("developer_name", None)
-            developer_surname = data.get("developer_surname", None)
-            developer_email = data.get("developer_email", None)
-            developer_hourly_rate = data.get("developer_hourly_rate", None)
-            developer_birthday_date = data.get("developer_birthday_date", None)
-            developer_monthly_salary = data.get("developer_monthly_salary", None)
+            developer_name = data.get("first_name", None)
+            developer_surname = data.get("last_name", None)
+            developer_email = data.get("email", None)
+            developer_hourly_rate = data.get("hourly_rate", None)
+            developer_birthday_date = data.get("birthday_date", None)
+            developer_monthly_salary = data.get("monthly_salary", None)
 
             user_developer = User.objects.create(username=user_name, password=make_password(user_password),
                                                  user_type=user_role, email=developer_email, last_name=developer_surname,
