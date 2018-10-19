@@ -6,14 +6,14 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatCardModule } from '@angular/material/card';
 import { DashboardWidgetModule } from '../dashboard-widget/dashboard-widget.module';
 
-export const appRoutes: Routes = [
-    { path: '', component: DashboardCrmComponent },
-];
+//export const appRoutes: Routes = [
+//    { path: '', component: DashboardCrmComponent },
+//];
 
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule.forChild(appRoutes),
+    //RouterModule.forChild(appRoutes),
     FlexLayoutModule,
     MatCardModule,
     DashboardWidgetModule
