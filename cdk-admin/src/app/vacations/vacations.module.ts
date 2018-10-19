@@ -15,8 +15,9 @@ import {
   MatTableModule,
   MatMenuModule,
   MatSelectModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatDialogModule,
+  MatCheckboxModule,
 } from '@angular/material';
-import { VacationsComponent } from "./vacations.component";
+import {VacationCreateDialog, VacationsComponent} from "./vacations.component";
 import {VacationsService} from "./vacations.service";
 
 export const ROUTES: Routes = [
@@ -48,9 +49,10 @@ export const ROUTES: Routes = [
     FormsModule,
     ReactiveFormsModule,
     FullCalendarModule,
+    MatCheckboxModule
   ],
-  declarations: [VacationsComponent],
-  entryComponents: [],
+  declarations: [VacationsComponent, VacationCreateDialog],
+  entryComponents: [VacationCreateDialog],
   providers: [ VacationsService ]
 })
 export class VacationsModule { }

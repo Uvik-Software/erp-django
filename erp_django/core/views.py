@@ -68,7 +68,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class DeveloperViewSet(viewsets.ModelViewSet):
     queryset = Developer.objects.all()
     serializer_class = DeveloperSerializer
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes = (IsAuthenticated,)
 
 
 class ClientViewSet(viewsets.ModelViewSet):
@@ -347,12 +347,12 @@ class SetGetVacation(APIView):
             return json_response_success(data=vacation)
 
         vacation = get_object_or_404(Vacation, pk=vacation_id)
-        return json_response_success(data=vacation)
+        return json_response_success(data=model_to_dict(vacation))
 
     def put(self, request):
         """
             parameters:
-            - name: vacation_id
+            - name: id
               required: true
               type: int
             - name: comments
@@ -368,8 +368,8 @@ class SetGetVacation(APIView):
         from_date = data.get("from_date", None)
         to_date = data.get("to_date", None)
         comments = data.get("comments", None)
-        is_approved = data.get("is_approved", False)
-        vacation_id = data.get("vacation_id", None)
+        is_approved = data.get("approved", False)
+        vacation_id = data.get("id", None)
 
         if is_developer(request.user):
             dev_vacation_upd = get_object_or_404(Vacation, pk=vacation_id)
@@ -440,12 +440,11 @@ class SetGetVacation(APIView):
             return json_response_success("You created the vacation for developer " +
                                          developer.surname + ' ' + developer.name, status=201)
 
-        return json_response_error("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
+        return json_response_success("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
     def delete(self, request):
-        data = request.data
+        data = request.query_params
         vacation_id = data.get("vacation_id", None)
-        # print(vacation_id)
 
         if vacation_id:
             if is_developer(request.user):
@@ -483,6 +482,12 @@ class GetAllHolidays(APIView):
         for developer in Developer.objects.all():
             response.append(dict(title=developer.name + " " + developer.surname + " Birthday",
                                  start=developer.birthday_date))
+
+        for vacation in Vacation.objects.all():
+            response.append(dict(title=vacation.developer.name + " " + vacation.developer.surname + " Vacation",
+                                 start=vacation.from_date,
+                                 end=vacation.to_date,
+                                 id=vacation.id))
 
         return json_response_success(data=response)
 

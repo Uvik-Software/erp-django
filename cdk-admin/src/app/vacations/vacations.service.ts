@@ -16,4 +16,20 @@ export class VacationsService {
     getAllVacations() {
         return this.http.get<getVacationsResponse>(`${environment.baseUrl}/all_holidays/`)
     }
+
+    createVacation(data) {
+      return this.http.post<any>(`${environment.baseUrl}/vacations/`, data)
+    }
+
+    getVacation(id) {
+      return this.http.get<getVacationsResponse>(`${environment.baseUrl}/vacations/?vacation_id=` + id)
+    }
+
+    changeVacation(data) {
+      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/`, data)
+    }
+
+    deleteVacation(id) {
+      return this.http.delete<getVacationsResponse>(`${environment.baseUrl}/vacations/?vacation_id=` + id)
+    }
 }
