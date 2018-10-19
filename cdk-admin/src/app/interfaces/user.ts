@@ -17,4 +17,8 @@ export class User {
   user_type: UserTypes;
 }
 
-
+export class getAllUsers {
+  ok: boolean;
+  message: string;
+  data: User[]
+}

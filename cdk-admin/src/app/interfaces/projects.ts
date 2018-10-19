@@ -23,3 +23,31 @@ export class ProjectInterface {
   project_started_date: Date;
   owner: number;
 }
+
+export class getProjectsResponse {
+  count: number;
+  next: URL;
+  previous: URL;
+  results: ProjectInterface[]
+}
+
+export class devOnProject {
+  description: string;
+  developer: number;
+  email: string;
+  hourly_rate: number;
+  hours: number;
+  id: number;
+  name: string;
+  owner: number;
+  project: number;
+  project_name: string;
+  surname: string;
+}
+
+export class getAssignedDevs {
+  count: number;
+  next: URL;
+  previous: URL;
+  results: devOnProject[]
+}

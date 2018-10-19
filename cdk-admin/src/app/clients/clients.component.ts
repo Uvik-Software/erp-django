@@ -52,7 +52,7 @@ export class ClientsComponent implements OnInit {
       let dialogRef = this.dialog.open(ClientEditDialog, dialogConfig).afterClosed()
         .subscribe(response => {
           if (response && response.changed) {
-            this.clientsService.update_client(response.data).subscribe((response: ClientInterface) => {
+            this.clientsService.update_client(response.data).subscribe(() => {
               this.getClients();
             })
           }
@@ -65,12 +65,12 @@ export class ClientsComponent implements OnInit {
           if (response && response.changed) {
             response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
             if (response && response.changed) {
-            this.clientsService.createClient(response.data).subscribe((response: any) => {
+            this.clientsService.createClient(response.data).subscribe(() => {
               this.getClients();
             })
           }
-          }
-        });
+         }
+       });
     }
   }
 }

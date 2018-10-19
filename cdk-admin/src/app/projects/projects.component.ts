@@ -9,7 +9,14 @@ import {
 } from "@angular/material";
 import { ProjectsService } from "./projects.service";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import {Currency, ProjectInterface, ProjectTypes} from "../interfaces/projects";
+import {
+  Currency,
+  devOnProject,
+  getAssignedDevs,
+  getProjectsResponse,
+  ProjectInterface,
+  ProjectTypes
+} from "../interfaces/projects";
 import {ClientsService} from "../clients/clients.service";
 import {DevelopersService} from "../developers/developers.service";
 import {DeveloperInterface} from "../interfaces/developer";
@@ -39,7 +46,7 @@ export class ProjectsComponent implements OnInit {
     }
 
   getProjects() {
-    this.projectsService.get_projects().subscribe((response:any) => {
+    this.projectsService.get_projects().subscribe((response:getProjectsResponse) => {
       this.projects = response.results;
       this.dataSource.data = response.results;
       })
@@ -55,7 +62,7 @@ export class ProjectsComponent implements OnInit {
       let dialogRef = this.dialog.open(ProjectEditDialog, dialogConfig).afterClosed()
         .subscribe(response => {
           if (response && response.changed) {
-            this.projectsService.update_project(response.data).subscribe((response: any) => {
+            this.projectsService.update_project(response.data).subscribe(() => {
               this.getProjects();
             })
           }
@@ -66,7 +73,7 @@ export class ProjectsComponent implements OnInit {
             response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
             response.data.manager_info = JSON.parse(localStorage.getItem('currentUser')).user.id;
             response.data.client = response.data.client.id;
-            this.projectsService.create_project(response.data).subscribe((response: any) => {
+            this.projectsService.create_project(response.data).subscribe(() => {
               this.getProjects();
             })
           }
@@ -75,7 +82,7 @@ export class ProjectsComponent implements OnInit {
   }
 
   deleteProject(id) {
-    this.projectsService.delete_project(id).subscribe((response: any) => {
+    this.projectsService.delete_project(id).subscribe(() => {
               this.getProjects();
             })
   }
@@ -107,7 +114,7 @@ export class ProjectEditDialog {
     { name: 'UAH' }
   ];
   clients:ClientInterface[] = [];
-  client:any = {};
+  client:ClientInterface;
 
 
   projectEditForm = new FormGroup ({
@@ -197,11 +204,11 @@ export class ProjectEditDialog {
 })
 export class ProjectAssignComponent {
 
-    availableDevelopers: Array<DeveloperInterface> = [];
-    assignedDevelopers: Array<DeveloperInterface> = [];
-    availableDevelopersAtStart: Array<DeveloperInterface> = [];
-    assignedDevelopersAtStart: Array<DeveloperInterface> = [];
-    project:any = {};
+    availableDevelopers: devOnProject[];
+    assignedDevelopers: devOnProject[];
+    availableDevelopersAtStart: devOnProject[];
+    assignedDevelopersAtStart: devOnProject[];
+    project: ProjectInterface;
 
     constructor(private developersService: DevelopersService,
                 private projectsService:ProjectsService,
@@ -215,7 +222,7 @@ export class ProjectAssignComponent {
   }
 
   getDevelopers() {
-    this.projectsService.getAssignedDevs(this.project.id).subscribe((response: any) => {
+    this.projectsService.getAssignedDevs(this.project.id).subscribe((response: getAssignedDevs) => {
       this.assignedDevelopers = response.results;
       this.developersService.get_developers().subscribe((response: any) => {
         this.availableDevelopers = response.results;
@@ -239,7 +246,7 @@ export class ProjectAssignComponent {
                       owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
                       hours: developer.hours,
                       description: developer.description};
-            this.projectsService.assignDevToProject(data).subscribe((response:any) => {
+            this.projectsService.assignDevToProject(data).subscribe(() => {
       })
         } else if (this.assignedDevelopersAtStart.includes(developer)) {
           let data = {project: this.project.id,
@@ -248,13 +255,13 @@ export class ProjectAssignComponent {
                       hours: developer.hours,
                       description: developer.description,
                       developer: developer.developer};
-                  this.projectsService.updateDevOnProject(data).subscribe((response:any) => {
+                  this.projectsService.updateDevOnProject(data).subscribe(() => {
             })
         }
     }
     for (let developer of this.availableDevelopers) {
         if(!this.availableDevelopersAtStart.includes(developer)) {
-          this.projectsService.deleteDevFromProject(developer.id).subscribe((response:any) => {
+          this.projectsService.deleteDevFromProject(developer.id).subscribe(() => {
       })
         }
     }

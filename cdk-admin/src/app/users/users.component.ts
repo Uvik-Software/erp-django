@@ -1,5 +1,5 @@
-import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {UserService} from "./users.service";
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { UserService } from "./users.service";
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -8,20 +8,14 @@ import {
   MatPaginator,
   MatTableDataSource
 } from "@angular/material";
-import {ManagersInterface} from "../interfaces/managers";
 import {
-  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
-  ValidationErrors,
-  ValidatorFn,
   Validators
 } from "@angular/forms";
-import {ClientInterface, ClientListResponse} from "../interfaces/client";
-import {Currency, ProjectInterface, ProjectTypes} from "../interfaces/projects";
-import {ClientsService} from "../clients/clients.service";
-import {ProjectEditDialog} from "../projects/projects.component";
+import { ProjectInterface } from "../interfaces/projects";
+import { User } from "../interfaces/user";
 
 @Component({
   selector: 'app-users',
@@ -32,9 +26,9 @@ export class UsersComponent implements OnInit {
 
   constructor(private userService: UserService, private dialog: MatDialog, private fb: FormBuilder) { }
 
-  users: any[] = [];
+  users: User[];
   displayedColumns: string[] = ['name', 'email', 'user_type'];
-  dataSource = new MatTableDataSource<ManagersInterface>([]);
+  dataSource = new MatTableDataSource<User>([]);
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   userCreateForm = new FormGroup ({
@@ -54,13 +48,9 @@ export class UsersComponent implements OnInit {
 
 
   getAllUsers() {
-    this.userService.getAllUsers().subscribe((response:any) => {
+    this.userService.getAllUsers().subscribe((response) => {
         this.dataSource.data = response.data;
       })
-  }
-
-  createUser() {
-
   }
 
   createForm() {
@@ -68,7 +58,7 @@ export class UsersComponent implements OnInit {
     dialogConfig.autoFocus = true;
     let dialogRef = this.dialog.open(userCreateDialog).afterClosed().subscribe(response => {
         if (response && response.changed) {
-          this.userService.createUser(response.data).subscribe((response: any) => {
+          this.userService.createUser(response.data).subscribe(() => {
             this.getAllUsers();
           })
         }
@@ -85,7 +75,6 @@ export class UsersComponent implements OnInit {
 
 export class userCreateDialog {
 
-  user_data: any = {};
   userTypes = [
     'MANAGER', 'DEVELOPER'
   ];

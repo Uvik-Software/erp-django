@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from .models import Developer
+from .models import Developer, Manager
+
 
 class CustomObjectPermissions(permissions.DjangoObjectPermissions):
     """
@@ -19,7 +20,7 @@ class CustomObjectPermissions(permissions.DjangoObjectPermissions):
 class ManagerFullAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if not isinstance(obj, Developer):
+        if not isinstance(obj, Developer) and not isinstance(obj, Manager):
             return request.user.user_type == "MANAGER" and obj.owner == request.user or request.user.is_superuser
         return request.user.user_type == "MANAGER" or request.user.is_superuser
 

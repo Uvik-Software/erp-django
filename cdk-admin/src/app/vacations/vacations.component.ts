@@ -4,6 +4,7 @@ import { Options } from 'fullcalendar';
 import {VacationsService} from "./vacations.service";
 import {ClientListResponse} from "../interfaces/client";
 import {DevelopersService} from "../developers/developers.service";
+import {getVacationsResponse} from "../interfaces/vacations";
 
 @Component({
   selector: 'app-vacations',
@@ -13,7 +14,7 @@ import {DevelopersService} from "../developers/developers.service";
 export class VacationsComponent implements OnInit {
 
   calendarOptions: Options;
-  events: any = [];
+  //events: any = [];
   displayEvent: any;
 
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
@@ -26,7 +27,7 @@ export class VacationsComponent implements OnInit {
   }
 
   getAllDaysOff() {
-    this.vacationsService.getAllVacations().subscribe((response:any) => {
+    this.vacationsService.getAllVacations().subscribe((response:getVacationsResponse) => {
         this.calendarOptions = {
         editable: true,
         eventLimit: false,
@@ -43,6 +44,7 @@ export class VacationsComponent implements OnInit {
   clickButton(model: any) {
     this.displayEvent = model;
   }
+
   eventClick(model: any) {
     model = {
       event: {
@@ -57,6 +59,7 @@ export class VacationsComponent implements OnInit {
     };
     this.displayEvent = model;
   }
+
   updateEvent(model: any) {
     model = {
       event: {
@@ -69,7 +72,7 @@ export class VacationsComponent implements OnInit {
       duration: {
         _data: model.duration._data
       }
-    }
+    };
     this.displayEvent = model;
   }
 

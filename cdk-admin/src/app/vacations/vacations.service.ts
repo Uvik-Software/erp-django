@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import 'rxjs/add/observable/of';
 import { environment } from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import {getVacationsResponse} from "../interfaces/vacations";
 
 @Injectable()
 export class VacationsService {
@@ -9,10 +10,10 @@ export class VacationsService {
   constructor(private http: HttpClient) { }
 
     getUkrainianDaysOff() {
-        return this.http.get<any>(`${environment.baseUrl}/days_off/?next_month_only=False`)
+        return this.http.get(`${environment.baseUrl}/days_off/?next_month_only=False`)
     }
 
     getAllVacations() {
-        return this.http.get<any>(`${environment.baseUrl}/all_holidays/`)
+        return this.http.get<getVacationsResponse>(`${environment.baseUrl}/all_holidays/`)
     }
 }
