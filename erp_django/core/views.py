@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, Client, Cv, Vacation, User
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
-    DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
+    DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer
 
 from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency
 
@@ -41,6 +41,13 @@ def schema_view(request):
     return response.Response(generator.get_schema(request=request))
 
 
+def jwt_response_payload_handler(token, user=None, request=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user).data
+    }
+
+
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
@@ -62,7 +69,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class DeveloperViewSet(viewsets.ModelViewSet):
     queryset = Developer.objects.all()
     serializer_class = DeveloperSerializer
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes = (IsAuthenticated,)
 
 
 class ClientViewSet(viewsets.ModelViewSet):
@@ -85,6 +92,20 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
             return DevelopersOnProject.objects.all().filter(project_id=project_id)
 
         return DevelopersOnProject.objects.all()
+
+
+class DashboardReport(APIView):
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
+
+    def get(self, request):
+        developers = Developer.objects.all().count()
+        clients = Client.objects.all().count()
+        managers = Manager.objects.all().count()
+        projects = Project.objects.all().count()
+        return json_response_success(data=dict(number_of_developers=developers,
+                                               number_of_managers=managers,
+                                               number_of_clients=clients,
+                                               number_of_projects=projects))
 
 
 class GenerateInvoice(APIView):
@@ -332,7 +353,7 @@ class SetGetVacation(APIView):
     def put(self, request):
         """
             parameters:
-            - name: vacation_id
+            - name: id
               required: true
               type: int
             - name: comments
@@ -348,8 +369,8 @@ class SetGetVacation(APIView):
         from_date = data.get("from_date", None)
         to_date = data.get("to_date", None)
         comments = data.get("comments", None)
-        is_approved = data.get("is_approved", False)
-        vacation_id = data.get("vacation_id", None)
+        is_approved = data.get("approved", False)
+        vacation_id = data.get("id", None)
 
         if is_developer(request.user):
             dev_vacation_upd = get_object_or_404(Vacation, pk=vacation_id)
@@ -394,7 +415,6 @@ class SetGetVacation(APIView):
         to_date = data.get("to_date", None)
         developer_id = data.get("developer_id", None)
         is_approved = data.get("is_approved", False)
-        # print(request.data)
 
         if not from_date and not to_date:
             return json_response_error("You must fill 'From date' and 'To date' fields")
@@ -421,12 +441,11 @@ class SetGetVacation(APIView):
             return json_response_success("You created the vacation for developer " +
                                          developer.surname + ' ' + developer.name, status=201)
 
-        return json_response_error("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
+        return json_response_success("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
     def delete(self, request):
-        data = request.data
+        data = request.query_params
         vacation_id = data.get("vacation_id", None)
-        # print(vacation_id)
 
         if vacation_id:
             if is_developer(request.user):
@@ -444,26 +463,60 @@ class SetGetVacation(APIView):
         return json_response_error("Please provide a vacation id")
 
 
-class CreateUser(APIView):
-    permission_classes = ()
+class GetAllHolidays(APIView):
+    permission_classes = (IsAuthenticated, PermsForVacation)
+
+    def get(self, request):
+        response = list()
+        ua_holidays = get_ua_days_off(False)
+
+        for project in Project.objects.all():
+            if project.deadline or project.project_started_date:
+                response.append(dict(title=project.name,
+                                     start=project.project_started_date,
+                                     end=project.deadline))
+
+        for holiday in ua_holidays:
+            response.append(dict(title=holiday.replace("_", " "),
+                                 start=ua_holidays[holiday]))
+
+        for developer in Developer.objects.all():
+            response.append(dict(title=developer.name + " " + developer.surname + " Birthday",
+                                 start=developer.birthday_date))
+
+        for vacation in Vacation.objects.all():
+            response.append(dict(title=vacation.developer.name + " " + vacation.developer.surname + " Vacation",
+                                 start=vacation.from_date,
+                                 end=vacation.to_date,
+                                 id=vacation.id))
+
+        return json_response_success(data=response)
+
+
+class UserEndpoint(APIView):
+    permission_classes = (IsAuthenticated, PermsForVacation)
+
+    def get(self, request):
+        users = [user for user in User.objects.all().values()]
+        return json_response_success(data=users)
 
     def post(self, request):
         data = request.data
 
         user_name = data.get("user_name", None)
-        user_password = data.get("user_password", None)
+        user_password = data.get("password", None)
         user_role = data.get("user_role", None)
 
         if (not user_name) or (not user_password) or (not user_role):
             return json_response_error("You must fill 'User name', 'User password' and 'User role' fields")
 
         if user_role == "MANAGER":
-            manager_name = data.get("manager_name", None)
-            manager_surname = data.get("manager_surname", None)
-            manager_email = data.get("manager_email", None)
-            manager_position = data.get("manager_position", None)
-            manager_address = data.get("manager_address", None)
-            manager_company_name = data.get("manager_company_name", None)
+            manager_name = data.get("first_name", None)
+            manager_surname = data.get("last_name", None)
+            manager_email = data.get("email", None)
+            manager_position = data.get("position", None)
+            manager_address = data.get("address", None)
+            manager_company_name = data.get("company_name", None)
 
             user_manager = User.objects.create(username=user_name, password=make_password(user_password),
                                                user_type=user_role, email=manager_email, last_name=manager_surname,
@@ -475,7 +528,7 @@ class CreateUser(APIView):
                 position=manager_position,
                 address=manager_address,
                 company_name=manager_company_name,
-                owner=user_manager
+                user=user_manager
             )
 
             user_manager.save()
@@ -484,12 +537,12 @@ class CreateUser(APIView):
             return json_response_success("Thank you for registration.", status=201)
 
         if user_role == "DEVELOPER":
-            developer_name = data.get("developer_name", None)
-            developer_surname = data.get("developer_surname", None)
-            developer_email = data.get("developer_email", None)
-            developer_hourly_rate = data.get("developer_hourly_rate", None)
-            developer_birthday_date = data.get("developer_birthday_date", None)
-            developer_monthly_salary = data.get("developer_monthly_salary", None)
+            developer_name = data.get("first_name", None)
+            developer_surname = data.get("last_name", None)
+            developer_email = data.get("email", None)
+            developer_hourly_rate = data.get("hourly_rate", None)
+            developer_birthday_date = data.get("birthday_date", None)
+            developer_monthly_salary = data.get("monthly_salary", None)
 
             user_developer = User.objects.create(username=user_name, password=make_password(user_password),
                                                  user_type=user_role, email=developer_email, last_name=developer_surname,

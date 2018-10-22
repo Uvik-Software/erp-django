@@ -1,0 +1,54 @@
+<div fxLayout="column" fxLayoutAlign="space-between stretch" fxLayoutGap="10px"  fxFlexFill style="padding: 20px;">
+
+	<div fxLayout="column"  style="background-color: white; padding: 10px;" fxLayoutAlign="space-between stretch" fxLayoutGap="10px"  fxFlexFill >
+		<div >
+			<mat-toolbar style=" width: 800px;">
+					<h3 class="mat-heading"> Assign Developers to {{ project.project_name }}	</h3>
+        <button mat-raised-button color="warn" style="margin-left: 37%" (click)="discard()">Discard</button>
+        <button mat-raised-button color="primary" style="margin-left: 1%" (click)="apply()">Save</button>
+			</mat-toolbar>
+		</div>
+		<div fxFlexFill>
+			<div fxLayout="row" fxLayoutGap="10px" fxLayout.lt-sm="column">
+				<div class=" mat-elevation-z4" fxFlex="50" >
+					<mat-toolbar>
+							<h5 class="mat-title">Available Developers</h5>
+					</mat-toolbar>
+					<div  dnd-sortable-container [dropZones]="['boxers-zone']" [sortableData]="availableDevelopers">
+
+<mat-list>
+							<mat-list-item  *ngFor="let availableDeveloper of availableDevelopers; let i = index" class="list-group-item" dnd-sortable [sortableIndex]="i">
+                  {{ availableDeveloper.name }} {{ availableDeveloper.surname }} <br/>
+
+              </mat-list-item></mat-list>
+
+					</div>
+
+				</div>
+				<div class=" mat-elevation-z4" fxFlex="50" >
+					<mat-toolbar>
+						<h5 class="mat-title">Developers on Project</h5>
+					</mat-toolbar>
+
+					<div dnd-sortable-container [dropZones]="['boxers-zone']" [sortableData]="assignedDevelopers" style="height: 100%">
+						<mat-list>
+							<mat-list-item *ngFor="let assignedDeveloper of assignedDevelopers; let x = index" class="list-group-item" dnd-sortable [sortableIndex]="x" style="height: 100%">
+								{{ assignedDeveloper.name }} {{ assignedDeveloper.surname }}
+                <div style="margin-left: 10%">
+                      <mat-form-field>
+                        <input matInput placeholder="Hours" [(ngModel)]="assignedDeveloper.hours">
+                      </mat-form-field>
+                <mat-form-field>
+                        <input matInput placeholder="Description" [(ngModel)]="assignedDeveloper.description">
+                      </mat-form-field>
+                </div>
+
+							</mat-list-item>
+						</mat-list>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>

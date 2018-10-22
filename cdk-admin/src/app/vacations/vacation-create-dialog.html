@@ -1,0 +1,46 @@
+<div style="width:80%">
+
+  <h1 class="mat-headline center-align" *ngIf="!vacationCreateForm.value.id">Create Vacation</h1>
+  <h1 class="mat-headline center-align" *ngIf="vacationCreateForm.value.id">
+    Update Vacation
+  </h1>
+
+
+  <form [formGroup]="vacationCreateForm" (ngSubmit)="save()">
+  <div class="form-group">
+
+    <mat-form-field style="width: 100%" *ngIf="user.user_type === 'MANAGER'">
+      <mat-select placeholder="Developer" formControlName="developer_id">
+		    				<mat-option *ngFor="let developer of developers" [value]="developer.id">
+		      								{{ developer.name }} {{ developer.surname }}
+		    				</mat-option>
+	  					</mat-select>
+    </mat-form-field>
+
+
+    <mat-form-field>
+      <input matInput placeholder="From Date" type="date" formControlName="from_date">
+    </mat-form-field>
+     <mat-form-field>
+      <input matInput placeholder="To Date" type="date" formControlName="to_date">
+    </mat-form-field>
+
+
+
+  </div>
+    <div >
+      <mat-checkbox formControlName="approved" [disabled]="user.user_type === 'DEVELOPER'">Approved</mat-checkbox>
+      <mat-form-field style="width: 100%; margin-top: 5%" >
+      <textarea matInput placeholder="Comments" matTextareaAutosize matAutosizeMinRows="4" formControlName="comments"></textarea>
+    </mat-form-field>
+
+    </div>
+
+  <button mat-raised-button color="warn" style="margin: 1%;" (click)="delete(vacationCreateForm.value.id)" >delete</button>
+    <button mat-raised-button color="primary" style="margin: 1%; float:right" type="submit">Save</button>
+  <button mat-raised-button color="warn" style="margin: 1%; float:right" (click)="discard()">Discard</button>
+
+
+</form>
+
+</div>

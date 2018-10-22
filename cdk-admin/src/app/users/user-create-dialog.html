@@ -1,0 +1,58 @@
+<div style="width:80%">
+  <h1 class="mat-headline center-align">Create User</h1>
+
+  <form [formGroup]="userCreateForm" (ngSubmit)="save()">
+  <div class="form-group">
+      <mat-form-field>
+      <input matInput placeholder="First Name" formControlName="first_name">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Last Name" formControlName="last_name">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="User Role" formControlName="user_role">
+		    				<mat-option *ngFor="let userType of userTypes" [value]="userType">
+		      								{{ userType }}
+		    				</mat-option>
+	  					</mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="E-mail" type="email" formControlName="email">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Username" formControlName="user_name">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Password" type="password" formControlName="password">
+    </mat-form-field>
+
+
+    <mat-form-field *ngIf="userCreateForm.value.user_role === 'MANAGER'">
+      <input matInput placeholder="Company Name"  formControlName="company_name" [required]="userCreateForm.value.user_role === 'MANAGER'">
+    </mat-form-field>
+    <mat-form-field *ngIf="userCreateForm.value.user_role === 'MANAGER'">
+      <input matInput placeholder="Position"  formControlName="position" [required]="userCreateForm.value.user_role === 'MANAGER'">
+    </mat-form-field>
+    <mat-form-field *ngIf="userCreateForm.value.user_role === 'MANAGER'">
+      <textarea matInput placeholder="Address" matTextareaAutosize matAutosizeMinRows="4" formControlName="address" [required]="userCreateForm.value.user_role === 'MANAGER'"></textarea>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="userCreateForm.value.user_role === 'DEVELOPER'">
+      <input matInput placeholder="Hourly Rate" type="number" formControlName="hourly_rate" [required]="userCreateForm.value.user_role === 'DEVELOPER'">
+    </mat-form-field>
+    <mat-form-field *ngIf="userCreateForm.value.user_role === 'DEVELOPER'">
+      <input matInput placeholder="Birthday Date"  type="Date" formControlName="birthday_date" [required]="userCreateForm.value.user_role === 'DEVELOPER'">
+    </mat-form-field>
+    <mat-form-field *ngIf="userCreateForm.value.user_role === 'DEVELOPER'">
+      <input matInput placeholder="Monthly Salary" type="number" formControlName="monthly_salary" [required]="userCreateForm.value.user_role === 'DEVELOPER'">
+    </mat-form-field>
+
+
+
+  </div>
+
+  <button mat-raised-button color="warn" style="margin: 1%" >Discard</button>
+  <button mat-raised-button color="primary" style="margin: 1%" type="submit">Save</button>
+</form>
+
+</div>
