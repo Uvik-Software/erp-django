@@ -16,9 +16,10 @@ from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, C
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer
 
-from .utils import pdf_to_google_drive, generate_pdf_from_html, get_project_developers_and_cost, \
-    get_project_details, get_company_details_by_currency, gmail_sender, is_manager, get_ua_days_off, \
-    json_response_error, json_response_success, is_developer
+from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency
+
+from .utils import pdf_to_google_drive, generate_pdf_from_html, is_manager, get_ua_days_off, \
+    json_response_error, json_response_success, is_developer, gmail_sender
 
 from .constants import INVOICE_REQUIRED_FIELDS
 import json
@@ -149,7 +150,7 @@ class GenerateInvoice(APIView):
             return HttpResponse(pdf_response.getvalue(), content_type='application/pdf')
 
         return json_response_error("Not all the required fields are filled up. %s are required."
-                                       % INVOICE_REQUIRED_FIELDS)
+                                   % INVOICE_REQUIRED_FIELDS)
 
     def get(self, request):
         """
@@ -326,7 +327,7 @@ class SetGetVacation(APIView):
             return json_response_success(data=vacation)
 
         vacation = get_object_or_404(Vacation, pk=vacation_id)
-        return json_response_success(data=vacation)
+        return json_response_success(data=model_to_dict(vacation))
 
     def put(self, request):
         """

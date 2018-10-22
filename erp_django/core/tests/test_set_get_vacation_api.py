@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 
@@ -21,8 +23,8 @@ class TestVacation(TestCase):
                                            password=make_password("some_password"), user_type="MANAGER")
 
         dev = Developer.objects.create(
-            name="Roma",
-            surname="Pogromist",
+            name="John",
+            surname="Doe",
             email="some@some.com",
             hourly_rate=5,
             birthday_date=DATE - datetime.timedelta(days=50),
@@ -108,7 +110,8 @@ class TestVacation(TestCase):
         self.assertEqual(vacation_post.from_date.strftime('%Y-%m-%d'), '2018-12-01')
         self.assertEqual(response.status_code, 201)
 
-    def test_put_vac_for_manager(self):
+    @patch('core.signals.gmail_sender')
+    def test_put_vac_for_manager(self, gmail_sender_mock):
         user = User.objects.get(username='uvik_man')
         login = self.client.login(username=user.username, password="some_password")
         response = self.client.post('/vacations/', {'from_date': '2018-12-01', 'to_date': '2018-12-20',
@@ -123,6 +126,8 @@ class TestVacation(TestCase):
                                    content_type='application/json')
 
         vac_put_data = Vacation.objects.get(from_date='2018-11-01')
+        gmail_sender_mock.assert_called_once_with('Approvement about your vacation is updated', 'some@some.com',
+                                                  'Approvement about your vacation is left')
         self.assertEqual(vac_post_data.from_date.strftime('%Y-%m-%d'), '2018-12-01')
         self.assertEqual(vac_put_data.from_date.strftime('%Y-%m-%d'), '2018-11-01')
         self.assertEqual(response.status_code, 201)
@@ -167,16 +172,34 @@ class TestVacation(TestCase):
         response = self.client.get('/vacations/')
         resp_body = response.json()
         resp_delete_1 = self.client.delete('/vacations/',
-                                         {'vacation_id': resp_body["data"][0]['id']},
-                                         content_type='application/json')
+                                           {'vacation_id': resp_body["data"][0]['id']},
+                                           content_type='application/json')
 
         resp_delete_2 = self.client.delete('/vacations/',
-                                         {'vacation_id': resp_body["data"][1]['id']},
-                                         content_type='application/json')
+                                           {'vacation_id': resp_body["data"][1]['id']},
+                                           content_type='application/json')
 
         self.assertEqual(len(Vacation.objects.all()), 0)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(resp_delete_1.status_code, 204)
         self.assertEqual(resp_delete_2.status_code, 204)
 
+    @patch('core.signals.gmail_sender')
+    def test_send_mail_approve_vac(self, gmail_sender_mock):
+        user = User.objects.get(username='uvik_man')
+        login = self.client.login(username=user.username, password="some_password")
+        response = self.client.post('/vacations/', {'from_date': '2018-12-01', 'to_date': '2018-12-20',
+                                                    'is_approved': True, 'developer_id': 1})
 
+        vacation = Vacation.objects.get(from_date='2018-12-01')
+        resp_put = self.client.put('/vacations/', {'from_date': '2018-11-01',
+                                                   'to_date': '2018-11-20',
+                                                   'is_approved': False,
+                                                   'comments': '111111111',
+                                                   'vacation_id': vacation.id},
+                                   content_type='application/json')
+
+        gmail_sender_mock.assert_called_once_with('Approvement about your vacation is updated', 'some@some.com',
+                                                  'Approvement about your vacation is left')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(resp_put.status_code, 200)
