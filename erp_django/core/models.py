@@ -3,6 +3,8 @@ from .constants import PROJECT_TYPE_VARIATIONS, INVOICE_STATUS, NOTIFICATION_TYP
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+# from core.utils import gmail_sender
+
 
 class User(AbstractUser):
     user_type = models.CharField(choices=(
@@ -68,24 +70,33 @@ class Project(models.Model):
     project_started_date = models.DateField(null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    __original_deadline = None
-    __original_project_started_date = None
-
-    def __init__(self, *args, **kwargs):
-        super(Project, self).__init__(*args, **kwargs)
-        self.__original_deadline = self.deadline
-        self.__original_project_started_date = self.project_started_date
-
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if (self.deadline != self.__original_deadline) or \
-                (self.project_started_date != self.__original_project_started_date):
-            pass  # print("IT CHANGED")    # ------------------------ change to send mail
-        else:
-            pass  # print("IT DIDNT CHANGE")   # ------------------------ change to send mail
-
-        super(Project, self).save(force_insert, force_update, *args, **kwargs)
-        self.__original_deadline = self.deadline
-        self.__original_project_started_date = self.project_started_date
+    # __original_deadline = None
+    # __original_project_started_date = None
+    #
+    # def __init__(self, *args, **kwargs):
+    #     super(Project, self).__init__(*args, **kwargs)
+    #     self.__original_deadline = self.deadline
+    #     self.__original_project_started_date = self.project_started_date
+    #
+    # def save(self, force_insert=False, force_update=False, *args, **kwargs):
+    #     if self.project_started_date != self.__original_project_started_date:
+    #         email_managers = [email_man.email for email_man in
+    #                           Manager.objects.exclude(email=self.manager_info.email).all()]
+    #         sbj = "Changes in project started date"
+    #         msg = "Project started date has changed"
+    #         # uncomment to send a real email
+    #         gmail_sender(msg, self.manager_info.email, sbj, cc=email_managers)
+    #     if self.deadline != self.__original_deadline:
+    #         email_managers = [email_man.email for email_man in
+    #                           Manager.objects.exclude(email=self.manager_info.email).all()]
+    #         sbj = "Changes in project deadline"
+    #         msg = "Project deadline has changed"
+    #         # uncomment to send a real email
+    #         gmail_sender(msg, self.manager_info.email, sbj, cc=email_managers)
+    #
+    #     super(Project, self).save(force_insert, force_update, *args, **kwargs)
+    #     self.__original_deadline = self.deadline
+    #     self.__original_project_started_date = self.project_started_date
 
     def __str__(self):
         return self.project_name
@@ -136,20 +147,21 @@ class Vacation(models.Model):
     approved = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    __original_approved = None
-
-    def __init__(self, *args, **kwargs):
-        super(Vacation, self).__init__(*args, **kwargs)
-        self.__original_approved = self.approved
-
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.approved != self.__original_approved:
-            pass  # print("IT CHANGED")  # ------------------------ change to send mail
-        else:
-            pass  # print("IT DIDNT CHANGE")   # ------------------------ change to send mail
-
-        super(Vacation, self).save(force_insert, force_update, *args, **kwargs)
-        self.__original_approved = self.approved
+    # __original_approved = None
+    #
+    # def __init__(self, *args, **kwargs):
+    #     super(Vacation, self).__init__(*args, **kwargs)
+    #     self.__original_approved = self.approved
+    #
+    # def save(self, force_insert=False, force_update=False, *args, **kwargs):
+    #     if self.approved != self.__original_approved:
+    #         sbj = "Approvement about your vacation is left"
+    #         msg = "Approvement about your vacation is updated"
+    #         # uncomment to send a real email
+    #         gmail_sender(msg, self.developer.email, sbj)
+    #
+    #     super(Vacation, self).save(force_insert, force_update, *args, **kwargs)
+    #     self.__original_approved = self.approved
 
 
 class DevSalary(models.Model):
@@ -185,3 +197,13 @@ class Cv(models.Model):
 
     def __str__(self):
         return self.g_drive_link
+
+
+class DeadlineForGCal(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE)
+    event_id = models.CharField(max_length=150)
+
+
+class ProjectStartForGCal(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE)
+    event_id = models.CharField(max_length=150)

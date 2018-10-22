@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import Developer, Project, Vacation
-from .utils import create_g_calendar_event, gmail_sender
+from .models import Developer, Project, Vacation, Manager, DeadlineForGCal, ProjectStartForGCal
+from core.utils import create_g_calendar_event, gmail_sender, update_g_calendar_event
 from django.conf import settings
 from rest_framework.authtoken.models import Token
 
@@ -22,7 +22,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-"""@receiver(post_save, sender=Developer)
+@receiver(post_save, sender=Developer)
 def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
     if created:
         dev = instance
@@ -32,42 +32,79 @@ def add_birthday_to_google_calendar(sender, instance, created, update_fields, **
 
 @receiver(post_save, sender=Project)
 def add_project_deadline_google_calendar(sender, instance, created, update_fields, **kwargs):
+    if created:
+        project = instance
+        if project.deadline:
+            msg = "Deadline for project '%s'" % project.project_name
+            # uncomment to create an actual event in google calendar
+            event_id = create_g_calendar_event(project.deadline, project.deadline, msg)
+            deadline_object = DeadlineForGCal.objects.create(project=project, event_id=event_id)
 
-    # TODO: check if deadline is changed, not just set. and if True, then remove previous google event and add a new one
-    # Links that will help:
-    # https://bitbucket.org/kingmray/django-google-calendar/src/3856538e28822c5ffaba39a3258a9e833ffe413a/calendar_api/calendar_api.py?at=master&fileviewer=file-view-default
-    # https://stackoverflow.com/questions/36719566/identify-the-changed-fields-in-django-post-save-signal
 
-    project = instance
-    if project.deadline:
-        message = "Deadline for project '%s'" % project.project_name
-        # uncomment to create an actual event in google calendar
-        #create_g_calendar_event(project.deadline, project.deadline, message)
-        print(message)
+@receiver(pre_save, sender=Project)
+def change_project_deadline_google_calendar(sender, instance, update_fields, **kwargs):
+    try:
+        old_proj_inst = Project.objects.get(id=instance.id)
+    except Project.DoesNotExist:
+        pass
+    else:
+        project = instance
+        if project.deadline != old_proj_inst.deadline:
+            email_managers = [email_man.email for email_man in
+                              Manager.objects.exclude(email=project.manager_info.email).all()]
+            msg = "Deadline for project '%s' has changed" % project.project_name
+            sbj = "Changes for project '%s' deadline" % project.project_name
+            gmail_sender(msg, project.manager_info.email, sbj, cc=email_managers)
+            # uncomment to update an actual event in google calendar
+            event_id = project.deadlineforgcal.event_id
+            update_event_id = update_g_calendar_event(project.deadline, project.deadline, msg, event_id)
+            project.deadlineforgcal.event_id = update_event_id
+            project.deadlineforgcal.save()
 
 
 @receiver(post_save, sender=Project)
 def add_project_started_date_google_calendar(sender, instance, created, update_fields, **kwargs):
-
-    # TODO: also check if this field is changed. same as for deadline
-
-    project = instance
-    if project.project_started_date:
-        message = "project '%s' is started" % project.project_name
-        # uncomment to create an actual event in google calendar
-        #create_g_calendar_event(project.project_started_date, project.project_started_date, message)
-        print(message)
+    if created:
+        project = instance
+        if project.project_started_date:
+            msg = "Project '%s' is started" % project.project_name
+            # uncomment to create an actual event in google calendar
+            event_id = create_g_calendar_event(project.project_started_date, project.project_started_date, msg)
+            project_start_object = ProjectStartForGCal.objects.create(project=project, event_id=event_id)
 
 
-@receiver(post_save, sender=Vacation)
-def notify_dev_if_comment_is_left(sender, instance, created, update_fields, **kwargs):
+@receiver(pre_save, sender=Project)
+def change_project_started_date_google_calendar(sender, instance, update_fields, **kwargs):
+    try:
+        old_proj_inst = Project.objects.get(id=instance.id)
+    except Project.DoesNotExist:
+        pass
+    else:
+        project = instance
+        if project.project_started_date != old_proj_inst.project_started_date:
+            email_managers = [email_man.email for email_man in
+                              Manager.objects.exclude(email=project.manager_info.email).all()]
+            msg = "Project started date for project '%s' has changed" % project.project_name
+            sbj = "Changes for project '%s' started date" % project.project_name
+            gmail_sender(msg, project.manager_info.email, sbj, cc=email_managers)
+            # uncomment to update an actual event in google calendar
+            event_id = project.projectstartforgcal.event_id
+            update_event_id = update_g_calendar_event(project.project_started_date, project.project_started_date,
+                                                      msg, event_id)
+            project.projectstartforgcal.event_id = update_event_id
+            project.projectstartforgcal.save()
 
-    # TODO: also check if this field is changed. same as for deadline
 
-    vacation = instance
-    if vacation.comments:
-        sbj = "Comment regarding vacation is left"
-        msg = "Comment about your vacation is updated"
-        # uncomment to send a real email
-        # gmail_sender(msg, vacation.developer.email, sbj)
-        print(msg)"""
+@receiver(pre_save, sender=Vacation)
+def notify_dev_if_vacation_approved(sender, instance, update_fields, **kwargs):
+    try:
+        old_vac_inst = Vacation.objects.get(id=instance.id)
+    except Vacation.DoesNotExist:
+        pass
+    else:
+        vacation = instance
+        if vacation.approved != old_vac_inst.approved:
+            sbj = "Approvement about your vacation is left"
+            msg = "Approvement about your vacation is updated"
+            # uncomment to send a real email
+            gmail_sender(msg, vacation.developer.email, sbj)
