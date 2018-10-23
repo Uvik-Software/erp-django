@@ -444,7 +444,7 @@ class SetGetVacation(APIView):
         return json_response_success("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
     def delete(self, request):
-        data = request.query_params
+        data = request.data
         vacation_id = data.get("vacation_id", None)
 
         if vacation_id:

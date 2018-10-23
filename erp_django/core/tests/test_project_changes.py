@@ -36,7 +36,7 @@ class TestProject(TestCase):
             position="manager",
             address="some_address",
             company_name="UVIK",
-            owner=manager_user
+            user=manager_user
         )
 
     @patch('core.signals.create_g_calendar_event')

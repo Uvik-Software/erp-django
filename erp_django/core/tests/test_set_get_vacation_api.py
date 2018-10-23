@@ -39,7 +39,7 @@ class TestVacation(TestCase):
             position="manager",
             address="some_address",
             company_name="UVIK",
-            owner=manager_user
+            user=manager_user
         )
 
         vac_dev = Vacation.objects.create(
@@ -120,9 +120,9 @@ class TestVacation(TestCase):
         vac_post_data = Vacation.objects.get(from_date='2018-12-01')
         resp_put = self.client.put('/vacations/', {'from_date': '2018-11-01',
                                                    'to_date': '2018-11-20',
-                                                   'is_approved': False,
+                                                   'approved': False,
                                                    'comments': '111111111',
-                                                   'vacation_id': vac_post_data.id},
+                                                   'id': vac_post_data.id},
                                    content_type='application/json')
 
         vac_put_data = Vacation.objects.get(from_date='2018-11-01')
@@ -142,9 +142,9 @@ class TestVacation(TestCase):
         vac_post_data = Vacation.objects.get(from_date='2018-12-01')
         resp_put = self.client.put('/vacations/', {'from_date': '2018-11-01',
                                                    'to_date': '2018-11-20',
-                                                   'is_approved': True,
+                                                   'approved': True,
                                                    'comments': '111111111',
-                                                   'vacation_id': vac_post_data.id},
+                                                   'id': vac_post_data.id},
                                    content_type='application/json')
 
         vac_put_data = Vacation.objects.get(from_date='2018-11-01')
@@ -156,15 +156,38 @@ class TestVacation(TestCase):
     def test_delete_vac_for_developer(self):
         user = User.objects.get(username='uvik_dev')
         login = self.client.login(username=user.username, password="some_password")
+        fake_user = User.objects.create(username="uvik_dev_666", password=make_password("some_password"),
+                                        user_type="DEVELOPER")
+        fake_dev = Developer.objects.create(
+            name="John",
+            surname="Smith",
+            email="js@js.com",
+            hourly_rate=5,
+            birthday_date=DATE - datetime.timedelta(days=50),
+            monthly_salary=1000,
+            user=fake_user
+        )
+        fake_vac = Vacation.objects.create(
+            developer=fake_dev,
+            from_date=DATE - datetime.timedelta(days=10),
+            to_date=TO_DATE.strftime("%Y-%m-%d"),
+            owner=fake_user
+        )
         response = self.client.get('/vacations/')
         resp_body = response.json()
-        resp_delete = self.client.delete('/vacations/',
-                                         {'vacation_id': resp_body["data"][0]['id']},
-                                         content_type='application/json')
 
-        self.assertEqual(len(Vacation.objects.all()), 1)
+        resp_delete_1 = self.client.delete('/vacations/',
+                                           {'vacation_id': resp_body["data"][0]['id']},
+                                           content_type='application/json')
+
+        resp_delete_2 = self.client.delete('/vacations/',
+                                           {'vacation_id': resp_body["data"][2]['id']},
+                                           content_type='application/json')
+
+        self.assertEqual(len(Vacation.objects.all()), 2)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(resp_delete.status_code, 204)
+        self.assertEqual(resp_delete_1.status_code, 204)
+        self.assertEqual(resp_delete_2.status_code, 200)
 
     def test_delete_vac_for_manager(self):
         user = User.objects.get(username='uvik_man')
@@ -194,9 +217,9 @@ class TestVacation(TestCase):
         vacation = Vacation.objects.get(from_date='2018-12-01')
         resp_put = self.client.put('/vacations/', {'from_date': '2018-11-01',
                                                    'to_date': '2018-11-20',
-                                                   'is_approved': False,
+                                                   'approved': False,
                                                    'comments': '111111111',
-                                                   'vacation_id': vacation.id},
+                                                   'id': vacation.id},
                                    content_type='application/json')
 
         gmail_sender_mock.assert_called_once_with('Approvement about your vacation is updated', 'some@some.com',
