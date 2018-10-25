@@ -10,18 +10,19 @@ from .permissions import ManagerFullAccess, PermsForVacation
 
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
-from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, Client, Cv, Vacation, User
+from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, Client, Cv, Vacation, User, ActOfPerfJobs
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
-    DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer
+    DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer, VacationSerializer, \
+    ActOfPerfJobsSerializer
 
 from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, is_manager, get_ua_days_off, \
     json_response_error, json_response_success, is_developer, gmail_sender
 
-from .constants import INVOICE_REQUIRED_FIELDS
+from .constants import INVOICE_REQUIRED_FIELDS, ACT_JOBS_REQUIRED_FIELDS
 import json
 import coreapi
 
@@ -81,6 +82,12 @@ class ClientViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+class VacationViewSet(viewsets.ModelViewSet):
+    queryset = Vacation.objects.all()
+    serializer_class = VacationSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
     queryset = DevelopersOnProject.objects.all()
     serializer_class = DevelopersOnProjectSerializer
@@ -92,6 +99,12 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
             return DevelopersOnProject.objects.all().filter(project_id=project_id)
 
         return DevelopersOnProject.objects.all()
+
+
+class ActOfPerfJobsViewSet(viewsets.ModelViewSet):
+    queryset = ActOfPerfJobs.objects.all()
+    serializer_class = ActOfPerfJobsSerializer
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class DashboardReport(APIView):
@@ -192,7 +205,7 @@ class GenerateInvoice(APIView):
     def delete(self, request, pk):
         invoice = get_object_or_404(Invoice, pk=pk)
         invoice.delete()
-        return json_response_success("Invoice is deleted")
+        return json_response_success("Invoice deleted")
 
 
 class DaysOff(APIView):
@@ -293,7 +306,7 @@ class DevelopersCv(APIView):
             cv = Cv(developer=developer,
                     g_drive_link=cv_link)
             cv.save()
-            return json_response_success("CV is created", model_to_dict(cv), status=201)
+            return json_response_success("CV created", model_to_dict(cv), status=201)
         return json_response_error("Not all the required fields are filled")
 
     def put(self, request):
@@ -318,7 +331,7 @@ class DevelopersCv(APIView):
             cv = get_object_or_404(Cv, id=cv_id)
             cv.g_drive_link = cv_link
             cv.save()
-            return json_response_success("Link is updated", model_to_dict(cv))
+            return json_response_success("Link updated", model_to_dict(cv))
         return json_response_error("Not all the required fields are filled")
 
     def delete(self, request):
@@ -327,7 +340,7 @@ class DevelopersCv(APIView):
         if cv_id:
             cv = get_object_or_404(Cv, id=cv_id)
             cv.delete()
-            return json_response_success("Cv is deleted", status=204)
+            return json_response_success("Cv deleted", status=204)
         return json_response_error("Id should be provided")
 
 
@@ -459,7 +472,7 @@ class SetGetVacation(APIView):
             if is_manager(request.user):
                 vacation = get_object_or_404(Vacation, id=vacation_id)
                 vacation.delete()
-                return json_response_success("Vacation is deleted", status=204)
+                return json_response_success("Vacation deleted", status=204)
         return json_response_error("Please provide a vacation id")
 
 
@@ -563,3 +576,81 @@ class UserEndpoint(APIView):
             return json_response_success("Thank you for registration.", status=201)
 
         return json_response_error("You must provide all required fields.")
+
+
+def get_acts(request):
+    return render(request, 'core/act_of_perf_works_1.html')
+
+
+class GenerateAct(APIView):
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
+
+    def get(self, request):
+        """
+            parameters:
+            - name: act_job_id
+              required: false
+              type: int
+        """
+        data = request.query_params
+        act_job_id = data.get("act_job_id", None)
+        if not act_job_id:
+            acts = [act for act in ActOfPerfJobs.objects.all().values()]
+            return json_response_success(data=acts)
+
+        act = get_object_or_404(ActOfPerfJobs, id=act_job_id)
+        return json_response_success(data=act)
+
+    def post(self, request):
+        data = request.data
+        if set(data.keys()) == ACT_JOBS_REQUIRED_FIELDS:
+            developer_id = data["developer_id"]
+            act_jobs_date = data["act_jobs_date"]
+            act_jobs_numb = data["act_jobs_numb"]
+            download = data["download"]
+
+            developer = Developer.objects.get(id=developer_id)
+            try:
+                dev_on_proj = DevelopersOnProject.objects.get(developer=developer)
+            except DevelopersOnProject.DoesNotExist:
+                dev_salary = developer.monthly_salary
+            else:
+                dev_salary = dev_on_proj.hours * developer.hourly_rate
+
+            act_jobs = ActOfPerfJobs(date=act_jobs_date,
+                                     number_of_act=act_jobs_numb,
+                                     customer_info=developer.customer,
+                                     developer_info=developer)
+            # act_jobs.save()
+
+            dev_salary_1 = dev_salary_2 = dev_salary / 2
+            data = dict(developer_info=model_to_dict(developer),
+                        act_jobs=model_to_dict(act_jobs),
+                        customer_info=model_to_dict(developer.customer),
+                        total_salary=dev_salary,
+                        dev_salary_1=dev_salary_1,
+                        dev_salary_2=dev_salary_2)
+
+            pdf_response, html = generate_pdf_from_html("core/act_of_perf_works_1.html", data)
+            # commented not to send files to google drive during dev.
+            # should be uncommented later.
+
+            # pdf_to_google_drive(html)
+
+            # if not download:
+            #     data["company_details"]["sign"] = json.dumps(str(data["company_details"]["sign"]))
+            #     return json_response_success(data=data)
+            return HttpResponse(pdf_response.getvalue(), content_type='application/pdf')
+
+        return json_response_error("Not all the required fields are filled up. %s are required."
+                                   % ACT_JOBS_REQUIRED_FIELDS)
+
+    def delete(self, request):
+        data = request.data
+        act_job_id = data.get("act_job_id", None)
+
+        if act_job_id:
+            act = get_object_or_404(ActOfPerfJobs, id=act_job_id)
+            act.delete()
+            return json_response_success("Act of performed jobs deleted", status=204)
+        return json_response_error("Please provide act of performed jobs id")

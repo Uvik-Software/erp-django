@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'act_for_perf_works.css' %}">
+</head>
+
+<body class="c4">
+    <p class="c9 c16"><span class="c1"></span></p>
+    <p class="c9"><span class="c14 c5">АКТ ВИКОНАНИХ РОБІТ № {{ act_jobs.number_of_act }}</span></p>
+    <p class="c3"><span class="c1"></span></p>
+    <p class="c3"><span class="c1"></span></p>
+    <table class="c20">
+        <tbody>
+            <tr class="c26">
+                <td class="c2" colspan="1" rowspan="1">
+                    <p class="c11-1"><span class="c1">Місце складання: м. Чернівці</span></p>
+                </td>
+                <td class="c2" colspan="1" rowspan="1">
+                    <p class="c11-2"><span class="c1">Дата складання: {{ act_jobs.date }} р.</span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="c7 c16 c32"><span class="c1"></span></p>
+    <p class="c7 c22"><span class="c0">Фізична особа-підприємець </span><span class="c5"> {{ customer_info.surname }}
+         {{ customer_info.name }} {{ customer_info.father_name }} </span>
+        <span class="c1">, який діє від власного імені, надалі – «Замовник», з однієї сторони та </span>
+        <span class="c0">фізична особа-підприємець</span><span class="c1"> {{ developer_info.surname }}
+            {{ developer_info.name }} {{ developer_info.father_name }} </span>
+        <span class="c5">...</span><span class="c1">, який діє від власного імені, надалі – «Виконавець», з іншої
+            сторони, склали цей Акт про наступне:</span></p>
+    <p class="c7 c16 c22"><span class="c1"></span></p>
+    <ol class="c23 lst-kix_list_2-0 start" start="1">
+        <li class="c7 c19"><span class="c1">Сторони погоджуються, що Виконавець виконав свої зобов’язання згідно
+            Договору на виконання робіт № {{ customer_info.num_contract_with_dev }} від
+            {{ customer_info.date_contract_with_dev }} р.</span></li>
+    </ol>
+    <p class="c7 c13"><span class="c1"></span></p>
+    <ol class="c23 lst-kix_list_2-0" start="2">
+        <li class="c7 c19"><span class="c1">Договір виконано відповідно узгоджених Сторонами графіком виконання робіт і
+            завдань у наступних обсягах:</span></li>
+    </ol>
+    <p class="c3 c31"><span class="c1"></span></p>
+    <p class="c7 c16 c25"><span class="c1"></span></p>
+    <table class="c24">
+        <tbody>
+            <tr class="c28">
+                <td class="c15" colspan="1" rowspan="1">
+                    <p class="c11"><span class="c14 c5">№</span></p>
+                    <p class="c11"><span class="c14 c5">з/п</span></p>
+                </td>
+                <td class="c12" colspan="1" rowspan="1">
+                    <p class="c9"><span class="c14 c5">Найменування робіт</span></p>
+                </td>
+                <td class="c10" colspan="1" rowspan="1">
+                    <p class="c9"><span class="c14 c5">Вартість робіт, грн.</span></p>
+                </td>
+            </tr>
+            <tr class="c17">
+                <td class="c15" colspan="1" rowspan="1">
+                    <p class="c11"><span class="c1">1.</span></p>
+                </td>
+                <td class="c12" colspan="1" rowspan="1">
+                    <p class="c7"><span class="c1">Роботи з комп’ютерного програмування</span></p>
+                </td>
+                <td class="c10" colspan="1" rowspan="1">
+                    <p class="c3"><span class="c1"> {{ dev_salary_1 }} </span></p>
+                </td>
+            </tr>
+            <tr class="c6">
+                <td class="c15" colspan="1" rowspan="1">
+                    <p class="c11"><span class="c1">2.</span></p>
+                </td>
+                <td class="c12" colspan="1" rowspan="1">
+                    <p class="c7"><span class="c1">Роботи з оброблення даних, розміщення інформації на веб-вузлах</span></p>
+                </td>
+                <td class="c10" colspan="1" rowspan="1">
+                    <p class="c3"><span class="c1"> {{ dev_salary_2 }} </span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p class="c7 c16 c18"><span class="c1"></span></p>
+    <p class="c3"><span class="c0"></span></p>
+    <p class="c7"><span class="c14 c5">Загальна вартість виконаних робіт становить {{ total_salary }} .</span></p>
+    <p class="c7"><span class="c14 c5">Без ПДВ (ПДВ не передбачений)</span></p>
+    <p class="c3"><span class="c1"></span></p>
+    <ol class="c23 lst-kix_list_2-0" start="3">
+        <li class="c7 c19"><span class="c1">Сторони підтверджують, що роботи виконані Виконавцем вчасно, якісно та в
+            повному обсязі та прийняті Замовником, а вартість робіт вказана в Акті відповідає попередньо узгодженій
+            Сторонами. Сторони не мають претензій одна до одної. </span></li>
+    </ol>
+    <p class="c7 c13"><span class="c1"></span></p>
+    <ol class="c23 lst-kix_list_2-0" start="4">
+        <li class="c7 c19"><span class="c1">Загальна вартість виконаних робіт включає вартість виключних майнових прав
+            на об'єкти інтелектуальної власності, створені Виконавцем в результаті виконання робіт в рамках Договору на
+            виконання робіт № {{ customer_info.num_contract_with_dev }} від {{ customer_info.date_contract_with_dev }} р.</span></li>
+    </ol>
+    <p class="c7 c13"><span class="c1"></span></p>
+    <ol class="c23 lst-kix_list_2-0" start="5">
+        <li class="c7 c19"><span class="c1">Цей Акт складений українською мовою у двох примірниках, що мають однакову
+            юридичну силу, по одному для кожної із Сторін.</span></li>
+    </ol>
+    <p class="c7 c16 c25 c30"><span class="c1"></span></p>
+    <p class="c3"><span class="c1"></span></p>
+    <table class="c20">
+        <tbody>
+            <tr class="c26">
+                <td class="c2" colspan="1" rowspan="1">
+                    <p class="c7"><span class="c0">Замовник: Фізична особа-підприємець</span></p>
+                    <p class="c7"><span class="c8"> {{ customer_info.surname }} {{ customer_info.name }} {{ customer_info.father_name }} </span></p>
+                    <p class="c7"><span class="c0">Адреса: {{ customer_info.address }} </span><span class="c8"></span></p>
+                    <p class="c7"><span class="c0">Реєстраційний номер облікової картки платника податків: </span><span class="c8"> {{ customer_info.tax_number }} </span></p>
+                    <p class="c7"><span class="c0">Р/р: </span><span class="c8"> {{ customer_info.bank_info.bank_account_number }} </span></p>
+                    <p class="c7"><span class="c0">в {{ customer_info.bank_info.bank_name }} </span></p>
+                    <p class="c7"><span class="c0">МФО код банку: {{ customer_info.bank_info.bank_code }} </span></p>
+                    <p class="c7 c16"><span class="c0"></span></p>
+                </td>
+                <td class="c2" colspan="1" rowspan="1">
+                    <p class="c7"><span class="c0">Виконавець: Фізична особа-підприємець</span></p>
+                    <p class="c7"><span class="c8"> {{ developer_info.surname }} {{ developer_info.name }} {{ developer_info.father_name }} </span></p>
+                    <p class="c7"><span class="c0">Адреса: {{ developer_info.address }}</span></p>
+                    <p class="c7"><span class="c0">...</span></p>
+                    <p class="c7"><span class="c0">Реєстраційний номер облікової картки платника податків: </span><span class="c8"> {{ developer_info.tax_number }} </span></p>
+                    <p class="c7"><span class="c0">Р/р: </span><span class="c8"> {{ developer_info.bank_info.bank_account_number }} </span></p>
+                    <p class="c7"><span class="c0">в {{ developer_info.bank_info.bank_name }} </span></p>
+                    <p class="c7"><span class="c0">МФО код банку: {{ developer_info.bank_info.bank_code }} </span></p>
+                    <p class="c7 c16"><span class="c0"></span></p>
+                </td>
+            </tr>
+            <tr class="c26">
+                <td class="c2" colspan="1" rowspan="1">
+                    <p class="c9"><span class="c0">Підпис:</span></p>
+                    <p class="c9 c16"><span class="c0"></span></p>
+                    <p class="c9"><span class="c0">_________________/</span></p>
+                </td>
+                <td class="c2" colspan="1" rowspan="1">
+                    <p class="c9"><span class="c0">Підпис:</span></p>
+                    <p class="c9 c16"><span class="c0"></span></p>
+                    <p class="c9"><span class="c0">_________________/</span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="c3"><span class="c1"></span></p>
+    <p class="c3"><span class="c0"></span></p>
+</body>
+
+</html>

@@ -3,9 +3,11 @@ from django.conf.urls.static import static
 from django.conf.urls import url, include
 from rest_framework import routers
 from .views import InvoiceViewSet, ManagerViewSet, ProjectViewSet, DeveloperViewSet, \
-    DevelopersOnProjectViewSet, ClientViewSet, GenerateInvoice, DaysOff, DevelopersCv, schema_view, SetGetVacation, \
-    DashboardReport, UserEndpoint, GetAllHolidays
+    DevelopersOnProjectViewSet, ClientViewSet, VacationViewSet, GenerateInvoice, DaysOff, DevelopersCv, schema_view, \
+    SetGetVacation, DashboardReport, UserEndpoint, GetAllHolidays, get_acts, GenerateAct
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
+
+from django.urls import path
 
 router = routers.DefaultRouter()
 router.register(r'invoices', InvoiceViewSet)
@@ -14,6 +16,7 @@ router.register(r'projects', ProjectViewSet)
 router.register(r'developers', DeveloperViewSet)
 router.register(r'developers_on_project', DevelopersOnProjectViewSet)
 router.register(r'clients', ClientViewSet)
+router.register(r'vacations', VacationViewSet)
 
 urlpatterns = [url(r'', include(router.urls)),
                url(r'^auth-jwt/', obtain_jwt_token),
@@ -26,5 +29,7 @@ urlpatterns = [url(r'', include(router.urls)),
                url(r'^vacations/$', SetGetVacation.as_view()),
                url(r'^users/$', UserEndpoint.as_view()),
                url(r'^dashboard_report/$', DashboardReport.as_view()),
-               url(r'^all_holidays/$', GetAllHolidays.as_view())] \
+               url(r'^all_holidays/$', GetAllHolidays.as_view()),
+               path('acts/', get_acts),
+               url(r'^generate_act/$', GenerateAct.as_view())] \
               + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

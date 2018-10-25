@@ -44,13 +44,42 @@ class Client(models.Model):
         return self.name
 
 
+class BankInfo(models.Model):
+    bank_name = models.CharField(max_length=20)
+    bank_account_number = models.CharField(max_length=50)
+    bank_address = models.TextField()
+    bank_code = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.bank_name
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=20)
+    surname = models.CharField(max_length=50)
+    father_name = models.CharField(max_length=20)
+    address = models.TextField()
+    tax_number = models.CharField(max_length=20)
+    num_contract_with_dev = models.CharField(max_length=20)
+    date_contract_with_dev = models.DateField()
+    bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} {1}".format(self.surname, self.name)
+
+
 class Developer(models.Model):
     name = models.CharField(max_length=20)
     surname = models.CharField(max_length=50)
+    father_name = models.CharField(max_length=20, default='')
     email = models.EmailField(unique=True)
+    address = models.TextField(default='')
+    tax_number = models.CharField(max_length=20, default='')
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
     monthly_salary = models.IntegerField()
+    bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, null=True, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -119,6 +148,14 @@ class Invoice(models.Model):
 
     def __str__(self):
         return str(self.project_id)
+
+
+class ActOfPerfJobs(models.Model):
+    date = models.DateField()
+    number_of_act = models.CharField(max_length=20)
+    customer_info = models.OneToOneField(Customer, on_delete=models.CASCADE)
+    developer_info = models.OneToOneField(Developer, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
 
 class Company(models.Model):

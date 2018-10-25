@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Manager, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation, User
+from .models import Manager, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation, User, ActOfPerfJobs
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,4 +69,12 @@ class VacationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vacation
+        fields = "__all__"
+
+
+class ActOfPerfJobsSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = ActOfPerfJobs
         fields = "__all__"

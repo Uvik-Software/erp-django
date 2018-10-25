@@ -2,7 +2,6 @@ from rest_framework import permissions
 from .models import Developer, Manager
 
 
-
 class CustomObjectPermissions(permissions.DjangoObjectPermissions):
     """
     Similar to `DjangoObjectPermissions`, but adding 'view' permissions.
