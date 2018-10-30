@@ -1,7 +1,8 @@
+
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from xhtml2pdf import pisa
-from io import BytesIO
+from io import BytesIO, StringIO
 from django.template.loader import get_template
 
 from django.http import JsonResponse
@@ -17,7 +18,9 @@ def generate_pdf_from_html(template_file, data):
     template = get_template(template_file)
     html = template.render(data)
     pdf_response = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), pdf_response)
+    encoded_html = BytesIO(html.encode("UTF-8"))
+    pdf = pisa.pisaDocument(encoded_html, pdf_response, encoding='utf-8')
+    # pdf = pisa.pisaDocument(BytesIO(html.encode('UTF-8')), pdf_response, encoding='UTF-8')
     return pdf_response, html
 
 

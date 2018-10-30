@@ -90,3 +90,21 @@ def dev_birthday_checker(devs):
             gmail_sender(msg, to_email, subject)
 
 
+def get_developer_bank_data(developer):
+    dev_bank = developer.bank_info
+    info = []
+    dev_b_in = dict(bank_name=dev_bank.bank_name,
+                    bank_account_number=dev_bank.bank_account_number,
+                    bank_code=dev_bank.bank_code)
+    info.append(dev_b_in)
+    return info
+
+
+def get_customer_bank_data(customer):
+    cust_bank = customer.bank_info
+    info = []
+    cust_b_in = dict(bank_name=cust_bank.bank_name,
+                     bank_account_number=cust_bank.bank_account_number,
+                     bank_code=cust_bank.bank_code)
+    info.append(cust_b_in)
+    return info

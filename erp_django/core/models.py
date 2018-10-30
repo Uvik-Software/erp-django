@@ -153,8 +153,8 @@ class Invoice(models.Model):
 class ActOfPerfJobs(models.Model):
     date = models.DateField()
     number_of_act = models.CharField(max_length=20)
-    customer_info = models.OneToOneField(Customer, on_delete=models.CASCADE)
-    developer_info = models.OneToOneField(Developer, on_delete=models.CASCADE)
+    customer_info = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    developer_info = models.ForeignKey(Developer, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
 

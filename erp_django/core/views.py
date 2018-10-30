@@ -17,7 +17,8 @@ from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer, VacationSerializer, \
     ActOfPerfJobsSerializer
 
-from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency
+from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency, \
+    get_developer_bank_data, get_customer_bank_data
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, is_manager, get_ua_days_off, \
     json_response_error, json_response_success, is_developer, gmail_sender
@@ -583,7 +584,7 @@ def get_acts(request):
 
 
 class GenerateAct(APIView):
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes = ()
 
     def get(self, request):
         """
@@ -604,12 +605,13 @@ class GenerateAct(APIView):
     def post(self, request):
         data = request.data
         if set(data.keys()) == ACT_JOBS_REQUIRED_FIELDS:
-            developer_id = data["developer_id"]
-            act_jobs_date = data["act_jobs_date"]
-            act_jobs_numb = data["act_jobs_numb"]
-            download = data["download"]
+            developer_id = data.get("developer_id", None)
+            act_jobs_date = data.get("act_jobs_date", None)
+            act_jobs_numb = data.get("act_jobs_numb", None)
+            download = data.get("download", None)
 
             developer = Developer.objects.get(id=developer_id)
+            customer = developer.customer
             try:
                 dev_on_proj = DevelopersOnProject.objects.get(developer=developer)
             except DevelopersOnProject.DoesNotExist:
@@ -619,19 +621,25 @@ class GenerateAct(APIView):
 
             act_jobs = ActOfPerfJobs(date=act_jobs_date,
                                      number_of_act=act_jobs_numb,
-                                     customer_info=developer.customer,
+                                     customer_info=customer,
                                      developer_info=developer)
+            # do not save act_jobs() during dev
             # act_jobs.save()
 
+            dev_bank_info = get_developer_bank_data(developer)
+            cust_bank_info = get_customer_bank_data(customer)
             dev_salary_1 = dev_salary_2 = dev_salary / 2
             data = dict(developer_info=model_to_dict(developer),
                         act_jobs=model_to_dict(act_jobs),
-                        customer_info=model_to_dict(developer.customer),
+                        customer_info=model_to_dict(customer),
                         total_salary=dev_salary,
                         dev_salary_1=dev_salary_1,
-                        dev_salary_2=dev_salary_2)
+                        dev_salary_2=dev_salary_2,
+                        dev_bank_info=dev_bank_info,
+                        cust_bank_info=cust_bank_info)
 
-            pdf_response, html = generate_pdf_from_html("core/act_of_perf_works_1.html", data)
+            # return render(request, "core/act_of_perf_works_2(final).html", data)
+            pdf_response, html = generate_pdf_from_html("core/act_of_perf_works_2(final).html", data)
             # commented not to send files to google drive during dev.
             # should be uncommented later.
 
