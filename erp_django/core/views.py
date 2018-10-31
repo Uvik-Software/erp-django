@@ -10,7 +10,7 @@ from .permissions import ManagerFullAccess, PermsForVacation
 
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 
 from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, Client, Cv, Vacation, User, ActOfPerfJobs
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
@@ -577,10 +577,6 @@ class UserEndpoint(APIView):
             return json_response_success("Thank you for registration.", status=201)
 
         return json_response_error("You must provide all required fields.")
-
-
-def get_acts(request):
-    return render(request, 'core/act_of_perf_works_1.html')
 
 
 class GenerateAct(APIView):
