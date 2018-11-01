@@ -37,7 +37,7 @@ class DeveloperFullAccess(permissions.BasePermission):
         return request.user.user_type == "DEVELOPER" or request.user.is_superuser
 
 
-class PermsForVacation(permissions.BasePermission):
+class PermsForManAndDev(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (request.user.user_type == "DEVELOPER" and obj.owner == request.user) or \

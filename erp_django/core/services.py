@@ -100,11 +100,11 @@ def get_developer_bank_data(developer):
     return info
 
 
-def get_customer_bank_data(customer):
-    cust_bank = customer.bank_info
+def get_owner_bank_data(owner):
+    owner_bank = owner.bank_info
     info = []
-    cust_b_in = dict(bank_name=cust_bank.bank_name,
-                     bank_account_number=cust_bank.bank_account_number,
-                     bank_code=cust_bank.bank_code)
-    info.append(cust_b_in)
+    owner_b_in = dict(bank_name=owner_bank.bank_name,
+                      bank_account_number=owner_bank.bank_account_number,
+                      bank_code=owner_bank.bank_code)
+    info.append(owner_b_in)
     return info

@@ -54,7 +54,7 @@ class BankInfo(models.Model):
         return self.bank_name
 
 
-class Customer(models.Model):
+class Owner(models.Model):
     name = models.CharField(max_length=20)
     surname = models.CharField(max_length=50)
     father_name = models.CharField(max_length=20)
@@ -62,6 +62,7 @@ class Customer(models.Model):
     tax_number = models.CharField(max_length=20)
     num_contract_with_dev = models.CharField(max_length=20)
     date_contract_with_dev = models.DateField()
+    sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -78,8 +79,9 @@ class Developer(models.Model):
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
     monthly_salary = models.IntegerField()
+    sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, null=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, null=True, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -153,7 +155,7 @@ class Invoice(models.Model):
 class ActOfPerfJobs(models.Model):
     date = models.DateField()
     number_of_act = models.CharField(max_length=20)
-    customer_info = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    owner_info = models.ForeignKey(Owner, on_delete=models.CASCADE)
     developer_info = models.ForeignKey(Developer, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
