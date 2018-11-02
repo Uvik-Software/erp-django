@@ -22,7 +22,7 @@ from .services import get_project_developers_and_cost, get_project_details, get_
     get_developer_bank_data, get_owner_bank_data
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, is_manager, get_ua_days_off, \
-    json_response_error, json_response_success, is_developer, gmail_sender
+    json_response_error, json_response_success, is_developer, gmail_sender, check_empty_fields
 
 from .constants import INVOICE_REQUIRED_FIELDS, ACT_JOBS_REQUIRED_FIELDS
 import json
@@ -415,7 +415,7 @@ class SetGetVacation(APIView):
             dev_vacation_upd.approved = is_approved
             dev_vacation_upd.save()
 
-            return json_response_success("Vacation data has been changed", status=200)
+            return json_response_success("Vacation data was changed", status=200)
 
         return json_response_error("Only 'MANAGER' or 'DEVELOPER' can update a vacations")
 
@@ -442,7 +442,7 @@ class SetGetVacation(APIView):
         developer_id = data.get("developer_id", None)
         is_approved = data.get("is_approved", False)
 
-        if not from_date and not to_date:
+        if not from_date or not to_date:
             return json_response_error("You must fill 'From date' and 'To date' fields")
 
         if is_developer(request.user):
@@ -860,7 +860,7 @@ class GetBankInfo(APIView):
         return json_response_error("Please provide correct id")
 
 
-class GetOwnerInfo(APIView):
+class GetSetOwnerInfo(APIView):
     permission_classes = (IsAuthenticated, ManagerFullAccess)
 
     def get(self, request):
@@ -873,3 +873,93 @@ class GetOwnerInfo(APIView):
 
         owner = get_object_or_404(Owner, id=owner_id)
         return json_response_success(data=model_to_dict(owner))
+
+    def post(self, request):
+        data = request.data
+
+        owner_name = data.get("name", None)
+        owner_surname = data.get("surname", None)
+        owner_father_name = data.get("father_name", None)
+        owner_address = data.get("address", None)
+        owner_tax_number = data.get("tax_number", None)
+        num_contract_with_dev = data.get("contract_num", None)
+        date_contract_with_dev = data.get("contract_date", None)
+        owner_bank_name = data.get("bank_name", None)
+        owner_bank_account_number = data.get("bank_account_number", None)
+        owner_bank_address = data.get("bank_address", None)
+        owner_bank_code = data.get("bank_code", None)
+
+        seq = [owner_name, owner_surname, owner_father_name, owner_address, owner_tax_number, num_contract_with_dev,
+               date_contract_with_dev, owner_bank_name, owner_bank_account_number, owner_bank_address, owner_bank_code]
+
+        res = check_empty_fields(seq)
+
+        if not res:
+            return json_response_error("You must fill all fields")
+
+        bank_info = BankInfo.objects.create(bank_name=owner_bank_name,
+                                            bank_account_number=owner_bank_account_number,
+                                            bank_address=owner_bank_address,
+                                            bank_code=owner_bank_code)
+
+        owner = Owner.objects.create(name=owner_name,
+                                     surname=owner_surname,
+                                     father_name=owner_father_name,
+                                     address=owner_address,
+                                     tax_number=owner_tax_number,
+                                     num_contract_with_dev=num_contract_with_dev,
+                                     date_contract_with_dev=date_contract_with_dev,
+                                     bank_info=bank_info,
+                                     user_create=request.user)
+
+        bank_info.save()
+        owner.save()
+        return json_response_success("Owner was successfully created", status=201)
+
+    def put(self, request):
+        data = request.data
+
+        owner_id = data.get("id", None)
+
+        owner_name = data.get("name", None)
+        owner_surname = data.get("surname", None)
+        owner_father_name = data.get("father_name", None)
+        owner_address = data.get("address", None)
+        owner_tax_number = data.get("tax_number", None)
+        num_contract_with_dev = data.get("contract_num", None)
+        date_contract_with_dev = data.get("contract_date", None)
+        owner_bank_name = data.get("bank_name", None)
+        owner_bank_account_number = data.get("bank_account_number", None)
+        owner_bank_address = data.get("bank_address", None)
+        owner_bank_code = data.get("bank_code", None)
+
+        if not owner_id:
+            return json_response_error("You must provide Owner ID")
+
+        owner_upd = get_object_or_404(Owner, id=owner_id)
+
+        owner_upd.name = owner_name
+        owner_upd.surname = owner_surname
+        owner_upd.father_name = owner_father_name
+        owner_upd.address = owner_address
+        owner_upd.tax_number = owner_tax_number
+        owner_upd.num_contract_with_dev = num_contract_with_dev
+        owner_upd.date_contract_with_dev = date_contract_with_dev
+        owner_upd.bank_info.bank_name = owner_bank_name
+        owner_upd.bank_info.bank_account_number = owner_bank_account_number
+        owner_upd.bank_info.bank_address = owner_bank_address
+        owner_upd.bank_info.bank_code = owner_bank_code
+
+        owner_upd.save()
+
+        return json_response_success("Information about Owner was changed", status=200)
+
+    def delete(self, request):
+        data = request.data
+        owner_id = data.get("id", None)
+
+        if owner_id:
+            owner = get_object_or_404(Owner, id=owner_id)
+            owner.delete()
+            return json_response_success("Information about Owner was deleted", status=204)
+        return json_response_error("Please provide a owner id")

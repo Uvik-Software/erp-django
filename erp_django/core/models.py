@@ -64,6 +64,7 @@ class Owner(models.Model):
     date_contract_with_dev = models.DateField()
     sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE)
+    user_create = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} {1}".format(self.surname, self.name)

@@ -186,3 +186,21 @@ def json_response_success(message=None, data=None, status=200):
 
 def is_developer(user):
     return user.user_type == "DEVELOPER"
+
+
+def check_empty_fields(seq):
+    seq_check = []
+    is_filled = True
+    empty = False
+
+    for item in seq:
+        if item:
+            seq_check.append(is_filled)
+        else:
+            seq_check.append(empty)
+
+    if False in seq_check:
+        return False
+
+    return True
+

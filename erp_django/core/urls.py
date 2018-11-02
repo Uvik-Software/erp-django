@@ -4,7 +4,8 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from .views import InvoiceViewSet, ManagerViewSet, ProjectViewSet, DeveloperViewSet, \
     DevelopersOnProjectViewSet, ClientViewSet, VacationViewSet, GenerateInvoice, DaysOff, DevelopersCv, schema_view, \
-    SetGetVacation, DashboardReport, UserEndpoint, GetAllHolidays, GenerateAct, ActOfPerfJobsViewSet, GetBankInfo
+    SetGetVacation, DashboardReport, UserEndpoint, GetAllHolidays, GenerateAct, ActOfPerfJobsViewSet, GetBankInfo, \
+    OwnerViewSet, GetSetOwnerInfo
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 
@@ -17,6 +18,7 @@ router.register(r'developers_on_project', DevelopersOnProjectViewSet)
 router.register(r'clients', ClientViewSet)
 router.register(r'vacations', VacationViewSet)
 router.register(r'acts_of_jobs', ActOfPerfJobsViewSet)
+router.register(r'owners', OwnerViewSet)
 
 urlpatterns = [url(r'', include(router.urls)),
                url(r'^auth-jwt/', obtain_jwt_token),
@@ -31,5 +33,6 @@ urlpatterns = [url(r'', include(router.urls)),
                url(r'^dashboard_report/$', DashboardReport.as_view()),
                url(r'^all_holidays/$', GetAllHolidays.as_view()),
                url(r'^generate_act/$', GenerateAct.as_view()),
-               url(r'^bank_info/$', GetBankInfo.as_view())] \
+               url(r'^bank_info/$', GetBankInfo.as_view()),
+               url(r'^set_owner/$', GetSetOwnerInfo.as_view())] \
               + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
