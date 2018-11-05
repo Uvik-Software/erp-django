@@ -203,6 +203,9 @@ class Vacation(models.Model):
     #     super(Vacation, self).save(force_insert, force_update, *args, **kwargs)
     #     self.__original_approved = self.approved
 
+    def __str__(self):
+        return "Vacation {0}".format(self.id)
+
 
 class DevSalary(models.Model):
     date = models.IntegerField(default=12,

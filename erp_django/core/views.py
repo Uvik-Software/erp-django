@@ -393,14 +393,14 @@ class SetGetVacation(APIView):
         is_approved = data.get("approved", False)
         vacation_id = data.get("id", None)
 
+        # import pdb;pdb.set_trace()
         if is_developer(request.user):
             developer = get_object_or_404(Developer, user=request.user)
             vacation = get_object_or_404(Vacation, id=vacation_id)
             if developer.id == vacation.developer.id:
-                dev_vacation_upd = developer
-                dev_vacation_upd.from_date = from_date
-                dev_vacation_upd.to_date = to_date
-                dev_vacation_upd.save()
+                vacation.from_date = from_date
+                vacation.to_date = to_date
+                vacation.save()
 
                 return json_response_success(
                     "Vacation is updated. Feel free to contact a manager in order to approve it", status=200)
@@ -446,7 +446,7 @@ class SetGetVacation(APIView):
             return json_response_error("You must fill 'From date' and 'To date' fields")
 
         if is_developer(request.user):
-            developer = get_object_or_404(Developer, user=request.user.id)
+            developer = get_object_or_404(Developer, user=request.user)
             dev_vacation = Vacation(from_date=from_date,
                                     to_date=to_date,
                                     developer=developer,
