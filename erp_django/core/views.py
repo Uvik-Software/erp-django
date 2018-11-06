@@ -810,9 +810,10 @@ class GetBankInfo(APIView):
         developer_id = data.get("id", None)
 
         if developer_id:
+            # import pdb;pdb.set_trace()
             if is_developer(request.user):
                 req_dev = request.user.developer_set.get()
-                if req_dev.id == developer_id:
+                if req_dev.id == int(developer_id):
                     dev_bank = req_dev.bank_info
                     bank_inf = dict(dev_name=req_dev.name,
                                     dev_fname=req_dev.father_name,
@@ -822,8 +823,8 @@ class GetBankInfo(APIView):
                                     bank_address=dev_bank.bank_address,
                                     bank_code=dev_bank.bank_code)
 
-                    return json_response_success(data=bank_inf)
-                return json_response_error("You are allowed to see only your bank information")
+                    return json_response_success("Your banking information", data=bank_inf)
+                return json_response_error("You are allowed to see only your banking information")
 
             if is_manager(request.user):
                 req_dev = get_object_or_404(Developer, id=developer_id)
@@ -836,7 +837,7 @@ class GetBankInfo(APIView):
                                 bank_address=dev_bank.bank_address,
                                 bank_code=dev_bank.bank_code)
 
-                return json_response_success(data=bank_inf)
+                return json_response_success("Banking information of certain developer", data=bank_inf)
 
         if not developer_id:
             if is_manager(request.user):
@@ -854,8 +855,8 @@ class GetBankInfo(APIView):
 
                     dev_bank_inf.append(bank_data)
 
-                return json_response_success(data=dev_bank_inf)
-            return json_response_error("You can't see bank information of other people. Please provide your own id.")
+                return json_response_success("All banking information of each developer", data=dev_bank_inf)
+            return json_response_error("You can't see banking information of other people. Please provide your own id.")
 
         return json_response_error("Please provide correct id")
 
