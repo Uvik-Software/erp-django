@@ -45,23 +45,23 @@ class Client(models.Model):
 
 
 class BankInfo(models.Model):
-    bank_name = models.CharField(max_length=20)
-    bank_account_number = models.CharField(max_length=50)
-    bank_address = models.TextField()
-    bank_code = models.CharField(max_length=20)
+    bank_name = models.CharField(max_length=20, null=True)
+    bank_account_number = models.CharField(max_length=50, null=True)
+    bank_address = models.TextField(null=True)
+    bank_code = models.CharField(max_length=20, null=True)
 
     def __str__(self):
         return self.bank_name
 
 
 class Owner(models.Model):
-    name = models.CharField(max_length=20)
-    surname = models.CharField(max_length=50)
-    father_name = models.CharField(max_length=20)
-    address = models.TextField()
-    tax_number = models.CharField(max_length=20)
-    num_contract_with_dev = models.CharField(max_length=20)
-    date_contract_with_dev = models.DateField()
+    name = models.CharField(max_length=20, null=True)
+    surname = models.CharField(max_length=50, null=True)
+    father_name = models.CharField(max_length=20, null=True)
+    address = models.TextField(null=True)
+    tax_number = models.CharField(max_length=20, null=True)
+    num_contract_with_dev = models.CharField(max_length=20, null=True)
+    date_contract_with_dev = models.DateField(null=True)
     sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE)
     user_create = models.ForeignKey(User, null=True, on_delete=models.CASCADE)

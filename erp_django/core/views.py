@@ -869,11 +869,40 @@ class GetSetOwnerInfo(APIView):
         owner_id = data.get("id", None)
 
         if not owner_id:
-            owners = [owner for owner in Owner.objects.all().values()]
-            return json_response_success(data=owners)
+            owners = [owner for owner in Owner.objects.all()]
+            owners_inf = []
+
+            for owner in owners:
+                owners_data = dict(name=owner.name,
+                                   father_name=owner.father_name,
+                                   surname=owner.surname,
+                                   address=owner.address,
+                                   tax_number=owner.tax_number,
+                                   contract_num=owner.num_contract_with_dev,
+                                   contract_date=owner.date_contract_with_dev,
+                                   bank_name=owner.bank_info.bank_name,
+                                   bank_account_number=owner.bank_info.bank_account_number,
+                                   bank_address=owner.bank_info.bank_address,
+                                   bank_code=owner.bank_info.bank_code)
+
+                owners_inf.append(owners_data)
+
+            return json_response_success('All information about specific owner', data=owners_inf)
 
         owner = get_object_or_404(Owner, id=owner_id)
-        return json_response_success(data=model_to_dict(owner))
+        owner_bank = owner.bank_info
+        owner_inf = dict(name=owner.name,
+                         father_name=owner.father_name,
+                         surname=owner.surname,
+                         address=owner.address,
+                         tax_number=owner.tax_number,
+                         contract_num=owner.num_contract_with_dev,
+                         contract_date=owner.date_contract_with_dev,
+                         bank_name=owner_bank.bank_name,
+                         bank_account_number=owner_bank.bank_account_number,
+                         bank_address=owner_bank.bank_address,
+                         bank_code=owner_bank.bank_code)
+        return json_response_success('All information about owners', data=owner_inf)
 
     def post(self, request):
         data = request.data
@@ -922,6 +951,9 @@ class GetSetOwnerInfo(APIView):
 
         owner_id = data.get("id", None)
 
+        if not owner_id:
+            return json_response_error("You must provide Owner ID")
+
         owner_name = data.get("name", None)
         owner_surname = data.get("surname", None)
         owner_father_name = data.get("father_name", None)
@@ -934,10 +966,8 @@ class GetSetOwnerInfo(APIView):
         owner_bank_address = data.get("bank_address", None)
         owner_bank_code = data.get("bank_code", None)
 
-        if not owner_id:
-            return json_response_error("You must provide Owner ID")
-
         owner_upd = get_object_or_404(Owner, id=owner_id)
+        bank_owner = owner_upd.bank_info
 
         owner_upd.name = owner_name
         owner_upd.surname = owner_surname
@@ -946,12 +976,14 @@ class GetSetOwnerInfo(APIView):
         owner_upd.tax_number = owner_tax_number
         owner_upd.num_contract_with_dev = num_contract_with_dev
         owner_upd.date_contract_with_dev = date_contract_with_dev
-        owner_upd.bank_info.bank_name = owner_bank_name
-        owner_upd.bank_info.bank_account_number = owner_bank_account_number
-        owner_upd.bank_info.bank_address = owner_bank_address
-        owner_upd.bank_info.bank_code = owner_bank_code
+
+        bank_owner.bank_name = owner_bank_name
+        bank_owner.bank_account_number = owner_bank_account_number
+        bank_owner.bank_address = owner_bank_address
+        bank_owner.bank_code = owner_bank_code
 
         owner_upd.save()
+        bank_owner.save()
 
         return json_response_success("Information about Owner was changed", status=200)
 
@@ -963,4 +995,4 @@ class GetSetOwnerInfo(APIView):
             owner = get_object_or_404(Owner, id=owner_id)
             owner.delete()
             return json_response_success("Information about Owner was deleted", status=204)
-        return json_response_error("Please provide a owner id")
+        return json_response_error("Please provide owner id")
