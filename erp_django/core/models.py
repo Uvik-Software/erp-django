@@ -7,41 +7,26 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(AbstractUser):
-    user_type = models.CharField(choices=(
-        ("MANAGER", "manager"),
-        ("DEVELOPER", "developer"),
-        ("CLIENT", "client"),
-        ("JUST_CREATED", "just created")
-    ), max_length=30, default="JUST_CREATED")
+    USER_TYPES = (
+        ("MANAGER", "Manager"),
+        ("DEVELOPER", "Developer"),
+        ("CLIENT", "Client"),
+        ("JUST_CREATED", "Just created")
+    )
+
+    type = models.CharField(choices=USER_TYPES, max_length=30, default="JUST_CREATED")
+    address = models.TextField(default='', blank=True)
+    position = models.CharField(max_length=128, default='', blank=True)
+
 
 # TODO: do normalization
 
 
-class Manager(models.Model):
-    name = models.CharField(max_length=50)
-    surname = models.CharField(max_length=100)
-    email = models.EmailField()
-    position = models.CharField(max_length=50)
-    address = models.TextField()
+class Manager(User):
     company_name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} {1}, {2}".format(self.surname, self.name, self.email)
-
-
-class Client(models.Model):
-    name = models.CharField(max_length=35)
-    position = models.CharField(max_length=100)
-    company_name = models.CharField(max_length=300)
-    address = models.TextField()
-    email = models.EmailField()
-    phone = models.CharField(max_length=50)
-    identification_number = models.IntegerField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
+        return f"Manager {self.last_name} {self.first_name}"
 
 
 class BankInfo(models.Model):
@@ -54,9 +39,10 @@ class BankInfo(models.Model):
         return self.bank_name
 
 
+# rename to Customer ?
 class Owner(models.Model):
-    name = models.CharField(max_length=20, null=True)
-    surname = models.CharField(max_length=50, null=True)
+    first_name = models.CharField(max_length=20, null=True)
+    last_name = models.CharField(max_length=50, null=True)
     father_name = models.CharField(max_length=20, null=True)
     address = models.TextField(null=True)
     tax_number = models.CharField(max_length=20, null=True)
@@ -64,18 +50,23 @@ class Owner(models.Model):
     date_contract_with_dev = models.DateField(null=True)
     sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE)
-    user_create = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} {1}".format(self.surname, self.name)
+        return f"Owner {self.last_name} {self.first_name}"
 
 
-class Developer(models.Model):
-    name = models.CharField(max_length=20)
-    surname = models.CharField(max_length=50)
-    father_name = models.CharField(max_length=20, default='')
-    email = models.EmailField(unique=True)
-    address = models.TextField(default='')
+class Client(User):
+    company_name = models.CharField(max_length=300)
+    phone = models.CharField(max_length=50)
+    identification_number = models.CharField(max_length=32, default='')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Client {self.last_name} {self.first_name}"
+
+
+class Developer(User):
+    father_name = models.CharField(max_length=20, default='', blank=True)
     tax_number = models.CharField(max_length=20, default='')
     hourly_rate = models.IntegerField()
     birthday_date = models.DateField()
@@ -83,10 +74,9 @@ class Developer(models.Model):
     sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.CASCADE)
     owner = models.ForeignKey(Owner, null=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} {1}, {2}".format(self.surname, self.name, self.email)
+        return f"Developer {self.last_name} {self.first_name}, {self.email}"
 
 
 class Project(models.Model):
@@ -100,7 +90,7 @@ class Project(models.Model):
     all_time_money_spent = models.IntegerField(default=0)
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
     # __original_deadline = None
     # __original_project_started_date = None
@@ -139,28 +129,29 @@ class DevelopersOnProject(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     description = models.TextField(null=True)
     hours = models.FloatField(null=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
 
 class Invoice(models.Model):
     date = models.DateField()
     expected_payout_date = models.DateField()
-    project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.CharField(choices=INVOICE_STATUS, max_length=50)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.project_id)
+        return str(self.project)
 
 
 class ActOfPerfJobs(models.Model):
     date = models.DateField()
     number_of_act = models.CharField(max_length=20)
-    owner_info = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    # owner_info = models.ForeignKey(Owner, on_delete=models.CASCADE)
     developer_info = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, null=True, on_delete=models.CASCADE)
 
 
+# What about this??
 class Company(models.Model):
     currency = models.CharField(max_length=3)
     bank_account_number = models.IntegerField()
@@ -169,7 +160,7 @@ class Company(models.Model):
     swift = models.CharField(max_length=50)
     bank_address = models.TextField()
     sign = models.ImageField(upload_to='static/signs/')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.currency
@@ -185,7 +176,7 @@ class Vacation(models.Model):
     to_date = models.DateField()
     comments = models.TextField(null=True)
     approved = models.BooleanField(default=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
     # __original_approved = None
     #
@@ -211,7 +202,7 @@ class DevSalary(models.Model):
     date = models.IntegerField(default=12,
                                validators=[MaxValueValidator(31), MinValueValidator(1)])
     comment = models.TextField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
 
 class SentNotifications(models.Model):

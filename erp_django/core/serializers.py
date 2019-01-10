@@ -38,7 +38,7 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Developer
-        fields = "__all__"
+        fields = ('id', 'first_name', 'last_name', 'email', 'hourly_rate', 'monthly_salary', 'birthday_date',)
 
 
 class DevelopersOnProjectSerializer(serializers.ModelSerializer):
@@ -62,7 +62,8 @@ class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = "__all__"
+        fields = ('id', 'first_name', 'last_name', 'position', 'email', 'phone', 'identification_number', 'address',
+                  'company_name',)
 
 
 class VacationSerializer(serializers.ModelSerializer):
@@ -87,3 +88,15 @@ class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Owner
         fields = "__all__"
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'position',)
+
+
+class ProjectsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'

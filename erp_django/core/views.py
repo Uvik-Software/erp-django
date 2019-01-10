@@ -8,7 +8,7 @@ from rest_framework.schemas import AutoSchema
 
 from .permissions import ManagerFullAccess, PermsForManAndDev
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 
@@ -16,7 +16,7 @@ from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, C
     ActOfPerfJobs, BankInfo, Owner
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer, VacationSerializer, \
-    ActOfPerfJobsSerializer, OwnerSerializer
+    ActOfPerfJobsSerializer, OwnerSerializer, UsersSerializer, ProjectsSerializer
 
 from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency, \
     get_developer_bank_data, get_owner_bank_data
@@ -68,6 +68,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = (IsAuthenticated, ManagerFullAccess)
 
+    def perform_create(self, serializer):
+        # TODO: write logic instead of hardcode
+        # manager = Manager.objects.all().first()
+        # owner = Owner.objects.all().first()
+        # serializer.save(owner=owner, manager_info=manager)
+        serializer.save()
+
 
 class DeveloperViewSet(viewsets.ModelViewSet):
     queryset = Developer.objects.all()
@@ -81,7 +88,9 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        # TODO: write logic instead of hardcode
+        owner = Owner.objects.all().first()
+        serializer.save(owner=owner)
 
 
 class VacationViewSet(viewsets.ModelViewSet):
@@ -507,7 +516,7 @@ class GetAllHolidays(APIView):
                                  start=ua_holidays[holiday]))
 
         for developer in Developer.objects.all():
-            response.append(dict(title=developer.name + " " + developer.surname + " Birthday",
+            response.append(dict(title=developer.first_name + " " + developer.last_name + " Birthday",
                                  start=developer.birthday_date))
 
         for vacation in Vacation.objects.all():
@@ -521,13 +530,16 @@ class GetAllHolidays(APIView):
 
 class UserEndpoint(APIView):
     permission_classes = (IsAuthenticated, ManagerFullAccess)
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
 
     def get(self, request):
         data = request.query_params
         user_id = data.get("id", None)
 
         if not user_id:
-            users = [user for user in User.objects.all().values()]
+            serializer = UsersSerializer(User.objects.all().order_by('-id'), many=True)
+            users = [user for user in serializer.data]
             return json_response_success(data=users)
 
         user = get_object_or_404(User, pk=user_id)
@@ -536,88 +548,48 @@ class UserEndpoint(APIView):
     def post(self, request):
         data = request.data
 
-        user_name = data.get("user_name", None)
+        username = data.get("user_name", None)
         user_password = data.get("password", None)
         user_role = data.get("user_role", None)
 
-        if (not user_name) or (not user_password) or (not user_role):
-            return json_response_error("You must fill 'User name', 'User password' and 'User role' fields")
+        if (not username) or (not user_password) or (not user_role):
+            return json_response_error("You must fill 'Username', 'User password' and 'User role' fields")
+
+        if User.objects.filter(username=username).first():
+            return json_response_error("User with this username already exists")
+
+        fields = {
+            'first_name': data.get('first_name', ''),
+            'last_name': data.get('last_name', ''),
+            'email': data.get('email', ''),
+            'username': username,
+            'password': make_password(user_password),
+            'type': user_role,
+        }
 
         if user_role == "MANAGER":
-            manager_name = data.get("first_name", None)
-            manager_surname = data.get("last_name", None)
-            manager_email = data.get("email", None)
-            manager_position = data.get("position", None)
-            manager_address = data.get("address", None)
-            manager_company_name = data.get("company_name", None)
+            manager_fields = {
+                'position': data.get('position', ''),
+                'company_name': data.get('company_name', ''),
+                'address': data.get('address', '')
+            }
+            fields.update(manager_fields)
 
-            user_manager = User.objects.create(username=user_name, password=make_password(user_password),
-                                               user_type=user_role, email=manager_email, last_name=manager_surname,
-                                               first_name=manager_name)
-            manager = Manager.objects.create(
-                name=manager_name,
-                surname=manager_surname,
-                email=manager_email,
-                position=manager_position,
-                address=manager_address,
-                company_name=manager_company_name,
-                user=user_manager
-            )
-
-            user_manager.save()
+            manager = Manager.objects.create(**fields)
             manager.save()
 
-            return json_response_success("Thank you for registration.", status=201)
-
         if user_role == "DEVELOPER":
-            developer_name = data.get("first_name", None)
-            developer_surname = data.get("last_name", None)
-            developer_fname = data.get("father_name", None)
-            developer_email = data.get("email", None)
-            developer_address = data.get("address", None)
-            developer_tax_number = data.get("tax_number", None)
-            developer_hourly_rate = data.get("hourly_rate", None)
-            developer_birthday_date = data.get("birthday_date", None)
-            developer_monthly_salary = data.get("monthly_salary", None)
-            owner_id = data.get("owner_id", None)
-            developer_bank_name = data.get("bank_name", None)
-            developer_bank_account_number = data.get("bank_account_number", None)
-            developer_bank_address = data.get("bank_address", None)
-            developer_bank_code = data.get("bank_code", None)
+            dev_fields = {
+                'hourly_rate': data.get("hourly_rate", 0),
+                'birthday_date': data.get("birthday_date", None),
+                'monthly_salary': data.get("monthly_salary", 0)
+            }
+            fields.update(dev_fields)
 
-            user_developer = User.objects.create(username=user_name, password=make_password(user_password),
-                                                 user_type=user_role, email=developer_email, last_name=developer_surname,
-                                                 first_name=developer_name)
-
-            owner_rel_to_dev = Owner.objects.get(id=owner_id)
-
-            bank_info = BankInfo.objects.create(bank_name=developer_bank_name,
-                                                bank_account_number=developer_bank_account_number,
-                                                bank_address=developer_bank_address,
-                                                bank_code=developer_bank_code)
-
-            developer = Developer.objects.create(
-                name=developer_name,
-                surname=developer_surname,
-                father_name=developer_fname,
-                email=developer_email,
-                address=developer_address,
-                tax_number=developer_tax_number,
-                hourly_rate=developer_hourly_rate,
-                birthday_date=developer_birthday_date,
-                monthly_salary=developer_monthly_salary,
-                owner=owner_rel_to_dev,
-                bank_info=bank_info,
-                user=user_developer
-            )
-
-            user_developer.save()
-            bank_info.save()
+            developer = Developer.objects.create(**fields)
             developer.save()
 
-            return json_response_success("Thank you for registration.", status=201)
-
-        return json_response_error("You must provide all required fields.")
+        return json_response_success(f"User {username} was successfully added to the system.", status=201)
 
     def put(self, request):
         data = request.data
@@ -996,3 +968,39 @@ class GetSetOwnerInfo(APIView):
             owner.delete()
             return json_response_success("Information about Owner was deleted", status=204)
         return json_response_error("Please provide owner id")
+
+
+# class ProjectsEndpoint(APIView):
+#     permission_classes = (IsAuthenticated, ManagerFullAccess)
+#     queryset = Project.objects.all()
+#     serializer_class = ProjectsSerializer
+#
+#     def get(self, request):
+#         serializer = ProjectsSerializer(Project.objects.all().order_by('-id'), many=True)
+#         projects = [project for project in serializer.data]
+#
+#         return JsonResponse({"ok": True, "message": '', "results": projects}, status=200)
+#
+#     def post(self, request):
+#         data = request.data
+#
+#         fields = {
+#             'project_name': data.get('project_name', ''),
+#             'project_type': data.get('project_type', ''),
+#             'project_description': data.get('project_description', ''),
+#             'currency': data.get('currency', ''),
+#             'basic_price': data.get('basic_price', 0),
+#             'manager_info': data.get('manager_info', None),
+#             'deadline': data.get('deadline'),
+#             'project_started_date': data.get('project_started_date', None),
+#             'owner': data.get('owner', None)
+#         }
+#
+#         Project.objects.create(**fields)
+#         return json_response_success(f"Project {data.get('project_name')} was successfully added to the system")
+#
+#     def put(self, request):
+#         pass
+#
+#     def delete(self, request):
+#         pass

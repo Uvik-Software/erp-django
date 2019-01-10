@@ -34,5 +34,6 @@ urlpatterns = [url(r'', include(router.urls)),
                url(r'^all_holidays/$', GetAllHolidays.as_view()),
                url(r'^generate_act/$', GenerateAct.as_view()),
                url(r'^bank_info/$', GetBankInfo.as_view()),
-               url(r'^set_owner/$', GetSetOwnerInfo.as_view())] \
-              + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+               url(r'^set_owner/$', GetSetOwnerInfo.as_view()),
+               # url(r'^projects/$', ProjectsEndpoint.as_view()),
+               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

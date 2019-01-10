@@ -21,11 +21,11 @@ class ManagerFullAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if not isinstance(obj, Developer) and not isinstance(obj, Manager):
-            return request.user.user_type == "MANAGER" and obj.owner == request.user or request.user.is_superuser
-        return request.user.user_type == "MANAGER" or request.user.is_superuser
+            return request.user.type == "MANAGER" and obj.owner == request.user or request.user.is_superuser
+        return request.user.type == "MANAGER" or request.user.is_superuser
 
     def has_permission(self, request, view):
-        return request.user.user_type == "MANAGER" or request.user.is_superuser
+        return request.user.type == "MANAGER" or request.user.is_superuser
 
 
 class DeveloperFullAccess(permissions.BasePermission):
@@ -34,14 +34,14 @@ class DeveloperFullAccess(permissions.BasePermission):
         return request.user.user_type == "DEVELOPER" and obj.owner == request.user or request.user.is_superuser
 
     def has_permission(self, request, view):
-        return request.user.user_type == "DEVELOPER" or request.user.is_superuser
+        return request.user.type == "DEVELOPER" or request.user.is_superuser
 
 
 class PermsForManAndDev(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return (request.user.user_type == "DEVELOPER" and obj.owner == request.user) or \
-                (request.user.user_type == "MANAGER") or request.user.is_superuser
+        return (request.user.type == "DEVELOPER" and obj.owner == request.user) or \
+                (request.user.type == "MANAGER") or request.user.is_superuser
 
     def has_permission(self, request, view):
-        return request.user.user_type == "DEVELOPER" or request.user.user_type == "MANAGER" or request.user.is_superuser
+        return request.user.type == "DEVELOPER" or request.user.type == "MANAGER" or request.user.is_superuser

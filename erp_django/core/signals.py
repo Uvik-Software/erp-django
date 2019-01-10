@@ -26,7 +26,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 def add_birthday_to_google_calendar(sender, instance, created, update_fields, **kwargs):
     if created:
         dev = instance
-        message = "%s has a birthday today" % dev.name + ' ' + dev.surname
+        message = "%s has a birthday today" % dev.first_name + ' ' + dev.last_name
         # uncomment to create an actual event in google calendar
         # create_g_calendar_event(dev.birthday_date, dev.birthday_date, message)
 
