@@ -1,0 +1,35 @@
+<div style="width:80%">
+
+  <h1 class="mat-headline center-align">Edit {{ manager_data.manager_name }} {{ manager_data.manager_surname }} information</h1>
+
+  <form [formGroup]="managerEditForm" (ngSubmit)="save()">
+  <div class="form-group">
+    <mat-form-field>
+      <input matInput placeholder="Name" formControlName="name">
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Last Name" formControlName="surname">
+    </mat-form-field>
+     <mat-form-field>
+      <input matInput placeholder="Position" formControlName="position">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="E-mail" formControlName="email">
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Company Name" formControlName="company_name">
+    </mat-form-field>
+
+  </div>
+    <div>
+      <mat-form-field style="width: 100%">
+      <textarea matInput placeholder="Address" matTextareaAutosize matAutosizeMinRows="4" formControlName="address"></textarea>
+    </mat-form-field>
+    </div>
+  <button mat-raised-button color="warn" style="margin: 1%" (click)="discard()">Discard</button>
+  <button mat-raised-button color="primary" style="margin: 1%" type="submit" [disabled]="!managerEditForm.valid">Save</button>
+</form>
+
+</div>

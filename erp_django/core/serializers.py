@@ -1,32 +1,36 @@
 from rest_framework import serializers
-from .models import GeneralInfo, Project, Invoice, Services, Developer, DevelopersOnProject, Client
+from .models import Manager, Project, Invoice, Developer, DevelopersOnProject, Client, Vacation, User, ActOfPerfJobs, \
+    Owner
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = "__all__"
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Invoice
         fields = "__all__"
 
 
-class GeneralInfoSerializer(serializers.ModelSerializer):
+class ManagerSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = GeneralInfo
+        model = Manager
         fields = "__all__"
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Project
-        fields = "__all__"
-
-
-class ServicesSerializer(serializers.ModelSerializer):
-    total_cost = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Services
+        #depth = 1
         fields = "__all__"
 
 
@@ -34,17 +38,18 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Developer
-        fields = "__all__"
+        fields = ('id', 'first_name', 'last_name', 'email', 'hourly_rate', 'monthly_salary', 'birthday_date',)
 
 
 class DevelopersOnProjectSerializer(serializers.ModelSerializer):
-    developer_name = serializers.CharField(source='developer.name', read_only=True)
-    developer_surname = serializers.CharField(source='developer.surname', read_only=True)
-    developer_email = serializers.EmailField(source='developer.email', read_only=True)
+    name = serializers.CharField(source='developer.name', read_only=True)
+    surname = serializers.CharField(source='developer.surname', read_only=True)
+    email = serializers.EmailField(source='developer.email', read_only=True)
     #developer_hours = serializers.FloatField(source='developer.hours', read_only=True)
-    developer_hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)
+    hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)
 
     project_name = serializers.CharField(source='project.project_name', read_only=True)
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = DevelopersOnProject
@@ -53,7 +58,45 @@ class DevelopersOnProjectSerializer(serializers.ModelSerializer):
 
 
 class ClientSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = Client
+        fields = ('id', 'first_name', 'last_name', 'position', 'email', 'phone', 'identification_number', 'address',
+                  'company_name',)
+
+
+class VacationSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = Vacation
         fields = "__all__"
+
+
+class ActOfPerfJobsSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = ActOfPerfJobs
+        fields = "__all__"
+
+
+class OwnerSerializer(serializers.ModelSerializer):
+    #owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = Owner
+        fields = "__all__"
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'position',)
+
+
+class ProjectsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'

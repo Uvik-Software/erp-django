@@ -62,10 +62,15 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
+.coverage.*
 .cache
 nosetests.xml
 coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -83,8 +88,16 @@ target/
 *.pot
 *.pyc
 __pycache__/
-local_settings.py
+erp_django/erp_django/local_settings.py
 
-.env
 db.sqlite3
 .idea/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/

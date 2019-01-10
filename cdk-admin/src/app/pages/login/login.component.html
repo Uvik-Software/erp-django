@@ -1,0 +1,35 @@
+<div fxLayout="column" fxFlexFill fxLayoutAlign="center center" style="background-image:url('../../../assets/login11.jpg');
+height: 100%;
+background-repeat: no-repeat;
+background-position: center;
+background-size: cover; ">
+    <div fxLayout="column" >
+
+        <div class=" mat-elevation-z4">
+            <mat-card>
+                <mat-card-title>User login
+
+                </mat-card-title>
+                <mat-card-content>
+                    <form fxLayout="column" fxLayoutAlign="start stretch" [formGroup]="userForm" (ngSubmit)="login()">
+                        <mat-form-field class="full-width">
+                          <input id="username" class="input" placeholder="Please enter your username"
+                                 formControlName="username" required matInput>
+                        </mat-form-field>
+                        <div *ngIf="formErrors.username" class="help is-danger">
+                            {{ formErrors.username }}
+                        </div>
+                        <mat-form-field class="full-width">
+                            <input type="password" id="password" class="input" placeholder="please  enter your password"
+                            formControlName="password" required matInput>
+                        </mat-form-field>
+                        <div *ngIf="formErrors.password" class="help is-danger">
+                            {{ formErrors.password }}
+                        </div>
+                        <button mat-raised-button color="primary" type="submit" [disabled]="!userForm.valid">log in</button>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

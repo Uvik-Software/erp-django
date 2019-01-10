@@ -1,0 +1,352 @@
+
+<html lang="en">
+
+<head>
+   <meta http-equiv="content-type" content="text/html" charset="utf-8">
+    <!--{% load static %}-->
+    <!--<link rel="stylesheet" href="{% static 'act_for_perf_works.css' %}" type="text/css">-->
+    <style>
+     /* latin */
+    @font-face {
+      font-family: 'Times New Roman';
+      src: url("C:\work\erp-django\erp-django\erp_django\core\static\Times New Roman.ttf");
+    }
+
+    @font-face {
+      font-family: 'Calibri';
+      src: url("C:\work\erp-django\erp-django\erp_django\core\static\calibri.ttf");
+    }
+
+    @font-face {
+      font-family: 'Times New Roman Cyr Bold';
+      src: url("C:\work\erp-django\erp-django\erp_django\core\static\TNR Bold.ttf");
+    }
+
+    .c0 {
+        font-weight: 400;
+        text-decoration: none;
+        vertical-align: baseline;
+        font-size: 11pt;
+        font-family: "Times New Roman";
+        font-style: normal;
+    }
+
+    .c1 {
+        vertical-align: baseline;
+        font-size: 12pt;
+        font-family: "Times New Roman";
+        font-style: normal;
+        line-height: 1.0;
+    }
+
+    .c5 {
+        font-size: 12pt;
+        font-family: "Times New Roman Cyr Bold";
+    }
+
+    .c5-1 {
+       line-height: 1.0;
+    }
+
+    .c7 {
+        padding-top: 2pt;
+        padding-bottom: 2pt;
+        line-height: 1.0;
+    }
+
+    .c7-1 {
+        padding-left: 2pt;
+    }
+
+    .c8 {
+        font-size: 11pt;
+        font-family: "Times New Roman";
+    }
+
+    .c9 {
+        padding-top: 0pt;
+        padding-bottom: 0pt;
+        line-height: 2.0;
+        text-align: center
+    }
+
+
+    .c11 {
+        padding-top: 5pt;
+        padding-bottom: 5pt;
+        line-height: 1.0;
+        text-align: center
+    }
+
+    .c11-1 {
+        padding-top: 0pt;
+        padding-bottom: 0pt;
+        line-height: 1.0;
+        text-align: left
+    }
+
+    .c11-2 {
+        padding-top: 0pt;
+        padding-bottom: 0pt;
+        line-height: 1.0;
+        text-align: right
+    }
+
+    .c19 {
+        margin-left: 0pt;
+        list-style-position: inside;
+        text-indent: 45pt;
+        margin-right: 14.2pt;
+        text-align: justify
+    }
+
+    p {
+        margin: 0;
+        font-size: 10pt;
+        font-family: "Times New Roman"
+    }
+    </style>
+
+</head>
+
+<body>
+    <p class="c5 c9">АКТ ВИКОНАНИХ РОБІТ № {{ act_jobs.number_of_act }}</p>
+    <table>
+        <tbody>
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="c11-1"><span class="c1">Місце складання: м. Чернівці</span></p>
+                </td>
+                <td>
+                    <p class="c11-2"><span class="c1">Дата складання: {{ act_jobs.date }} р.</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tr>
+            <td>
+            <p class="c1 c19"> Фізична особа-підприємець {{ customer_info.surname }}
+         {{ customer_info.name }} {{ customer_info.father_name }}, який діє від власного імені, надалі – «Замовник», з однієї сторони та фізична особа-підприємець {{ developer_info.surname }}
+            {{ developer_info.name }} {{ developer_info.father_name }}, який діє від власного імені, надалі – «Виконавець», з іншої
+            сторони, склали цей Акт про наступне:</p>
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p class="c1 c19"> 1. Сторони погоджуються, що Виконавець виконав свої зобов’язання згідно Договору на
+                виконання робіт № {{ customer_info.num_contract_with_dev }} від {{ customer_info.date_contract_with_dev }} р.</p>
+            </td>
+        </tr>
+        <tr>
+                <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p class="c1 c19"> 2. Договір виконано відповідно узгоджених Сторонами графіком виконання робіт і
+                завдань у наступних обсягах:</p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p></p>
+            </td>
+        </tr>
+        <tr>
+            <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p></p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table border="0.5">
+        <tbody>
+            <tr>
+                <td align="center" width="10%">
+                    <p class="c11"><span class="c5">№</span></p>
+                    <p><span class="c14 c5">з/п</span></p>
+                </td>
+                <td align="center">
+                    <p class="c9"><span class="c5">Найменування робіт</span></p>
+                </td>
+                <td align="center" width="40%">
+                    <p class="c9"><span class="c5">Вартість робіт, грн.</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <p class="c11"><span class="c1">1.</span></p>
+                </td>
+                <td>
+                    <p class="c7 c7-1"><span class="c1">Роботи з комп’ютерного програмування</span></p>
+                </td>
+                <td align="center">
+                    <p><span class="c1"> {{ dev_salary_1 }} </span></p>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <p class="c11"><span class="c1">2.</span></p>
+                </td>
+                <td>
+                    <p class="c7 c7-1"><span class="c1">Роботи з оброблення даних, розміщення інформації на веб-вузлах</span></p>
+                </td>
+                <td align="center">
+                    <p><span class="c1"> {{ dev_salary_2 }} </span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p></p>
+            </td>
+        </tr>
+        <tr>
+            <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p></p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <td>
+                <p class="c5 c5-1">Загальна вартість виконаних робіт становить {{ total_salary }} грн.</p>
+            </td>
+        </tr>
+         <tr>
+            <td>
+                <p class="c5">Без ПДВ (ПДВ не передбачений)</p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <td>
+            <p></p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <td>
+            <p class="c1 c19"> 3. Сторони підтверджують, що роботи виконані Виконавцем вчасно, якісно та в повному
+                обсязі та прийняті Замовником, а вартість робіт вказана в Акті відповідає попередньо узгодженій
+                Сторонами. Сторони не мають претензій одна до одної.</p>
+            </td>
+        </tr>
+        <tr>
+                <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p class="c1 c19"> 4. Загальна вартість виконаних робіт включає вартість виключних майнових прав на об'єкти
+                інтелектуальної власності, створені Виконавцем в результаті виконання робіт в рамках Договору на
+                виконання робіт № {{ customer_info.num_contract_with_dev }} від
+                {{ customer_info.date_contract_with_dev }} р.</p>
+            </td>
+        </tr>
+        <tr>
+                <p></p>
+        </tr>
+        <tr>
+            <td>
+            <p class="c1 c19"> 5. Цей Акт складений українською мовою у двох примірниках, що мають однакову юридичну
+                силу, по одному для кожної із Сторін.</p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <table>
+        <tbody>
+            <tr>
+                <p></p>
+            </tr>
+            <tr>
+                <p></p>
+            </tr>
+            <tr>
+                <td>
+                    <p class="c7"><span class="c0">Замовник: Фізична особа-підприємець</span></p>
+                    <p class="c7"><span class="c0"> {{ customer_info.surname }} {{ customer_info.name }} {{ customer_info.father_name }} </span></p>
+                    <p class="c7"><span class="c0">Адреса: {{ customer_info.address }} </span></p>
+                    <p class="c7"><span class="c0">Реєстраційний номер облікової картки платника податків: </span><span class="c8"> {{ customer_info.tax_number }} </span></p>
+                    {% for cust_bank in cust_bank_info %}
+                    <p class="c7"><span class="c0">Р/р: </span><span class="c8"> {{ cust_bank.bank_account_number }} </span></p>
+                    <p class="c7"><span class="c0">в {{ cust_bank.bank_name }} </span></p>
+                    <p class="c7"><span class="c0">МФО код банку: {{ cust_bank.bank_code }} </span></p>
+                    {% endfor %}
+                </td>
+                <td>
+                    <p class="c7"><span class="c0">Виконавець: Фізична особа-підприємець</span></p>
+                    <p class="c7"><span class="c0"> {{ developer_info.surname }} {{ developer_info.name }} {{ developer_info.father_name }} </span></p>
+                    <p class="c7"><span class="c0">Адреса: {{ developer_info.address }}</span></p>
+                    <p class="c7"><span class="c0">Реєстраційний номер облікової картки платника податків: </span><span class="c8"> {{ developer_info.tax_number }} </span></p>
+                    {% for dev_bank in dev_bank_info %}
+                    <p class="c7"><span class="c0">Р/р: </span><span class="c8"> {{ dev_bank.bank_account_number }} </span></p>
+                    <p class="c7"><span class="c0">в {{ dev_bank.bank_name }} </span></p>
+                    <p class="c7"><span class="c0">МФО код банку: {{ dev_bank.bank_code }} </span></p>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <p></p>
+            </tr>
+            <tr>
+                <td>
+                    <p class="c9"><span class="c0">Підпис:</span></p>
+                    <p class="c9"><span class="c0">_________________/</span></p>
+                </td>
+                <td>
+                    <p class="c9"><span class="c0">Підпис:</span></p>
+                    <p class="c9"><span class="c0">_________________/</span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
