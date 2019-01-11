@@ -7,8 +7,8 @@ import {
   MatPaginator,
   MatTableDataSource
 } from "@angular/material";
-import { ProjectsService } from "./projects.service";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+
 import {
   Currency,
   devOnProject,
@@ -17,10 +17,15 @@ import {
   ProjectInterface,
   ProjectTypes
 } from "../interfaces/projects";
+
+import { ProjectsService } from "./projects.service";
 import {ClientsService} from "../clients/clients.service";
 import {DevelopersService} from "../developers/developers.service";
-import {DeveloperInterface} from "../interfaces/developer";
+import {ManagersService} from "../managers/managers.service";
+// import {DeveloperInterface} from "../interfaces/developer";
+
 import {ClientInterface, ClientListResponse} from "../interfaces/client";
+import {ManagersInterface, ManagersListResponse} from "../interfaces/managers";
 
 @Component({
   selector: 'app-projects',
@@ -70,9 +75,9 @@ export class ProjectsComponent implements OnInit {
     } else {
       let dialogRef = this.dialog.open(ProjectEditDialog).afterClosed().subscribe(response => {
           if (response && response.changed) {
-            response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
-            response.data.manager_info = JSON.parse(localStorage.getItem('currentUser')).user.id;
+            // response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
             response.data.client = response.data.client.id;
+            console.log(response.data);
             this.projectsService.create_project(response.data).subscribe(() => {
               this.getProjects();
             })
@@ -115,6 +120,8 @@ export class ProjectEditDialog {
   ];
   clients:ClientInterface[] = [];
   client:ClientInterface;
+  managers: ManagersInterface[] = [];
+  manager_info: ManagersInterface;
 
 
   projectEditForm = new FormGroup ({
@@ -123,8 +130,9 @@ export class ProjectEditDialog {
     project_description: new FormControl(),
     currency: new FormControl(),
     basic_price: new FormControl(),
-    manager_info: new FormControl(),
+    // manager_info: new FormControl(),
     client: new FormControl(),
+    manager_info: new FormControl(),
     all_time_money_spent: new FormControl(),
     deadline: new FormControl(),
     project_started_date: new FormControl(),
@@ -133,23 +141,31 @@ export class ProjectEditDialog {
   constructor(public dialogRef: MatDialogRef<ProjectInterface>,
               private fb: FormBuilder,
               private clientService: ClientsService,
+              private managerService: ManagersService,
               @Inject(MAT_DIALOG_DATA) data) {
     this.project_data = data || {};
     this.createForm()
   }
 
   ngOnInit() {
-
+    this.getClientsList();
+    this.getManagers();
   }
 
   getClientsList() {
     this.clientService.get_clients().subscribe((response:ClientListResponse) => {
       this.clients = response.results;
-      })
+      });
+  }
+
+  getManagers() {
+    this.managerService.get_managers().subscribe((response:ManagersListResponse) => {
+      this.managers = response.results;
+    })
   }
 
   createForm() {
-    this.getClientsList();
+
     if (this.project_data.client) {
       this.client = this.project_data.client;
     }
@@ -163,8 +179,9 @@ export class ProjectEditDialog {
       basic_price: [this.project_data.basic_price, Validators.compose([
                                             Validators.pattern(/^-?(0|[1-9]\d*)?$/)
                                           ])],
-      manager_info: this.project_data.manager_info,
+      // manager_info: this.project_data.manager_info,
       client: [this.client, Validators.required],
+      manager_info: [this.manager_info, Validators.required],
       all_time_money_spent: [{value: this.project_data.all_time_money_spent, disabled: true}],
       deadline: this.project_data.deadline,
       project_started_date: this.project_data.project_started_date,
@@ -194,6 +211,10 @@ export class ProjectEditDialog {
 
   changeClient(event) {
     this.client = this.clients.find(o => o.id === event);
+  }
+
+  changeManager(event) {
+    this.manager_info = this.managers.find(o => o.id === event);
   }
 
 }

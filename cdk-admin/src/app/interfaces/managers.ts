@@ -1,12 +1,11 @@
 export class ManagersInterface {
   id: number;
-  name: string;
-  surname: string;
+  first_name: string;
+  last_name: string;
   email: string;
   position: string;
   address: string;
   company_name: string;
-  user: number;
 }
 
 export class ManagersListResponse {

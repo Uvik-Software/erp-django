@@ -1,4 +1,4 @@
-<div style="width:80%">
+<div style="">
 
   <h1 class="mat-headline center-align" *ngIf="project_data.project_name">Edit "{{ project_data.project_name }}" information</h1>
 
@@ -25,17 +25,34 @@
 	  					</mat-select>
     </mat-form-field>
 
+    <mat-form-field>
+      <mat-select placeholder="Client" formControlName="client" (selectionChange)="changeClient($event.value)">
+		    				<mat-option *ngFor="let client of clients" [value]="client.id">
+		      								{{ client.first_name }} {{ client.last_name }}
+		    				</mat-option>
+	  					</mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-select placeholder="Manager" formControlName="manager_info" (selectionChange)="changeManager($event.value)">
+		    				<mat-option *ngFor="let manager of managers" [value]="manager.id">
+		      								{{ manager.first_name }} {{ manager.last_name }}
+		    				</mat-option>
+	  					</mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-select placeholder="Owner" formControlName="owner" (selectionChange)="changeOwner($event.value)">
+		    				<mat-option *ngFor="let owner of owners" [value]="owner.id">
+		      								{{ owner.first_name }} {{ owner.last_name }}
+		    				</mat-option>
+	  					</mat-select>
+    </mat-form-field>
+
     <mat-form-field *ngIf="projectEditForm.value.project_type === 'FIX_PRICE_PROJECT'">
       <input matInput placeholder="Price" formControlName="basic_price">
     </mat-form-field>
 
-    <mat-form-field>
-      <mat-select placeholder="Client" formControlName="client" (selectionChange)="changeClient($event.value)">
-		    				<mat-option *ngFor="let client of clients" [value]="client.id">
-		      								{{ client.name }}
-		    				</mat-option>
-	  					</mat-select>
-    </mat-form-field>
 
     <mat-form-field>
       <input matInput placeholder="Deadline" type="date" formControlName="deadline">
@@ -56,7 +73,7 @@
 
   <button mat-raised-button color="warn" style="margin: 1%" (click)="discard()">Discard</button>
   <button mat-raised-button color="primary" style="margin: 1%" type="submit" [disabled]="!projectEditForm.valid">Save</button>
-    <mat-form-field style="margin: 1%; float: right;">
+    <mat-form-field style="margin: 1%; float: right;" *ngIf="project_data.project_name">
       <input matInput placeholder="All time Money Spent" formControlName="all_time_money_spent">
     </mat-form-field>
 </form>
