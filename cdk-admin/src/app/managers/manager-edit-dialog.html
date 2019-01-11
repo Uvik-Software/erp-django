@@ -1,15 +1,15 @@
 <div style="width:80%">
 
-  <h1 class="mat-headline center-align">Edit {{ manager_data.manager_name }} {{ manager_data.manager_surname }} information</h1>
+  <h1 class="mat-headline center-align">Edit {{ manager_data.first_name }} {{ manager_data.last_name }} information</h1>
 
   <form [formGroup]="managerEditForm" (ngSubmit)="save()">
   <div class="form-group">
     <mat-form-field>
-      <input matInput placeholder="Name" formControlName="name">
+      <input matInput placeholder="First Name" formControlName="first_name">
     </mat-form-field>
 
     <mat-form-field>
-      <input matInput placeholder="Last Name" formControlName="surname">
+      <input matInput placeholder="Last Name" formControlName="last_name">
     </mat-form-field>
      <mat-form-field>
       <input matInput placeholder="Position" formControlName="position">
