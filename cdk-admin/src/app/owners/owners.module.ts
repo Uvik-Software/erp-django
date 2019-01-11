@@ -17,6 +17,7 @@ import {
 } from '@angular/material';
 // import {ClientEditDialog, ClientsComponent} from "./clients.component";
 import { OwnersComponent, OwnersModalComponent } from "./owners.component";
+import { OwnersService } from "./owners.service";
 
 export const ROUTES: Routes = [
    { path: '', component: OwnersComponent },
@@ -47,7 +48,8 @@ export const ROUTES: Routes = [
     FormsModule,
     ReactiveFormsModule,
   ],
-  declarations: [OwnersComponent],
-  entryComponents: []
+  declarations: [OwnersComponent, OwnersModalComponent],
+  entryComponents: [OwnersModalComponent],
+  providers: [ OwnersService ]
 })
 export class OwnersModule { }

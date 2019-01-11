@@ -19,9 +19,10 @@ import {
 } from "../interfaces/projects";
 
 import { ProjectsService } from "./projects.service";
-import {ClientsService} from "../clients/clients.service";
-import {DevelopersService} from "../developers/developers.service";
-import {ManagersService} from "../managers/managers.service";
+import { ClientsService } from "../clients/clients.service";
+import { DevelopersService } from "../developers/developers.service";
+import { ManagersService } from "../managers/managers.service";
+import { OwnersService } from "../owners/owners.service";
 // import {DeveloperInterface} from "../interfaces/developer";
 
 import {ClientInterface, ClientListResponse} from "../interfaces/client";
@@ -130,7 +131,6 @@ export class ProjectEditDialog {
     project_description: new FormControl(),
     currency: new FormControl(),
     basic_price: new FormControl(),
-    // manager_info: new FormControl(),
     client: new FormControl(),
     manager_info: new FormControl(),
     all_time_money_spent: new FormControl(),
@@ -155,7 +155,7 @@ export class ProjectEditDialog {
   getClientsList() {
     this.clientService.get_clients().subscribe((response:ClientListResponse) => {
       this.clients = response.results;
-      });
+    });
   }
 
   getManagers() {
