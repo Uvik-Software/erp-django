@@ -1,0 +1,42 @@
+<div style="">
+
+  <h1 class="mat-headline center-align" *ngIf="owner_data.id">Edit "{{ owner_data.first_name }}
+    {{ owner_data.last_name }}" information
+  </h1>
+
+  <h1 class="mat-headline center-align" *ngIf="!owner_data.id">Create owner</h1>
+
+  <form [formGroup]="ownerCreateForm" (ngSubmit)="save()">
+    <div class="form-group">
+
+      <mat-form-field>
+        <input matInput placeholder="First name" formControlName="first_name">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Last name" formControlName="last_name">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Tax number" formControlName="tax_number">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Number contract with the developer" formControlName="num_contract_with_dev">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Date contract with the developer" type="date" formControlName="date_contract_with_dev">
+      </mat-form-field>
+
+      <div>
+        <mat-form-field style="width: 100%">
+          <textarea matInput placeholder="Address" matTextareaAutosize matAutosizeMinRows="4" formControlName="address"></textarea>
+        </mat-form-field>
+      </div>
+
+    </div>
+    <button mat-raised-button color="warn" style="margin: 1%" (click)="discard()">Discard</button>
+    <button mat-raised-button color="primary" style="margin: 1%" type="submit" [disabled]="!ownerCreateForm.valid">Save</button>
+  </form>
+</div>

@@ -69,8 +69,8 @@ export class DeveloperEditDialog {
   dev_data: DeveloperInterface;
 
   developerEditForm = new FormGroup ({
-    name: new FormControl(),
-    surname: new FormControl(),
+    first_name: new FormControl(),
+    last_name: new FormControl(),
     email: new FormControl(),
     hourly_rate: new FormControl(),
     monthly_salary: new FormControl(),
@@ -90,8 +90,8 @@ export class DeveloperEditDialog {
   createForm() {
     this.developerEditForm = this.fb.group({
       id: this.dev_data.id,
-      name: [this.dev_data.name, Validators.required],
-      surname: [this.dev_data.surname, Validators.required],
+      first_name: [this.dev_data.first_name, Validators.required],
+      last_name: [this.dev_data.last_name, Validators.required],
       email: [this.dev_data.email, Validators.compose([
                                             Validators.required,
                                             Validators.email

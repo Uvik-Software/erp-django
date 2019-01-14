@@ -19,7 +19,7 @@ import { ClientInterface, ClientListResponse } from "../interfaces/client";
 export class ClientsComponent implements OnInit {
 
   clients: Array<ClientInterface> = [];
-  displayedColumns: string[] = ['name', 'position', 'company_name', 'email', 'phone', 'edit'];
+  displayedColumns: string[] = ['first_name', 'last_name', 'username', 'position', 'company_name', 'email', 'phone', 'edit'];
   dataSource = new MatTableDataSource<ClientInterface>([]);
 
   constructor(private clientsService: ClientsService,
@@ -85,7 +85,9 @@ export class ClientEditDialog {
   client_data: ClientInterface;
 
   clientEditForm = new FormGroup ({
-    name: new FormControl(),
+    first_name: new FormControl(),
+    last_name: new FormControl(),
+    username: new FormControl(),
     position: new FormControl(),
     company_name: new FormControl(),
     email: new FormControl(),
@@ -107,7 +109,9 @@ export class ClientEditDialog {
   createForm() {
     this.clientEditForm = this.fb.group({
       id: this.client_data.id,
-      name: [this.client_data.name, Validators.required],
+      first_name: [this.client_data.first_name, Validators.required],
+      last_name: [this.client_data.last_name, Validators.required],
+      username: [this.client_data.username, Validators.required],
       position: [this.client_data.position, Validators.required],
       company_name: [this.client_data.company_name, Validators.required],
       email: [this.client_data.email, Validators.compose([

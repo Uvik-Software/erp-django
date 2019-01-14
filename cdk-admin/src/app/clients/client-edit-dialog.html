@@ -1,18 +1,29 @@
 <div style="width:80%">
 
-  <h1 class="mat-headline center-align">Edit {{client_data.name}} {{client_data.surname}} information</h1>
+  <h1 class="mat-headline center-align">Edit {{client_data.first_name}} {{client_data.last_name}} information</h1>
 
   <form [formGroup]="clientEditForm" (ngSubmit)="save()">
   <div class="form-group">
     <mat-form-field>
-      <input matInput placeholder="Name" formControlName="name">
+      <input matInput placeholder="First Name" formControlName="first_name">
     </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Last Name" formControlName="last_name">
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Username" formControlName="username">
+    </mat-form-field>
+
     <mat-form-field>
       <input matInput placeholder="Position" formControlName="position">
     </mat-form-field>
+
     <mat-form-field>
       <input matInput placeholder="Company" formControlName="company_name">
     </mat-form-field>
+
     <mat-form-field>
       <input matInput placeholder="E-mail" type="email" formControlName="email">
     </mat-form-field>
@@ -20,6 +31,7 @@
     <mat-form-field>
       <input matInput placeholder="Phone" formControlName="phone">
     </mat-form-field>
+
     <mat-form-field>
       <input matInput placeholder="Identification Number" formControlName="identification_number">
     </mat-form-field>

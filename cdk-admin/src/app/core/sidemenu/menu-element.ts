@@ -31,6 +31,12 @@ export const menus = [
         'icon': 'people',
     },
   {
+        'name': 'Owners',
+        'open': false,
+        'link': '/dashboard/owners',
+        'icon': 'business',
+    },
+  {
         'name': 'Projects',
         'open': false,
         'link': '/dashboard/projects',

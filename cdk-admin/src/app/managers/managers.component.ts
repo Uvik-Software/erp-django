@@ -68,8 +68,8 @@ export class ManagerEditDialog {
   manager_data: ManagersInterface;
 
   managerEditForm = new FormGroup ({
-    name: new FormControl(),
-    surname: new FormControl(),
+    first_name: new FormControl(),
+    last_name: new FormControl(),
     email: new FormControl(),
     position: new FormControl(),
     address: new FormControl(),
@@ -89,16 +89,15 @@ export class ManagerEditDialog {
   createForm() {
     this.managerEditForm = this.fb.group({
       id: this.manager_data.id,
-      name: [this.manager_data.name, Validators.required],
-      surname: [this.manager_data.surname, Validators.required],
+      first_name: [this.manager_data.first_name, Validators.required],
+      last_name: [this.manager_data.last_name, Validators.required],
       email: [this.manager_data.email, Validators.compose([
                                             Validators.required,
                                             Validators.email
                                           ])],
       position: [this.manager_data.position, Validators.required],
       address: [this.manager_data.address, Validators.required],
-      company_name: [this.manager_data.company_name, Validators.required],
-      user: this.manager_data.user
+      company_name: [this.manager_data.company_name, Validators.required]
     });
 }
 

@@ -1,6 +1,8 @@
 export class ClientInterface {
   id: number;
-  name: string;
+  first_name: string;
+  last_name: string;
+  username: string;
   position: string;
   company_name: string;
   address: string;

@@ -49,7 +49,7 @@ class Owner(models.Model):
     num_contract_with_dev = models.CharField(max_length=20, null=True)
     date_contract_with_dev = models.DateField(null=True)
     sign = models.ImageField(upload_to='static/signs/', null=True)
-    bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE)
+    bank_info = models.OneToOneField(BankInfo, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"Owner {self.last_name} {self.first_name}"
