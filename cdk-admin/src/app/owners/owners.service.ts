@@ -20,6 +20,6 @@ export class OwnersService {
     }
 
     delete_owner(id) {
-      return this.http.delete(`${environment.baseUrl}/projects/` + id + `/`)
+      return this.http.delete(`${environment.baseUrl}/owners/` + id + `/`)
     }
 }

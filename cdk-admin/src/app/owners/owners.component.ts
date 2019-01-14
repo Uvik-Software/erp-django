@@ -11,8 +11,6 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 
 import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
 import { OwnersService } from "./owners.service";
-import {ProjectEditDialog} from "../projects/projects.component";
-import {ProjectInterface} from "../interfaces/projects";
 
 @Component({
   selector: 'app-owners',
@@ -48,7 +46,7 @@ export class OwnersComponent implements OnInit {
 
     if (id) {
       dialogConfig.data = this.owners.find(o => o.id === id);
-      let dialogRef = this.dialog.open(ProjectEditDialog, dialogConfig).afterClosed()
+      let dialogRef = this.dialog.open(OwnersModalComponent, dialogConfig).afterClosed()
         .subscribe(response => {
           if (response && response.changed) {
             this.ownersService.update_owner(response.data).subscribe(() => {
@@ -57,10 +55,8 @@ export class OwnersComponent implements OnInit {
           }
         });
     } else {
-      let dialogRef = this.dialog.open(ProjectEditDialog).afterClosed().subscribe(response => {
+      let dialogRef = this.dialog.open(OwnersModalComponent).afterClosed().subscribe(response => {
         if (response && response.changed) {
-          // response.data.client = response.data.client.id;
-          // console.log(response.data);
           this.ownersService.create_owner(response.data).subscribe(() => {
             this.getOwners();
           })
@@ -107,10 +103,11 @@ export class OwnersModalComponent {
   createForm() {
 
     this.ownerCreateForm = this.fb.group({
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
+      id: this.owner_data.id,
+      first_name: [this.owner_data.first_name, Validators.required],
+      last_name: [this.owner_data.last_name, Validators.required],
       address: this.owner_data.address,
-      tax_number: ['', Validators.required],
+      tax_number: [this.owner_data.tax_number, Validators.required],
       num_contract_with_dev: [this.owner_data.num_contract_with_dev, Validators.required],
       date_contract_with_dev: this.owner_data.date_contract_with_dev
     });

@@ -27,6 +27,7 @@ import { OwnersService } from "../owners/owners.service";
 
 import {ClientInterface, ClientListResponse} from "../interfaces/client";
 import {ManagersInterface, ManagersListResponse} from "../interfaces/managers";
+import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
 
 @Component({
   selector: 'app-projects',
@@ -119,11 +120,15 @@ export class ProjectEditDialog {
     { name: 'EUR' },
     { name: 'UAH' }
   ];
+
   clients:ClientInterface[] = [];
   client:ClientInterface;
+
   managers: ManagersInterface[] = [];
   manager_info: ManagersInterface;
 
+  owners: OwnerInterface[] = [];
+  owner: OwnerInterface;
 
   projectEditForm = new FormGroup ({
     project_name: new FormControl(),
@@ -142,6 +147,7 @@ export class ProjectEditDialog {
               private fb: FormBuilder,
               private clientService: ClientsService,
               private managerService: ManagersService,
+              private ownerService: OwnersService,
               @Inject(MAT_DIALOG_DATA) data) {
     this.project_data = data || {};
     this.createForm()
@@ -150,6 +156,7 @@ export class ProjectEditDialog {
   ngOnInit() {
     this.getClientsList();
     this.getManagers();
+    this.getOwners();
   }
 
   getClientsList() {
@@ -161,6 +168,12 @@ export class ProjectEditDialog {
   getManagers() {
     this.managerService.get_managers().subscribe((response:ManagersListResponse) => {
       this.managers = response.results;
+    })
+  }
+
+  getOwners() {
+    this.ownerService.get_owners().subscribe((response: getOwnersResponse) => {
+      this.owners = response.results;
     })
   }
 
@@ -215,6 +228,10 @@ export class ProjectEditDialog {
 
   changeManager(event) {
     this.manager_info = this.managers.find(o => o.id === event);
+  }
+
+  changeOwner(event) {
+    this.owner = this.owners.find(o => o.id == event);
   }
 
 }
