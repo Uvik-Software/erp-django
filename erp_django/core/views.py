@@ -89,8 +89,10 @@ class ClientViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # TODO: write logic instead of hardcode
-        owner = Owner.objects.all().first()
-        serializer.save(owner=owner)
+        print(self.request)
+        print(self.request.data)
+        owner = Owner.objects.get(id=self.request.data.get('owner', None))
+        serializer.save(owner=owner, username=self.request.data.get('username', ''))
 
 
 class VacationViewSet(viewsets.ModelViewSet):
