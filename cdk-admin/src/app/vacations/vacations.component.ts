@@ -18,6 +18,25 @@ export class VacationsComponent implements OnInit {
   displayEvent: any;
   vacations: Array<Vacation> = [];
 
+  checkboxes = [
+    {
+      "label": "Projects",
+      'checked': true
+    },
+    {
+      "label": "Birthdays",
+      'checked': true
+    },
+    {
+      "label": "Vacations",
+      'checked': true
+    },
+    {
+      "label": "Holidays",
+      'checked': true
+    },
+  ];
+
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
 
   constructor(private vacationsService: VacationsService,
@@ -28,7 +47,9 @@ export class VacationsComponent implements OnInit {
   }
 
   getAllDaysOff() {
-    this.vacationsService.getAllVacations().subscribe((response:getVacationsResponse) => {
+    this.vacationsService.getAllVacations(this.checkboxes[0].checked, this.checkboxes[1].checked, this.checkboxes[2].checked,
+      this.checkboxes[3].checked)
+      .subscribe((response:getVacationsResponse) => {
       this.calendarOptions = {
         editable: true,
         eventLimit: false,
@@ -77,6 +98,7 @@ export class VacationsComponent implements OnInit {
       }
     };
     this.displayEvent = model;
+    console.log(model);
   }
 
   createVacationDialog(id, create) {
@@ -108,6 +130,11 @@ export class VacationsComponent implements OnInit {
         });
     }
   }
+
+  onChange(event, i){
+    this.checkboxes[i].checked = event.checked;
+    this.getAllDaysOff();
+  }
 }
 
 @Component({
@@ -136,7 +163,8 @@ export class VacationCreateDialog {
   }
 
   ngOnInit() {
-    this.createForm()
+    this.createForm();
+    console.log(this.user)
   }
 
   createForm() {

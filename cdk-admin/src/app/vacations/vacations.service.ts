@@ -13,8 +13,9 @@ export class VacationsService {
         return this.http.get(`${environment.baseUrl}/days_off/?next_month_only=False`)
     }
 
-    getAllVacations() {
-        return this.http.get<getVacationsResponse>(`${environment.baseUrl}/all_holidays/`)
+    getAllVacations(projects, birthdays, vacations, holidays) {
+        return this.http.get<getVacationsResponse>(`${environment.baseUrl}/all_holidays/`,
+          {params: {'projects': projects, 'birthdays': birthdays, 'vacations': vacations, 'holidays': holidays}})
     }
 
     createVacation(data) {

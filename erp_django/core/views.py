@@ -502,28 +502,33 @@ class GetAllHolidays(APIView):
     permission_classes = (IsAuthenticated, PermsForManAndDev)
 
     def get(self, request):
+        params = request.GET
         response = list()
         ua_holidays = get_ua_days_off(False)
 
-        for project in Project.objects.all():
-            if project.deadline or project.project_started_date:
-                response.append(dict(title=project.project_name,
-                                     start=project.project_started_date,
-                                     end=project.deadline))
+        if params.get('projects') == 'true':
+            for project in Project.objects.all():
+                if project.deadline and project.project_started_date:
+                    response.append(dict(title=project.project_name,
+                                         start=project.project_started_date,
+                                         end=project.deadline, color='#3ccc56'))
 
-        for holiday in ua_holidays:
-            response.append(dict(title=holiday.replace("_", " "),
-                                 start=ua_holidays[holiday]))
+        if params.get('holidays') == 'true':
+            for holiday in ua_holidays:
+                response.append(dict(title=holiday.replace("_", " "),
+                                     start=ua_holidays[holiday], color='#4656bf'))
 
-        for user in User.objects.all():
-            response.append(dict(title=user.first_name + " " + user.last_name + " Birthday",
-                                 start=user.birthday_date))
+        if params.get('birthdays') == 'true':
+            for user in User.objects.all():
+                response.append(dict(title=user.first_name + " " + user.last_name + " Birthday",
+                                     start=user.birthday_date, color='pink'))
 
-        for vacation in Vacation.objects.all():
-            response.append(dict(title=vacation.user.first_name + " " + vacation.user.last_name + " Vacation",
-                                 start=vacation.from_date,
-                                 end=vacation.to_date,
-                                 id=vacation.id))
+        if params.get('vacations') == 'true':
+            for vacation in Vacation.objects.all():
+                response.append(dict(title=vacation.user.first_name + " " + vacation.user.last_name + " Vacation",
+                                     start=vacation.from_date,
+                                     end=vacation.to_date,
+                                     id=vacation.id, color='#ff6161'))
 
         return json_response_success(data=response)
 
