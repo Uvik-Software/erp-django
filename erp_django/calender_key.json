@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "uvik-calendar",
+  "private_key_id": "c995d526918aa81dde178ae67cb321b9cea7883b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC6HPBokw6JN3qS\nhueSmDWoVOst2m58mDoeeXGbMg9qMZiS9r2x0kCDorAe3NRlWRKuM+DfT0y1K6hv\njdH3oUsXCmbASPxG0vamLcSkX//Xg2kZqfY+bC4U5D/uQNxVVTbTToLzUjewqdr/\ny8XC406tzcv+NpiczWSy2XBsF26vD/+tMPAWTwiWaaDYBR8MzgKf9iVa9SYfmOzZ\n5Vg83tK1gqg1qsNc7piTf4LXDyQEHJKAOjwgafefSyuUysKsZZkX8oaA2D8iOPMa\n/M7+ajA29SuYZda2pYhkPsttOBW96YLSIt5IlqkQkxOaOlyd4q45ntYGjM0EyAam\nOg7T+aAJAgMBAAECggEAFaqXzDzOdOf6A4PkAptop7uXE2P599RK89BEiwI1bDHw\n5q8F32UwMILoiPdBXLkVZSVR+P1E21SFS9NRTcg/syN5WcpFYENgBnGOkmpAoQjB\n3AR+z76NUM5PqP9xBxggBVJ/CS+Znx3vCldhIvKObspmBKa7domsvut0XIkP0B5U\nW0s0qH9iAQnRPRtNBlSAPV9kpUzzlyOe9tl3pEE6qcsAAF6PByhYQFk/2ULEBUfX\nrEB8bwxsJwCWF7/qm+aSF50niOiS6/VpoW86TDXhcIpDGl4GskOxhJU5yJVkQ9KN\n5e1xS/h9KbrYbbF3FcNfEtcgcHBRMprHk7nqjAh9zwKBgQDeWROsbBfgL52mVe6i\nfsQvHRiLwnHUekdMcjxUYncWko60GXKzaZePUOD+kKh7rR9m2M54J2FGXeowOMBF\nlbEyd8YFzrBS4o+JYM2k5WcmTb9R4NqFVyzKif0IQ318eweJ45PkD3MIHTqz7Pat\nEfcMAcpFGdYie/T563MNwmEvRwKBgQDWR+6gO8VtNOQpYrarNQ1qBZIWDsVKKQLW\noQ57iF6+xRA/F0jXvYpcKmSpvNe5mg0X68xx7qMVkUeUDWgtEZCdpeLyitxQjqL3\nt02oPvSWtMI8RwRC0UpYAcrEh0E0m+QDA/RabOL3Oi1nDrEhIsfR/ejSxao2ioC8\nWdLKCrt+LwKBgDaQn55ZrIZMySBvyC9CcrypJEPwBOVC2Mpu4lVHELiOYMzbzeUv\njY0TKRPvxhkLxEAGBq0/5MRS+cy5sJ2i/ahH8mWscmL0zIrHIdBMp8Kjo8bhKl88\npHZT5K+peFsbCh+RpNJ75BviqGxNQ7/3P6xHqC7LB1zRFK5cVJDU2eqzAoGAfL09\nHYwN/ufGVo0/d2UX3PtHMo4ArY44N8dkDeex9+3x6jhc0DJnhAWtud3T2xjhvGYp\nCr33tAtxlq9DUNEj1ZIHDlhlroOKPRg5HdMgQUcSt1JEGb2KQLcyWbu+6qhBULwR\nmD5A1djJK3AzDu4XUpgz29bzonJ4RK0pdzJOOUMCgYEAmlsWrzP3YtNVQm6vMhCb\n+4CaEDJVECw5j7wmU7ViAg9Ne+vRVrsk705eB+yePtt5WYLKTOhYL0ZxXruGmZb7\n07I9GXOJch9zB9HSUie1aJRtvEnv9mLUdMjvjMFZqjedIAEkxPKRHpxDN8fk0jbb\nM+o5fUTx4PsKk14+vXlgkMI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "uvik-calendar-test@uvik-calendar.iam.gserviceaccount.com",
+  "client_id": "110355154252849211029",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/uvik-calendar-test%40uvik-calendar.iam.gserviceaccount.com"
+}

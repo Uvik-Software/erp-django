@@ -22,14 +22,14 @@ export class VacationsService {
     }
 
     getVacation(id) {
-      return this.http.get<getVacationsResponse>(`${environment.baseUrl}/vacations/?vacation_id=` + id)
+      return this.http.get<getVacationsResponse>(`${environment.baseUrl}/vacations/` + id + `/`)
     }
 
     changeVacation(data) {
-      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/`, data)
+      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/1/`, data)
     }
 
     deleteVacation(id) {
-      return this.http.delete<getVacationsResponse>(`${environment.baseUrl}/vacations/?vacation_id=` + id)
+      return this.http.delete<getVacationsResponse>(`${environment.baseUrl}/vacations/` + id + `/`)
     }
 }

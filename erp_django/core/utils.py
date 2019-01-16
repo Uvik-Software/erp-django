@@ -47,8 +47,8 @@ def gmail_sender(msg, email_destination, subject, cc=None):
 def create_g_calendar_event(start_date, end_date, description):
     m = google_calendar_api()
     return m.create_event(calendar_id=G_CALENDAR_ID,
-                          start=start_date,
-                          end=end_date,
+                          start=str(start_date) + "T00:00:00-00:00",
+                          end=str(end_date) + "T00:00:00-00:00",
                           desc=description)
 
 

@@ -2,9 +2,8 @@ import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { CalendarComponent } from 'ng-fullcalendar';
 import { Options } from 'fullcalendar';
 import { VacationsService } from "./vacations.service";
-import { DevelopersService } from "../developers/developers.service";
-import { getVacationsResponse } from "../interfaces/vacations";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
+import { getVacationsResponse, Vacation } from "../interfaces/vacations";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 
 @Component({
@@ -17,6 +16,7 @@ export class VacationsComponent implements OnInit {
   calendarOptions: Options;
   events: any = [];
   displayEvent: any;
+  vacations: Array<Vacation> = [];
 
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
 
@@ -29,7 +29,7 @@ export class VacationsComponent implements OnInit {
 
   getAllDaysOff() {
     this.vacationsService.getAllVacations().subscribe((response:getVacationsResponse) => {
-        this.calendarOptions = {
+      this.calendarOptions = {
         editable: true,
         eventLimit: false,
         header: {
@@ -39,7 +39,7 @@ export class VacationsComponent implements OnInit {
         },
         events: response.data
       };
-        this.events = response.data
+      this.events = response.data
     })
   }
 
@@ -81,21 +81,21 @@ export class VacationsComponent implements OnInit {
 
   createVacationDialog(id, create) {
     const dialogConfig = new MatDialogConfig();
-      dialogConfig.autoFocus = true;
+    dialogConfig.autoFocus = true;
     if (id) {
       this.vacationsService.getVacation(id).subscribe((response:any) => {
-        dialogConfig.data = response.data;
-      let dialogRef = this.dialog.open(VacationCreateDialog, dialogConfig).afterClosed()
-        .subscribe(response => {
-          if (response && response.deleted) {
-            this.getAllDaysOff()
-          }
-          if (response && response.changed) {
-            this.vacationsService.changeVacation(response.data).subscribe(() => {
+        dialogConfig.data = response;
+        let dialogRef = this.dialog.open(VacationCreateDialog, dialogConfig).afterClosed()
+          .subscribe(response => {
+            if (response && response.deleted) {
               this.getAllDaysOff()
-            })
-          }
-        });
+            }
+            if (response && response.changed) {
+              this.vacationsService.changeVacation(response.data).subscribe(() => {
+                this.getAllDaysOff()
+              })
+            }
+          });
       });
     } else if (create) {
       let dialogRef = this.dialog.open(VacationCreateDialog).afterClosed()
@@ -125,11 +125,10 @@ export class VacationCreateDialog {
     from_date: new FormControl(),
     to_date: new FormControl(),
     comments: new FormControl(),
-    approved: new FormControl(),
+    approved: new FormControl({value: false, disabled: this.user.type == 'DEVELOPER'}),
   });
 
   constructor(public dialogRef: MatDialogRef<any>,
-              private developersService: DevelopersService,
               private fb: FormBuilder,
               private vacationsService: VacationsService,
               @Inject(MAT_DIALOG_DATA) data) {
@@ -137,38 +136,25 @@ export class VacationCreateDialog {
   }
 
   ngOnInit() {
-    this.getDevelopers();
-  }
-
-  getDevelopers() {
-      this.developersService.get_developers().subscribe((response) => {
-        this.developers = response.results;
-        this.createForm()
-    });
+    this.createForm()
   }
 
   createForm() {
-    let dev_id = this.vacation.developer || '';
-    if (this.user.user_type === 'DEVELOPER') {
-      dev_id = this.developers.find(o => o.user === this.user.id)
-    }
-
     this.vacationCreateForm = this.fb.group({
       id: this.vacation.id,
-      developer_id: [dev_id, Validators.required],
+      user: [this.vacation.user || this.user.id, Validators.required],
       from_date: [this.vacation.from_date || '', Validators.required],
       to_date: [this.vacation.to_date || '', Validators.required],
-      comments: [{value: this.vacation.comments || '', disabled: this.user.user_type === 'DEVELOPER'}],
-      approved: [{value: this.vacation.approved || false, disabled: this.user.user_type === 'DEVELOPER'}],
+      comments: [{value: this.vacation.comments || '', disabled: this.user.type === 'DEVELOPER'}],
+      approved: [{value: this.vacation.approved || false, disabled: this.user.type == 'DEVELOPER'}],
     });
-}
+  }
 
   save() {
     if (!this.vacationCreateForm.invalid) {
       this.dialogRef.close({ changed: this.vacationCreateForm.dirty,
-                                         data: this.vacationCreateForm.value });
+        data: this.vacationCreateForm.value });
     }
-
   }
 
   discard() {
@@ -177,7 +163,7 @@ export class VacationCreateDialog {
 
   delete(id) {
     this.vacationsService.deleteVacation(id).subscribe(() => {
-        this.dialogRef.close({ deleted: true });
+      this.dialogRef.close({ deleted: true });
     });
   }
 

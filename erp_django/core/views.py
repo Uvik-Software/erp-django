@@ -64,7 +64,7 @@ class ManagerViewSet(viewsets.ModelViewSet):
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.all().order_by('-id')
     serializer_class = ProjectSerializer
     permission_classes = (IsAuthenticated, ManagerFullAccess)
 
@@ -507,7 +507,7 @@ class GetAllHolidays(APIView):
 
         for project in Project.objects.all():
             if project.deadline or project.project_started_date:
-                response.append(dict(title=project.name,
+                response.append(dict(title=project.project_name,
                                      start=project.project_started_date,
                                      end=project.deadline))
 
@@ -515,12 +515,12 @@ class GetAllHolidays(APIView):
             response.append(dict(title=holiday.replace("_", " "),
                                  start=ua_holidays[holiday]))
 
-        for developer in Developer.objects.all():
-            response.append(dict(title=developer.first_name + " " + developer.last_name + " Birthday",
-                                 start=developer.birthday_date))
+        for user in User.objects.all():
+            response.append(dict(title=user.first_name + " " + user.last_name + " Birthday",
+                                 start=user.birthday_date))
 
         for vacation in Vacation.objects.all():
-            response.append(dict(title=vacation.developer.name + " " + vacation.developer.surname + " Vacation",
+            response.append(dict(title=vacation.user.first_name + " " + vacation.user.last_name + " Vacation",
                                  start=vacation.from_date,
                                  end=vacation.to_date,
                                  id=vacation.id))
