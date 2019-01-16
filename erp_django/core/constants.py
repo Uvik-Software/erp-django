@@ -23,7 +23,7 @@ NOTIFICATION_TYPES = (
 GMAIL_EMAIL = "dmitry.ko@uvik.net"
 GMAIL_PASSWORD = "uDEFpm74!!"
 
-G_CALENDAR_ID = "uvik.net_l0ns61ouq9va8surjs4f690fik@group.calendar.google.com"
+G_CALENDAR_ID = "semmy071997@gmail.com"
 G_API_KEY = "AIzaSyAP6cEUZ0ngz7pNgk8RDGLjuiDpe87BsqI"
 
 # VARS FOR NOTIFICATIONS

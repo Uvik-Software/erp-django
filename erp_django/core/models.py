@@ -17,6 +17,8 @@ class User(AbstractUser):
     type = models.CharField(choices=USER_TYPES, max_length=30, default="JUST_CREATED")
     address = models.TextField(default='', blank=True)
     position = models.CharField(max_length=128, default='', blank=True)
+    birthday_date = models.DateField(null=True)
+    tax_number = models.CharField(max_length=20, default='')
 
 
 # TODO: do normalization
@@ -65,20 +67,6 @@ class Client(User):
         return f"Client {self.last_name} {self.first_name}"
 
 
-class Developer(User):
-    father_name = models.CharField(max_length=20, default='', blank=True)
-    tax_number = models.CharField(max_length=20, default='')
-    hourly_rate = models.IntegerField()
-    birthday_date = models.DateField()
-    monthly_salary = models.IntegerField()
-    sign = models.ImageField(upload_to='static/signs/', null=True)
-    bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.CASCADE)
-    owner = models.ForeignKey(Owner, null=True, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"Developer {self.last_name} {self.first_name}, {self.email}"
-
-
 class Project(models.Model):
     project_name = models.CharField(max_length=200)
     project_type = models.CharField(choices=PROJECT_TYPE_VARIATIONS, max_length=50)
@@ -122,6 +110,19 @@ class Project(models.Model):
 
     def __str__(self):
         return self.project_name
+
+
+class Developer(User):
+    father_name = models.CharField(max_length=20, default='', blank=True)
+    hourly_rate = models.IntegerField()
+    monthly_salary = models.IntegerField()
+    sign = models.ImageField(upload_to='static/signs/', null=True)
+    bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, null=True, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Developer {self.last_name} {self.first_name}, {self.email}"
 
 
 class DevelopersOnProject(models.Model):
@@ -171,12 +172,11 @@ class Company(models.Model):
 
 
 class Vacation(models.Model):
-    developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     from_date = models.DateField()
     to_date = models.DateField()
-    comments = models.TextField(null=True)
+    comments = models.TextField(default='', blank=True)
     approved = models.BooleanField(default=False)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
 
     # __original_approved = None
     #

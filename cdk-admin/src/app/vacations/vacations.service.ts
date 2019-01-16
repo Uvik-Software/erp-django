@@ -13,8 +13,9 @@ export class VacationsService {
         return this.http.get(`${environment.baseUrl}/days_off/?next_month_only=False`)
     }
 
-    getAllVacations() {
-        return this.http.get<getVacationsResponse>(`${environment.baseUrl}/all_holidays/`)
+    getAllVacations(projects, birthdays, vacations, holidays) {
+        return this.http.get<getVacationsResponse>(`${environment.baseUrl}/all_holidays/`,
+          {params: {'projects': projects, 'birthdays': birthdays, 'vacations': vacations, 'holidays': holidays}})
     }
 
     createVacation(data) {
@@ -22,14 +23,14 @@ export class VacationsService {
     }
 
     getVacation(id) {
-      return this.http.get<getVacationsResponse>(`${environment.baseUrl}/vacations/?vacation_id=` + id)
+      return this.http.get<getVacationsResponse>(`${environment.baseUrl}/vacations/` + id + `/`)
     }
 
     changeVacation(data) {
-      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/`, data)
+      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/1/`, data)
     }
 
     deleteVacation(id) {
-      return this.http.delete<getVacationsResponse>(`${environment.baseUrl}/vacations/?vacation_id=` + id)
+      return this.http.delete<getVacationsResponse>(`${environment.baseUrl}/vacations/` + id + `/`)
     }
 }

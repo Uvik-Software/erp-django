@@ -108,4 +108,4 @@ def notify_dev_if_vacation_approved(sender, instance, update_fields, **kwargs):
             sbj = "Approvement about your vacation is left"
             msg = "Approvement about your vacation is updated"
             # uncomment to send a real email
-            gmail_sender(msg, vacation.developer.email, sbj)
+            gmail_sender(msg, vacation.user.email, sbj)
