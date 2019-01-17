@@ -30,6 +30,9 @@ class Manager(User):
     def __str__(self):
         return f"Manager {self.last_name} {self.first_name}"
 
+    class Meta:
+        verbose_name = 'Manager'
+
 
 class BankInfo(models.Model):
     bank_name = models.CharField(max_length=20, null=True)
@@ -65,6 +68,9 @@ class Client(User):
 
     def __str__(self):
         return f"Client {self.last_name} {self.first_name}"
+
+    class Meta:
+        verbose_name = 'Client'
 
 
 class Project(models.Model):
@@ -123,6 +129,9 @@ class Developer(User):
 
     def __str__(self):
         return f"Developer {self.last_name} {self.first_name}, {self.email}"
+
+    class Meta:
+        verbose_name = 'Developer'
 
 
 class DevelopersOnProject(models.Model):

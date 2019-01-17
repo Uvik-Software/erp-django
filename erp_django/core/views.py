@@ -1,8 +1,10 @@
+import datetime
+
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view, renderer_classes, authentication_classes, permission_classes
 from rest_framework.views import APIView
 from rest_framework import viewsets, renderers, schemas, response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_swagger.renderers import SwaggerUIRenderer, OpenAPIRenderer
 from rest_framework.schemas import AutoSchema
 
@@ -66,20 +68,44 @@ class ManagerViewSet(viewsets.ModelViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all().order_by('-id')
     serializer_class = ProjectSerializer
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes_by_action = {
+        'get': [IsAuthenticated],
+        'options': [IsAdminUser],
+        'create': [IsAdminUser],
+        'put': [IsAdminUser],
+        'delete': [IsAdminUser]
+    }
+
+    def get_permissions(self):
+        try:
+            # return permission_classes depending on `action`
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            # action is not set return default permission_classes
+            return [permission() for permission in self.permission_classes_by_action['options']]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff or user.type == "MANAGER":
+            return Project.objects.all().order_by('-id')
+
+        if user.type == "DEVELOPER":
+            project = Developer.objects.get(user_ptr=user).project
+            return Project.objects.filter(id=project.id)
+
+        # if user.type == "MANAGER":
+            # project = Manager.objects.get(user_ptr=user).project
+            # return Project.objects.filter(id=project.id)
+            # return []
 
     def perform_create(self, serializer):
-        # TODO: write logic instead of hardcode
-        # manager = Manager.objects.all().first()
-        # owner = Owner.objects.all().first()
-        # serializer.save(owner=owner, manager_info=manager)
         serializer.save()
 
 
 class DeveloperViewSet(viewsets.ModelViewSet):
     queryset = Developer.objects.all()
     serializer_class = DeveloperSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, ManagerFullAccess)
 
 
 class ClientViewSet(viewsets.ModelViewSet):
@@ -88,9 +114,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
 
     def perform_create(self, serializer):
-        # TODO: write logic instead of hardcode
-        print(self.request)
-        print(self.request.data)
         owner = Owner.objects.get(id=self.request.data.get('owner', None))
         serializer.save(owner=owner, username=self.request.data.get('username', ''))
 
@@ -123,11 +146,11 @@ class ActOfPerfJobsViewSet(viewsets.ModelViewSet):
 class OwnerViewSet(viewsets.ModelViewSet):
     queryset = Owner.objects.all()
     serializer_class = OwnerSerializer
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes = (IsAuthenticated, IsAdminUser)
 
 
 class DashboardReport(APIView):
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes = (IsAuthenticated, )
 
     def get(self, request):
         developers = Developer.objects.all().count()
@@ -501,7 +524,7 @@ class SetGetVacation(APIView):
 
 
 class GetAllHolidays(APIView):
-    permission_classes = (IsAuthenticated, PermsForManAndDev)
+    permission_classes = (IsAuthenticated, )
 
     def get(self, request):
         params = request.GET
@@ -509,7 +532,13 @@ class GetAllHolidays(APIView):
         ua_holidays = get_ua_days_off(False)
 
         if params.get('projects') == 'true':
-            for project in Project.objects.all():
+            if request.user.type == 'DEVELOPER':
+                project = Developer.objects.get(user_ptr=request.user).project
+                projects = Project.objects.filter(id=project.id)
+            else:
+                projects = Project.objects.all()
+
+            for project in projects:
                 if project.deadline and project.project_started_date:
                     response.append(dict(title=project.project_name,
                                          start=project.project_started_date,
@@ -522,8 +551,11 @@ class GetAllHolidays(APIView):
 
         if params.get('birthdays') == 'true':
             for user in User.objects.all():
-                response.append(dict(title=user.first_name + " " + user.last_name + " Birthday",
-                                     start=user.birthday_date, color='pink'))
+                birthday = user.birthday_date
+                if birthday:
+                    birthday = birthday.replace(year=datetime.datetime.now().year)
+                    response.append(dict(title=user.first_name + " " + user.last_name + " Birthday",
+                                         start=birthday, color='pink'))
 
         if params.get('vacations') == 'true':
             for vacation in Vacation.objects.all():
@@ -536,7 +568,7 @@ class GetAllHolidays(APIView):
 
 
 class UserEndpoint(APIView):
-    permission_classes = (IsAuthenticated, ManagerFullAccess)
+    permission_classes = (IsAuthenticated, IsAdminUser)
     queryset = User.objects.all()
     serializer_class = UsersSerializer
 
