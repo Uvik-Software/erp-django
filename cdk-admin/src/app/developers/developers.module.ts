@@ -16,6 +16,8 @@ import {
   MatMenuModule,
   MatSelectModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatDialogModule
 } from '@angular/material';
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 export const ROUTES: Routes = [
    { path: '', component: DevelopersComponent },
 ];
@@ -46,6 +48,10 @@ export const ROUTES: Routes = [
     ReactiveFormsModule,
   ],
   declarations: [DevelopersComponent, DeveloperEditDialog],
-  entryComponents: [DeveloperEditDialog]
+  entryComponents: [DeveloperEditDialog],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ],
 })
 export class DevelopersModule { }

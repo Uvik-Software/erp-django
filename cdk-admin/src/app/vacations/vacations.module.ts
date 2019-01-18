@@ -19,6 +19,8 @@ import {
 } from '@angular/material';
 import {VacationCreateDialog, VacationsComponent} from "./vacations.component";
 import {VacationsService} from "./vacations.service";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 
 export const ROUTES: Routes = [
    { path: '', component: VacationsComponent },
@@ -53,6 +55,9 @@ export const ROUTES: Routes = [
   ],
   declarations: [VacationsComponent, VacationCreateDialog],
   entryComponents: [VacationCreateDialog],
-  providers: [ VacationsService ]
+  providers: [ VacationsService,
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ]
 })
 export class VacationsModule { }

@@ -11,7 +11,8 @@ class User(AbstractUser):
         ("MANAGER", "Manager"),
         ("DEVELOPER", "Developer"),
         ("CLIENT", "Client"),
-        ("JUST_CREATED", "Just created")
+        ("JUST_CREATED", "Just created"),
+        ("ADMIN", 'Admin')
     )
 
     type = models.CharField(choices=USER_TYPES, max_length=30, default="JUST_CREATED")

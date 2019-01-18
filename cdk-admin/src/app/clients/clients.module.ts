@@ -16,6 +16,8 @@ import {
   MatSelectModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatDialogModule
 } from '@angular/material';
 import {ClientEditDialog, ClientsComponent} from "./clients.component";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 
 export const ROUTES: Routes = [
    { path: '', component: ClientsComponent },
@@ -47,6 +49,10 @@ export const ROUTES: Routes = [
     ReactiveFormsModule,
   ],
   declarations: [ClientsComponent, ClientEditDialog],
-  entryComponents: [ClientEditDialog]
+  entryComponents: [ClientEditDialog],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ]
 })
 export class ClientsModule { }
