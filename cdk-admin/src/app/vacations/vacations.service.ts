@@ -26,8 +26,8 @@ export class VacationsService {
       return this.http.get<getVacationsResponse>(`${environment.baseUrl}/vacations/` + id + `/`)
     }
 
-    changeVacation(data) {
-      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/1/`, data)
+    changeVacation(id, data) {
+      return this.http.put<getVacationsResponse>(`${environment.baseUrl}/vacations/` + id + `/`, data)
     }
 
     deleteVacation(id) {

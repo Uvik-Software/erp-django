@@ -71,6 +71,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes_by_action = {
         'get': [IsAuthenticated],
         'options': [IsAdminUser],
+        'list': [IsAuthenticated],
         'create': [IsAdminUser],
         'put': [IsAdminUser],
         'delete': [IsAdminUser]
@@ -82,7 +83,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return [permission() for permission in self.permission_classes_by_action[self.action]]
         except KeyError:
             # action is not set return default permission_classes
-            return [permission() for permission in self.permission_classes_by_action['options']]
+            return [permission() for permission in self.permission_classes_by_action['create']]
 
     def get_queryset(self):
         user = self.request.user
@@ -91,7 +92,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         if user.type == "DEVELOPER":
             project = Developer.objects.get(user_ptr=user).project
-            return Project.objects.filter(id=project.id)
+            if project:
+                return Project.objects.filter(id=project.id)
+            else:
+                return []
 
         # if user.type == "MANAGER":
             # project = Manager.objects.get(user_ptr=user).project
@@ -123,6 +127,14 @@ class VacationViewSet(viewsets.ModelViewSet):
     serializer_class = VacationSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_permissions(self):
+        if self.action == 'update':
+            vacation = Vacation.objects.get(id=self.request.data['id'])
+            if self.request.user.id == self.request.data['user'] and not vacation.approved:
+                return [permission() for permission in [IsAuthenticated]]
+            return [permission() for permission in [ManagerFullAccess]]
+        return [permission() for permission in [IsAuthenticated]]
+
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
     queryset = DevelopersOnProject.objects.all()
@@ -135,6 +147,16 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
             return DevelopersOnProject.objects.all().filter(project_id=project_id)
 
         return DevelopersOnProject.objects.all()
+
+    def perform_create(self, serializer):
+        data = self.request.data
+        project = Project.objects.get(id=data['project'])
+        dev = Developer.objects.get(id=data['developer'])
+
+        dev.project = project
+        dev.save()
+
+        serializer.save()
 
 
 class ActOfPerfJobsViewSet(viewsets.ModelViewSet):
@@ -534,11 +556,15 @@ class GetAllHolidays(APIView):
         if params.get('projects') == 'true':
             if request.user.type == 'DEVELOPER':
                 project = Developer.objects.get(user_ptr=request.user).project
-                projects = Project.objects.filter(id=project.id)
+                if project:
+                    projects = Project.objects.filter(id=project.id)
+                else:
+                    projects = []
             else:
                 projects = Project.objects.all()
 
             for project in projects:
+                print(project)
                 if project.deadline and project.project_started_date:
                     response.append(dict(title=project.project_name,
                                          start=project.project_started_date,

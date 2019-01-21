@@ -16,11 +16,11 @@
 					</mat-toolbar>
 					<div  dnd-sortable-container [dropZones]="['boxers-zone']" [sortableData]="availableDevelopers">
 
-<mat-list>
-							<mat-list-item  *ngFor="let availableDeveloper of availableDevelopers; let i = index" class="list-group-item" dnd-sortable [sortableIndex]="i">
-                  {{ availableDeveloper.name }} {{ availableDeveloper.surname }} <br/>
+            <mat-list>
+              <mat-list-item  *ngFor="let availableDeveloper of availableDevelopers; let i = index" class="list-group-item" dnd-sortable [sortableIndex]="i">
+                  {{ availableDeveloper.first_name }} {{ availableDeveloper.last_name }} <br/>
 
-              </mat-list-item></mat-list>
+            </mat-list-item></mat-list>
 
 					</div>
 
@@ -33,7 +33,7 @@
 					<div dnd-sortable-container [dropZones]="['boxers-zone']" [sortableData]="assignedDevelopers" style="height: 100%">
 						<mat-list>
 							<mat-list-item *ngFor="let assignedDeveloper of assignedDevelopers; let x = index" class="list-group-item" dnd-sortable [sortableIndex]="x" style="height: 100%">
-								{{ assignedDeveloper.name }} {{ assignedDeveloper.surname }}
+								{{ assignedDeveloper.first_name }} {{ assignedDeveloper.last_name }}
                 <div style="margin-left: 10%">
                       <mat-form-field>
                         <input matInput placeholder="Hours" [(ngModel)]="assignedDeveloper.hours">
