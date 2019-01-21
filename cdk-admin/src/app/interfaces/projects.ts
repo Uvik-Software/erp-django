@@ -38,11 +38,11 @@ export class devOnProject {
   hourly_rate: number;
   hours: number;
   id: number;
-  name: string;
+  first_name: string;
   owner: number;
   project: number;
   project_name: string;
-  surname: string;
+  last_name: string;
 }
 
 export class getAssignedDevs {

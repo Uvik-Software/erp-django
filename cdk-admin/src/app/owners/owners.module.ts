@@ -18,6 +18,8 @@ import {
 // import {ClientEditDialog, ClientsComponent} from "./clients.component";
 import { OwnersComponent, OwnersModalComponent } from "./owners.component";
 import { OwnersService } from "./owners.service";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 
 export const ROUTES: Routes = [
    { path: '', component: OwnersComponent },
@@ -50,6 +52,9 @@ export const ROUTES: Routes = [
   ],
   declarations: [OwnersComponent, OwnersModalComponent],
   entryComponents: [OwnersModalComponent],
-  providers: [ OwnersService ]
+  providers: [ OwnersService,
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ],
 })
 export class OwnersModule { }

@@ -18,6 +18,8 @@ import {
 } from '@angular/material';
 import {userCreateDialog, UsersComponent} from "./users.component";
 import {UserService} from "./users.service";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 
 export const ROUTES: Routes = [
    { path: '', component: UsersComponent },
@@ -51,6 +53,9 @@ export const ROUTES: Routes = [
   ],
   declarations: [UsersComponent, userCreateDialog],
   entryComponents: [userCreateDialog],
-  providers: [ UserService ]
+  providers: [ UserService,
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ]
 })
 export class UsersModule { }

@@ -113,7 +113,7 @@ export class VacationsComponent implements OnInit {
               this.getAllDaysOff()
             }
             if (response && response.changed) {
-              this.vacationsService.changeVacation(response.data).subscribe(() => {
+              this.vacationsService.changeVacation(id, response.data).subscribe(() => {
                 this.getAllDaysOff()
               })
             }

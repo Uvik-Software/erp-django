@@ -42,8 +42,8 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
 
 class DevelopersOnProjectSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='developer.name', read_only=True)
-    surname = serializers.CharField(source='developer.surname', read_only=True)
+    first_name = serializers.CharField(source='developer.first_name', read_only=True)
+    last_name = serializers.CharField(source='developer.last_name', read_only=True)
     email = serializers.EmailField(source='developer.email', read_only=True)
     #developer_hours = serializers.FloatField(source='developer.hours', read_only=True)
     hourly_rate = serializers.IntegerField(source='developer.hourly_rate', read_only=True)

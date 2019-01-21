@@ -16,6 +16,8 @@ import {
   MatSelectModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatDialogModule,
 } from '@angular/material';
 import {ProjectAssignComponent, ProjectEditDialog, ProjectsComponent} from "./projects.component";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 
 export const ROUTES: Routes = [
    { path: '', component: ProjectsComponent },
@@ -47,6 +49,10 @@ export const ROUTES: Routes = [
     ReactiveFormsModule,
   ],
   declarations: [ProjectsComponent, ProjectEditDialog, ProjectAssignComponent],
-  entryComponents: [ProjectEditDialog, ProjectAssignComponent]
+  entryComponents: [ProjectEditDialog, ProjectAssignComponent],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ],
 })
 export class ProjectsModule { }

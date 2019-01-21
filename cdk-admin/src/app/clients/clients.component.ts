@@ -10,6 +10,8 @@ import {
 } from "@angular/material";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ClientInterface, ClientListResponse } from "../interfaces/client";
+import { OwnersService } from "../owners/owners.service";
+import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
 
 @Component({
   selector: 'app-clients',
@@ -63,7 +65,7 @@ export class ClientsComponent implements OnInit {
       let dialogRef = this.dialog.open(ClientEditDialog).afterClosed()
         .subscribe(response => {
           if (response && response.changed) {
-            response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
+            // response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
             if (response && response.changed) {
             this.clientsService.createClient(response.data).subscribe(() => {
               this.getClients();
@@ -84,6 +86,9 @@ export class ClientEditDialog {
 
   client_data: ClientInterface;
 
+  owners: OwnerInterface[] = [];
+  owner: OwnerInterface;
+
   clientEditForm = new FormGroup ({
     first_name: new FormControl(),
     last_name: new FormControl(),
@@ -98,13 +103,22 @@ export class ClientEditDialog {
 
   constructor(public dialogRef: MatDialogRef<ClientEditDialog>,
               private fb: FormBuilder,
+              private ownersService: OwnersService,
               @Inject(MAT_DIALOG_DATA) data) {
     this.client_data = data || {};
     this.createForm()
   }
 
   ngOnInit() {
+    this.getOwners();
   }
+
+  getOwners() {
+    this.ownersService.get_owners().subscribe( (response: getOwnersResponse) => {
+      this.owners = response.results;
+    });
+  }
+
 
   createForm() {
     this.clientEditForm = this.fb.group({
@@ -126,7 +140,7 @@ export class ClientEditDialog {
                                           ])],
       owner: this.client_data.owner
     });
-}
+  }
 
   save() {
     if (!this.clientEditForm.invalid) {
@@ -140,4 +154,9 @@ export class ClientEditDialog {
     this.dialogRef.close();
   }
 
+  changeOwner(event) {
+    // console.log(this.owner);
+    this.client_data.owner = this.owners.find(o => o.id == event).id;
+    console.log(this.client_data.owner);
+  }
 }

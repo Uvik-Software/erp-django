@@ -36,6 +36,7 @@ import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
 })
 export class ProjectsComponent implements OnInit {
 
+  is_admin: boolean = JSON.parse(localStorage.getItem('currentUser')).user.is_staff;
   projects: Array<ProjectInterface> = [];
   displayedColumns: string[] = ['project_name', 'project_type', 'edit'];
   dataSource = new MatTableDataSource<ProjectInterface>([]);
@@ -45,7 +46,7 @@ export class ProjectsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngOnInit() {
-    this.getProjects()
+    this.getProjects();
   }
 
   ngAfterViewInit() {
@@ -265,9 +266,7 @@ export class ProjectAssignComponent {
       this.developersService.get_developers().subscribe((response: any) => {
         this.availableDevelopers = response.results;
         for (let dev of this.assignedDevelopers) {
-          this.availableDevelopers.splice(this.availableDevelopers.findIndex(function (i) {
-            return i.id === dev.id;
-          }), 1);
+          this.availableDevelopers.splice(0, 1);
         }
         this.availableDevelopersAtStart = [...this.availableDevelopers];
         this.assignedDevelopersAtStart = [...this.assignedDevelopers];
@@ -281,7 +280,7 @@ export class ProjectAssignComponent {
 
           let data = {project: this.project.id,
                       developer: developer.id,
-                      owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
+                      // owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
                       hours: developer.hours,
                       description: developer.description};
             this.projectsService.assignDevToProject(data).subscribe(() => {
@@ -289,7 +288,7 @@ export class ProjectAssignComponent {
         } else if (this.assignedDevelopersAtStart.includes(developer)) {
           let data = {project: this.project.id,
                       id: developer.id,
-                      owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
+                      // owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
                       hours: developer.hours,
                       description: developer.description,
                       developer: developer.developer};

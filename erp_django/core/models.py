@@ -11,7 +11,8 @@ class User(AbstractUser):
         ("MANAGER", "Manager"),
         ("DEVELOPER", "Developer"),
         ("CLIENT", "Client"),
-        ("JUST_CREATED", "Just created")
+        ("JUST_CREATED", "Just created"),
+        ("ADMIN", 'Admin')
     )
 
     type = models.CharField(choices=USER_TYPES, max_length=30, default="JUST_CREATED")
@@ -29,6 +30,9 @@ class Manager(User):
 
     def __str__(self):
         return f"Manager {self.last_name} {self.first_name}"
+
+    class Meta:
+        verbose_name = 'Manager'
 
 
 class BankInfo(models.Model):
@@ -61,10 +65,13 @@ class Client(User):
     company_name = models.CharField(max_length=300)
     phone = models.CharField(max_length=50)
     identification_number = models.CharField(max_length=32, default='')
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f"Client {self.last_name} {self.first_name}"
+
+    class Meta:
+        verbose_name = 'Client'
 
 
 class Project(models.Model):
@@ -73,12 +80,12 @@ class Project(models.Model):
     project_description = models.TextField()
     currency = models.CharField(max_length=20)
     basic_price = models.FloatField(null=True)
-    manager_info = models.ForeignKey(Manager, on_delete=models.CASCADE)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    manager_info = models.ForeignKey(Manager, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
     all_time_money_spent = models.IntegerField(default=0)
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
 
     # __original_deadline = None
     # __original_project_started_date = None
@@ -117,12 +124,15 @@ class Developer(User):
     hourly_rate = models.IntegerField()
     monthly_salary = models.IntegerField()
     sign = models.ImageField(upload_to='static/signs/', null=True)
-    bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.CASCADE)
-    owner = models.ForeignKey(Owner, null=True, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, null=True, on_delete=models.CASCADE)
+    bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(Owner, null=True, on_delete=models.SET_NULL)
+    project = models.ForeignKey(Project, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"Developer {self.last_name} {self.first_name}, {self.email}"
+
+    class Meta:
+        verbose_name = 'Developer'
 
 
 class DevelopersOnProject(models.Model):
@@ -130,7 +140,7 @@ class DevelopersOnProject(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     description = models.TextField(null=True)
     hours = models.FloatField(null=True)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
 
 
 class Invoice(models.Model):

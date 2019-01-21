@@ -31,13 +31,6 @@ export class UsersComponent implements OnInit {
   dataSource = new MatTableDataSource<User>([]);
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  userCreateForm = new FormGroup ({
-    username: new FormControl(),
-    email: new FormControl(),
-    password: new FormControl(),
-    position: new FormControl()
-  });
-
   ngOnInit() {
     this.getAllUsers()
   }
