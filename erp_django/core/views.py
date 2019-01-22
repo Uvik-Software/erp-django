@@ -451,9 +451,9 @@ class SetGetVacation(APIView):
 
         # import pdb;pdb.set_trace()
         if is_developer(request.user):
-            developer = get_object_or_404(Developer, user=request.user)
+            developer = get_object_or_404(Developer, id=request.user.id)
             vacation = get_object_or_404(Vacation, id=vacation_id)
-            if developer.id == vacation.developer.id:
+            if developer.id == vacation.user.id:
                 vacation.from_date = from_date
                 vacation.to_date = to_date
                 vacation.save()
@@ -502,26 +502,26 @@ class SetGetVacation(APIView):
             return json_response_error("You must fill 'From date' and 'To date' fields")
 
         if is_developer(request.user):
-            developer = get_object_or_404(Developer, user=request.user)
+            developer = get_object_or_404(Developer, pk=developer_id)
+            user = User.objects.get(id=developer.user_ptr_id)
             dev_vacation = Vacation(from_date=from_date,
                                     to_date=to_date,
-                                    developer=developer,
-                                    approved=False,
-                                    owner=request.user)
+                                    user=user,
+                                    approved=False)
             dev_vacation.save()
             return json_response_success("Vacation is created. Feel free to contact a manager in order to approve it",
                                          status=201)
 
         if is_manager(request.user):
             developer = get_object_or_404(Developer, pk=developer_id)
+            user = User.objects.get(id=developer.user_ptr_id)
             dev_vacation = Vacation(from_date=from_date,
                                     to_date=to_date,
                                     approved=is_approved,
-                                    developer=developer,
-                                    owner=request.user)
+                                    user=user)
             dev_vacation.save()
-            return json_response_success("You created the vacation for developer " +
-                                         developer.surname + ' ' + developer.name, status=201)
+            return json_response_success("You created the vacation for user " +
+                                         developer.first_name + ' ' + developer.last_name, status=201)
 
         return json_response_success("Only 'MANAGER' or 'DEVELOPER' can create a vacations")
 
@@ -531,9 +531,9 @@ class SetGetVacation(APIView):
 
         if vacation_id:
             if is_developer(request.user):
-                developer = get_object_or_404(Developer, user=request.user)
+                developer = get_object_or_404(Developer, id=request.user.id)
                 vacation = get_object_or_404(Vacation, id=vacation_id)
-                if developer.id == vacation.developer.id:
+                if developer.id == vacation.user.id:
                     vacation.delete()
                     return json_response_success("You deleted your vacation", status=204)
                 return json_response_error("You can't delete vacation that is not yours")
@@ -564,7 +564,6 @@ class GetAllHolidays(APIView):
                 projects = Project.objects.all()
 
             for project in projects:
-                print(project)
                 if project.deadline and project.project_started_date:
                     response.append(dict(title=project.project_name,
                                          start=project.project_started_date,
@@ -659,94 +658,41 @@ class UserEndpoint(APIView):
     def put(self, request):
         data = request.data
 
-        user_id = data.get("id", None)
+        username = data.get("user_name", None)
+        user_password = data.get("password", None)
+        user_role = data.get("user_role", None)
 
-        if not user_id:
+        if not data.get('id', None):
             return json_response_error("You must point 'User ID'")
 
-        user_for_upd = get_object_or_404(User, id=user_id)
+        fields = {
+            'first_name': data.get('first_name', ''),
+            'last_name': data.get('last_name', ''),
+            'email': data.get('email', ''),
+            'username': username,
+            'password': make_password(user_password),
+            'type': user_role,
+        }
 
-        user_name = data.get("user_name", None)
-        user_password = data.get("password", None)
+        if user_role == "MANAGER":
+            manager_fields = {
+                'position': data.get('position', ''),
+                'company_name': data.get('company_name', ''),
+                'address': data.get('address', '')
+            }
+            fields.update(manager_fields)
+            Manager.objects.filter(user_ptr_id=data.get('id')).update(**fields)
 
-        if user_for_upd.user_type == "MANAGER":
-            manager_name = data.get("first_name", None)
-            manager_surname = data.get("last_name", None)
-            manager_email = data.get("email", None)
-            manager_position = data.get("position", None)
-            manager_address = data.get("address", None)
-            manager_company_name = data.get("company_name", None)
+        if user_role == "DEVELOPER":
+            dev_fields = {
+                'hourly_rate': data.get("hourly_rate", 0),
+                'birthday_date': data.get("birthday_date", None),
+                'monthly_salary': data.get("monthly_salary", 0)
+            }
+            fields.update(dev_fields)
+            Developer.objects.filter(user_ptr_id=data.get('id')).update(**fields)
 
-            user_for_upd.username = user_name
-            user_for_upd.password = make_password(user_password)
-            user_for_upd.email = manager_email
-            user_for_upd.last_name = manager_surname
-            user_for_upd.first_name = manager_name
-
-            man_for_upd = user_for_upd.manager_set.get()
-
-            man_for_upd.name = manager_name
-            man_for_upd.surname = manager_surname
-            man_for_upd.email = manager_email
-            man_for_upd.position = manager_position
-            man_for_upd.address = manager_address
-            man_for_upd.company_name = manager_company_name
-
-            user_for_upd.save()
-            man_for_upd.save()
-
-            return json_response_success("User was successfully updated", status=200)
-
-        if user_for_upd.user_type == "DEVELOPER":
-            developer_name = data.get("first_name", None)
-            developer_surname = data.get("last_name", None)
-            developer_fname = data.get("father_name", None)
-            developer_email = data.get("email", None)
-            developer_address = data.get("address", None)
-            developer_tax_number = data.get("tax_number", None)
-            developer_hourly_rate = data.get("hourly_rate", None)
-            developer_birthday_date = data.get("birthday_date", None)
-            developer_monthly_salary = data.get("monthly_salary", None)
-            owner_id = data.get("owner_id", None)
-            developer_bank_name = data.get("bank_name", None)
-            developer_bank_account_number = data.get("bank_account_number", None)
-            developer_bank_address = data.get("bank_address", None)
-            developer_bank_code = data.get("bank_code", None)
-
-            user_for_upd.username = user_name
-            user_for_upd.password = make_password(user_password)
-            user_for_upd.email = developer_email
-            user_for_upd.last_name = developer_surname
-            user_for_upd.first_name = developer_name
-
-            dev_for_upd = user_for_upd.developer_set.get()
-            bank_dev = dev_for_upd.bank_info
-
-            owner = Owner.objects.get(id=owner_id)
-
-            dev_for_upd.name = developer_name
-            dev_for_upd.surname = developer_surname
-            dev_for_upd.father_name = developer_fname
-            dev_for_upd.email = developer_email
-            dev_for_upd.address = developer_address
-            dev_for_upd.tax_number = developer_tax_number
-            dev_for_upd.hourly_rate = developer_hourly_rate
-            dev_for_upd.birthday_date = developer_birthday_date
-            dev_for_upd.monthly_salary = developer_monthly_salary
-            dev_for_upd.owner = owner
-
-            bank_dev.bank_name = developer_bank_name
-            bank_dev.bank_account_number = developer_bank_account_number
-            bank_dev.bank_address = developer_bank_address
-            bank_dev.bank_code = developer_bank_code
-
-            user_for_upd.save()
-            dev_for_upd.save()
-            bank_dev.save()
-
-            return json_response_success("User was successfully updated", status=200)
-
-        return json_response_error("Only 'MANAGER' can update users")
+        return json_response_success(f"User {username} was successfully updated.", status=200)
 
     def delete(self, request):
         data = request.data
@@ -849,12 +795,13 @@ class GetBankInfo(APIView):
         if developer_id:
             # import pdb;pdb.set_trace()
             if is_developer(request.user):
-                req_dev = request.user.developer_set.get()
+                req_dev = request.user
                 if req_dev.id == int(developer_id):
-                    dev_bank = req_dev.bank_info
-                    bank_inf = dict(dev_name=req_dev.name,
-                                    dev_fname=req_dev.father_name,
-                                    dev_surname=req_dev.surname,
+                    dev = Developer.objects.get(id=developer_id)
+                    dev_bank = dev.bank_info
+                    bank_inf = dict(dev_name=dev.first_name,
+                                    dev_fname=dev.father_name,
+                                    dev_surname=dev.last_name,
                                     bank_name=dev_bank.bank_name,
                                     bank_account_number=dev_bank.bank_account_number,
                                     bank_address=dev_bank.bank_address,
@@ -866,9 +813,9 @@ class GetBankInfo(APIView):
             if is_manager(request.user):
                 req_dev = get_object_or_404(Developer, id=developer_id)
                 dev_bank = req_dev.bank_info
-                bank_inf = dict(dev_name=req_dev.name,
+                bank_inf = dict(dev_name=req_dev.first_name,
                                 dev_fname=req_dev.father_name,
-                                dev_surname=req_dev.surname,
+                                dev_surname=req_dev.last_name,
                                 bank_name=dev_bank.bank_name,
                                 bank_account_number=dev_bank.bank_account_number,
                                 bank_address=dev_bank.bank_address,
@@ -882,9 +829,9 @@ class GetBankInfo(APIView):
                 dev_bank_inf = []
 
                 for dev in devs:
-                    bank_data = dict(dev_name=dev.name,
+                    bank_data = dict(dev_name=dev.first_name,
                                      dev_fname=dev.father_name,
-                                     dev_surname=dev.surname,
+                                     dev_surname=dev.last_name,
                                      bank_name=dev.bank_info.bank_name,
                                      bank_account_number=dev.bank_info.bank_account_number,
                                      bank_address=dev.bank_info.bank_address,
@@ -910,9 +857,9 @@ class GetSetOwnerInfo(APIView):
             owners_inf = []
 
             for owner in owners:
-                owners_data = dict(name=owner.name,
+                owners_data = dict(first_name=owner.first_name,
                                    father_name=owner.father_name,
-                                   surname=owner.surname,
+                                   last_name=owner.last_name,
                                    address=owner.address,
                                    tax_number=owner.tax_number,
                                    contract_num=owner.num_contract_with_dev,
@@ -928,9 +875,9 @@ class GetSetOwnerInfo(APIView):
 
         owner = get_object_or_404(Owner, id=owner_id)
         owner_bank = owner.bank_info
-        owner_inf = dict(name=owner.name,
+        owner_inf = dict(first_name=owner.first_name,
                          father_name=owner.father_name,
-                         surname=owner.surname,
+                         last_name=owner.last_name,
                          address=owner.address,
                          tax_number=owner.tax_number,
                          contract_num=owner.num_contract_with_dev,
@@ -944,8 +891,8 @@ class GetSetOwnerInfo(APIView):
     def post(self, request):
         data = request.data
 
-        owner_name = data.get("name", None)
-        owner_surname = data.get("surname", None)
+        owner_first_name = data.get("first_name", None)
+        owner_last_name = data.get("last_name", None)
         owner_father_name = data.get("father_name", None)
         owner_address = data.get("address", None)
         owner_tax_number = data.get("tax_number", None)
@@ -956,7 +903,7 @@ class GetSetOwnerInfo(APIView):
         owner_bank_address = data.get("bank_address", None)
         owner_bank_code = data.get("bank_code", None)
 
-        seq = [owner_name, owner_surname, owner_father_name, owner_address, owner_tax_number, num_contract_with_dev,
+        seq = [owner_first_name, owner_last_name, owner_father_name, owner_address, owner_tax_number, num_contract_with_dev,
                date_contract_with_dev, owner_bank_name, owner_bank_account_number, owner_bank_address, owner_bank_code]
 
         res = check_empty_fields(seq)
@@ -969,15 +916,14 @@ class GetSetOwnerInfo(APIView):
                                             bank_address=owner_bank_address,
                                             bank_code=owner_bank_code)
 
-        owner = Owner.objects.create(name=owner_name,
-                                     surname=owner_surname,
+        owner = Owner.objects.create(first_name=owner_first_name,
+                                     last_name=owner_last_name,
                                      father_name=owner_father_name,
                                      address=owner_address,
                                      tax_number=owner_tax_number,
                                      num_contract_with_dev=num_contract_with_dev,
                                      date_contract_with_dev=date_contract_with_dev,
-                                     bank_info=bank_info,
-                                     user_create=request.user)
+                                     bank_info=bank_info)
 
         bank_info.save()
         owner.save()
@@ -991,8 +937,8 @@ class GetSetOwnerInfo(APIView):
         if not owner_id:
             return json_response_error("You must provide Owner ID")
 
-        owner_name = data.get("name", None)
-        owner_surname = data.get("surname", None)
+        owner_first_name = data.get("first_name", None)
+        owner_last_name = data.get("last_name", None)
         owner_father_name = data.get("father_name", None)
         owner_address = data.get("address", None)
         owner_tax_number = data.get("tax_number", None)
@@ -1006,8 +952,8 @@ class GetSetOwnerInfo(APIView):
         owner_upd = get_object_or_404(Owner, id=owner_id)
         bank_owner = owner_upd.bank_info
 
-        owner_upd.name = owner_name
-        owner_upd.surname = owner_surname
+        owner_upd.first_name = owner_first_name
+        owner_upd.last_name = owner_last_name
         owner_upd.father_name = owner_father_name
         owner_upd.address = owner_address
         owner_upd.tax_number = owner_tax_number
