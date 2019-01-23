@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 
-from core.models import User, Manager, Project, Client, Owner, BankInfo
+from apps.core.models import User, Manager, Project, Client, Owner, BankInfo
 
 import datetime
 

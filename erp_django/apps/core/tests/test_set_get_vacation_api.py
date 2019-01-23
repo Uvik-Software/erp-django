@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
 from django.contrib.auth.hashers import make_password
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 
-from core.models import Vacation, Developer, User, Manager
+from apps.core.models import Vacation, Developer, User, Manager
 import datetime
 
 

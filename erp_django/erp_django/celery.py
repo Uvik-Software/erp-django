@@ -26,8 +26,8 @@ app.conf.beat_schedule = {
 
 @app.task
 def notification_worker():
-    from core.models import Invoice, Developer, Project
-    from core.utils import outdated_invoice_checker, project_deadline_checker, dev_birthday_checker
+    from apps.core.models import Invoice, Developer, Project
+    from apps.core.utils import outdated_invoice_checker, project_deadline_checker, dev_birthday_checker
 
     invoices = Invoice.objects.all().filter(status="SENT")
     outdated_invoice_checker(invoices)

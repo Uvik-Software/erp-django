@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from .models import Developer, Project, Vacation, Manager, DeadlineForGCal, ProjectStartForGCal
-from core.utils import create_g_calendar_event, gmail_sender, update_g_calendar_event
+from apps.core.utils import create_g_calendar_event, gmail_sender, update_g_calendar_event
 from django.conf import settings
 from rest_framework.authtoken.models import Token
 

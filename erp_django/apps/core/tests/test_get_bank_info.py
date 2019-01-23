@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 
-from core.models import Developer, User, Manager, Owner, BankInfo
+from apps.core.models import Developer, User, Manager, Owner, BankInfo
 
 import datetime
 
