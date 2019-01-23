@@ -567,12 +567,18 @@ class GetAllHolidays(APIView):
                 if project.deadline and project.project_started_date:
                     response.append(dict(title=project.project_name,
                                          start=project.project_started_date,
-                                         end=project.deadline, color='#3ccc56'))
+                                         end=project.deadline,
+                                         color='#3ccc56',
+                                         startEditable=False,
+                                         durationEditable=False))
 
         if params.get('holidays') == 'true':
             for holiday in ua_holidays:
                 response.append(dict(title=holiday.replace("_", " "),
-                                     start=ua_holidays[holiday], color='#4656bf'))
+                                     start=ua_holidays[holiday],
+                                     color='#4656bf',
+                                     startEditable=False,
+                                     durationEditable=False))
 
         if params.get('birthdays') == 'true':
             for user in User.objects.all():
@@ -580,7 +586,10 @@ class GetAllHolidays(APIView):
                 if birthday:
                     birthday = birthday.replace(year=datetime.datetime.now().year)
                     response.append(dict(title=user.first_name + " " + user.last_name + " Birthday",
-                                         start=birthday, color='pink'))
+                                         start=birthday,
+                                         color='pink',
+                                         startEditable=False,
+                                         durationEditable=False))
 
         if params.get('vacations') == 'true':
             for vacation in Vacation.objects.all():
