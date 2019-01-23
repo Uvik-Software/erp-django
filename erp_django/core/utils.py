@@ -62,7 +62,7 @@ def update_g_calendar_event(start_date, end_date, description, event_id):
 
 
 def is_manager(user):
-    return user.user_type == "MANAGER"
+    return user.type == "MANAGER"
 
 
 def get_orthodox_easter(year, method=2):
@@ -185,7 +185,7 @@ def json_response_success(message=None, data=None, status=200):
 
 
 def is_developer(user):
-    return user.user_type == "DEVELOPER"
+    return user.type == "DEVELOPER"
 
 
 def check_empty_fields(seq):

@@ -93,7 +93,7 @@ class OwnerSerializer(serializers.ModelSerializer):
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'position',)
+        fields = ('first_name', 'last_name', 'email', 'position', 'id',)
 
 
 class ProjectsSerializer(serializers.ModelSerializer):

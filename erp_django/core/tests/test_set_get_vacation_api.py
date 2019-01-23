@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib.auth.hashers import make_password
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from core.models import Vacation, Developer, User, Manager
 import datetime
@@ -11,54 +11,46 @@ DATE = datetime.datetime.now()
 TO_DATE = datetime.datetime.now() + datetime.timedelta(days=20)
 
 
-class TestVacation(TestCase):
+class TestVacation(TransactionTestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        developer_user = User.objects.create(username="uvik_dev",
-                                             password=make_password("some_password"), user_type="DEVELOPER")
-        manager_user = User.objects.create(username="uvik_man",
-                                           password=make_password("some_password"), user_type="MANAGER")
+    def setUp(self):
 
-        dev = Developer.objects.create(
-            name="John",
-            surname="Doe",
+        self.dev = Developer.objects.create(
+            username="uvik_dev",
+            password=make_password("some_password"),
+            type="DEVELOPER",
+            first_name="John",
+            last_name="Doe",
             email="some@some.com",
             hourly_rate=5,
             birthday_date=DATE - datetime.timedelta(days=50),
             monthly_salary=1000,
-            user=developer_user
         )
 
         man = Manager.objects.create(
-            name="some_name",
-            surname="some_surname",
+            username="uvik_man",
+            password=make_password("some_password"),
+            type="MANAGER",
+            first_name="some_name",
+            last_name="some_surname",
             email="manager_email@uvik.net",
             position="manager",
             address="some_address",
             company_name="UVIK",
-            user=manager_user
         )
 
-        vac_dev = Vacation.objects.create(
-            developer=dev,
+        self.vac_dev = Vacation.objects.create(
+            user=self.dev,
             from_date=DATE - datetime.timedelta(days=10),
             to_date=TO_DATE.strftime("%Y-%m-%d"),
-            owner=developer_user
         )
 
-        vac_man = Vacation.objects.create(
-            developer=dev,
+        self.vac_man = Vacation.objects.create(
+            user=man,
             from_date=DATE - datetime.timedelta(days=5),
             to_date=TO_DATE.strftime("%Y-%m-%d"),
             comments="some_comments",
-            owner=manager_user
         )
-
-    def test_first_name_label(self):
-        dev = Developer.objects.get(id=1)
-        field_label = dev._meta.get_field("name").verbose_name
-        self.assertEqual(field_label, "name")
 
     def test_get_vac_unauthorized(self):
         response = self.client.get("/set_vacation/")
@@ -69,8 +61,8 @@ class TestVacation(TestCase):
         login = self.client.login(username=user.username, password="some_password")
         response = self.client.get('/set_vacation/')
         resp_body = response.json()
-        dev_user = Developer.objects.get(id=resp_body["data"][0]["developer_id"])
-        self.assertEqual(dev_user.user.username, 'uvik_dev')
+        dev_user = Developer.objects.get(user_ptr_id=resp_body["data"][0]["user_id"])
+        self.assertEqual(dev_user.username, 'uvik_dev')
         self.assertEqual(response.status_code, 200)
 
     def test_get_vac_for_manager(self):
@@ -78,8 +70,8 @@ class TestVacation(TestCase):
         login = self.client.login(username=user.username, password="some_password")
         response = self.client.get('/set_vacation/')
         resp_body = response.json()
-        man_user = Vacation.objects.get(id=resp_body["data"][1]["owner_id"])
-        self.assertEqual(man_user.owner.username, 'uvik_man')
+        man_user = Vacation.objects.get(user__id=resp_body["data"][1]["user_id"])
+        self.assertEqual(man_user.user.username, 'uvik_man')
         self.assertEqual(response.status_code, 200)
 
     def test_post_vac_for_developer(self):
@@ -89,7 +81,7 @@ class TestVacation(TestCase):
                                                        'is_approved': True, 'developer_id': 1})
         post_check = self.client.get('/set_vacation/')
         body_post_check = post_check.json()
-        vacation_post = Vacation.objects.get(developer__id=body_post_check['data'][0]['developer_id'],
+        vacation_post = Vacation.objects.get(user__id=body_post_check['data'][0]['user_id'],
                                              from_date='2018-11-10')
 
         self.assertEqual(vacation_post.from_date.strftime('%Y-%m-%d'), '2018-11-10')
@@ -103,7 +95,7 @@ class TestVacation(TestCase):
                                                        'is_approved': True, 'developer_id': 1})
         post_check = self.client.get('/set_vacation/')
         body_post_check = post_check.json()
-        vacation_post = Vacation.objects.get(developer__id=body_post_check['data'][0]['owner_id'],
+        vacation_post = Vacation.objects.get(user__id=body_post_check['data'][0]['user_id'],
                                              from_date='2018-12-01')
 
         self.assertEqual(vacation_post.from_date.strftime('%Y-%m-%d'), '2018-12-01')
@@ -136,22 +128,21 @@ class TestVacation(TestCase):
     def test_put_vac_for_developer(self):
         user = User.objects.get(username='uvik_dev')
         login = self.client.login(username=user.username, password="some_password")
-        fake_user = User.objects.create(username="uvik_dev_666", password=make_password("some_password"),
-                                        user_type="DEVELOPER")
         fake_dev = Developer.objects.create(
-            name="John",
-            surname="Smith",
+            username="uvik_dev_666", password=make_password("some_password"),
+            type="DEVELOPER",
+            first_name="John",
+            last_name="Smith",
             email="js@js.com",
             hourly_rate=5,
             birthday_date=DATE - datetime.timedelta(days=50),
             monthly_salary=1000,
-            user=fake_user
         )
+        user = User.objects.get(id=fake_dev.user_ptr_id)
         fake_vac = Vacation.objects.create(
-            developer=fake_dev,
+            user=user,
             from_date=DATE - datetime.timedelta(days=20),
             to_date=TO_DATE.strftime("%Y-%m-%d"),
-            owner=fake_user
         )
         response = self.client.get('/set_vacation/')
         resp_body = response.json()
@@ -186,22 +177,22 @@ class TestVacation(TestCase):
     def test_delete_vac_for_developer(self):
         user = User.objects.get(username='uvik_dev')
         login = self.client.login(username=user.username, password="some_password")
-        fake_user = User.objects.create(username="uvik_dev_666", password=make_password("some_password"),
-                                        user_type="DEVELOPER")
         fake_dev = Developer.objects.create(
-            name="John",
-            surname="Smith",
+            username="uvik_dev_666",
+            password=make_password("some_password"),
+            type="DEVELOPER",
+            first_name="John",
+            last_name="Smith",
             email="js@js.com",
             hourly_rate=5,
             birthday_date=DATE - datetime.timedelta(days=50),
             monthly_salary=1000,
-            user=fake_user
-        )
+            )
+        user = User.objects.get(id=fake_dev.user_ptr_id)
         fake_vac = Vacation.objects.create(
-            developer=fake_dev,
+            user=user,
             from_date=DATE - datetime.timedelta(days=10),
-            to_date=TO_DATE.strftime("%Y-%m-%d"),
-            owner=fake_user
+            to_date=TO_DATE.strftime("%Y-%m-%d")
         )
         response = self.client.get('/set_vacation/')
         resp_body = response.json()
@@ -242,7 +233,7 @@ class TestVacation(TestCase):
         user = User.objects.get(username='uvik_man')
         login = self.client.login(username=user.username, password="some_password")
         response = self.client.post('/set_vacation/', {'from_date': '2018-12-01', 'to_date': '2018-12-20',
-                                                       'is_approved': True, 'developer_id': 1})
+                                                       'is_approved': True, 'developer_id': self.dev.user_ptr_id})
 
         vacation = Vacation.objects.get(from_date='2018-12-01')
         resp_put = self.client.put('/set_vacation/', {'from_date': '2018-11-01',
