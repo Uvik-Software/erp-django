@@ -19,21 +19,13 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 app.conf.beat_schedule = {
     'check-events-every-hour': {
         'task': 'erp_django.celery.notification_worker',
-        'schedule': crontab(hour="*/1"),  # every hour crontab(minute=0, hour='*/1')
+        'schedule': crontab(hour="*/24"),  # every hour crontab(minute=0, hour='*/1')
     },
 }
 
 
 @app.task
 def notification_worker():
-    from apps.core.models import Invoice, Developer, Project
-    from apps.core.utils import outdated_invoice_checker, project_deadline_checker, dev_birthday_checker
+    from apps.notifications.utils import NotificationsProcessor
 
-    invoices = Invoice.objects.all().filter(status="SENT")
-    outdated_invoice_checker(invoices)
-
-    developers = Developer.objects.all()
-    dev_birthday_checker(developers)
-
-    projects = Project.objects.all().filter(deadline__isnull=False)
-    project_deadline_checker(projects)
+    NotificationsProcessor().process()
