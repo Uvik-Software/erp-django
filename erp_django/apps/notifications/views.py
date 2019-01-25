@@ -16,7 +16,7 @@ class NotificationEndpoint(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        notifications = Notification.objects.filter(user=user)
+        notifications = Notification.objects.filter(user=user).order_by('-id')
         return notifications
 
     def perform_create(self, serializer):

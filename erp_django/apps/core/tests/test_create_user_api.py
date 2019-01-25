@@ -150,7 +150,7 @@ class TestCreateUser(TestCase):
         self.assertEqual(response_1.status_code, 200)
         self.assertEqual(response_2.status_code, 200)
 
-    @patch('core.signals.create_g_calendar_event')
+    @patch('apps.core.signals.create_g_calendar_event')
     def test_post_user_manager(self, create_g_calendar_event_mock):
         user = self.man
         login = self.client.login(username=user.username, password="some_password")

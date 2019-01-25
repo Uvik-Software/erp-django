@@ -55,7 +55,7 @@ class TestProject(TestCase):
             bank_info=bank_info_owner_1,
         )
 
-    @patch('core.signals.create_g_calendar_event')
+    @patch('apps.core.signals.create_g_calendar_event')
     def test_url_exists_get_unauthorized(self, create_g_calendar_event_mock):
         user_manager = Manager.objects.get(username='uvik_man')
         client = Client.objects.get(first_name='some_client')
@@ -76,7 +76,7 @@ class TestProject(TestCase):
         response = self.client.get('/projects/')
         self.assertEqual(response.status_code, 401)
 
-    @patch('core.signals.create_g_calendar_event')
+    @patch('apps.core.signals.create_g_calendar_event')
     def test_url_exists_get_authorized(self, create_g_calendar_event_mock):
         user = Manager.objects.get(username='uvik_man')
         login = self.client.login(username=user.username, password='some_password')
@@ -98,9 +98,9 @@ class TestProject(TestCase):
         response = self.client.get('/projects/')
         self.assertEqual(response.status_code, 200)
 
-    @patch('core.signals.gmail_sender')
-    @patch('core.signals.create_g_calendar_event')
-    @patch('core.signals.update_g_calendar_event')
+    @patch('apps.core.signals.gmail_sender')
+    @patch('apps.core.signals.create_g_calendar_event')
+    @patch('apps.core.signals.update_g_calendar_event')
     def test_changed_field_start_date_proj(self, update_g_calendar_event_mock,
                                            create_g_calendar_event_mock, gmail_sender_mock):
         user = User.objects.get(username='uvik_man')
@@ -126,9 +126,9 @@ class TestProject(TestCase):
 
         self.assertEqual(response.status_code, 201)
 
-    @patch('core.signals.gmail_sender')
-    @patch('core.signals.create_g_calendar_event')
-    @patch('core.signals.update_g_calendar_event')
+    @patch('apps.core.signals.gmail_sender')
+    @patch('apps.core.signals.create_g_calendar_event')
+    @patch('apps.core.signals.update_g_calendar_event')
     def test_changed_field_deadline_proj(self, update_g_calendar_event_mock,
                                          create_g_calendar_event_mock, gmail_sender_mock):
         user = User.objects.get(username='uvik_man')
