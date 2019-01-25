@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 
-from core.models import Developer, User, Manager, Owner, BankInfo
+from apps.core.models import Developer, User, Manager, Owner, BankInfo
 
 import datetime
 
@@ -150,7 +150,7 @@ class TestCreateUser(TestCase):
         self.assertEqual(response_1.status_code, 200)
         self.assertEqual(response_2.status_code, 200)
 
-    @patch('core.signals.create_g_calendar_event')
+    @patch('apps.core.signals.create_g_calendar_event')
     def test_post_user_manager(self, create_g_calendar_event_mock):
         user = self.man
         login = self.client.login(username=user.username, password="some_password")

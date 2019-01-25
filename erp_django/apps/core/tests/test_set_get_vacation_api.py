@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
 from django.contrib.auth.hashers import make_password
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 
-from core.models import Vacation, Developer, User, Manager
+from apps.core.models import Vacation, Developer, User, Manager
 import datetime
 
 
@@ -102,7 +102,7 @@ class TestVacation(TransactionTestCase):
         self.assertEqual(len(Vacation.objects.all()), 3)
         self.assertEqual(response.status_code, 201)
 
-    @patch('core.signals.gmail_sender')
+    @patch('apps.core.signals.gmail_sender')
     def test_put_vac_for_manager(self, gmail_sender_mock):
         user = User.objects.get(username='uvik_man')
         login = self.client.login(username=user.username, password="some_password")
@@ -228,7 +228,7 @@ class TestVacation(TransactionTestCase):
         self.assertEqual(resp_delete_1.status_code, 204)
         self.assertEqual(resp_delete_2.status_code, 204)
 
-    @patch('core.signals.gmail_sender')
+    @patch('apps.core.signals.gmail_sender')
     def test_send_mail_approve_vac(self, gmail_sender_mock):
         user = User.objects.get(username='uvik_man')
         login = self.client.login(username=user.username, password="some_password")

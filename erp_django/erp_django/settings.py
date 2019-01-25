@@ -47,14 +47,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders',
-    'core',
+
     'rest_framework',
     'rest_framework_swagger',
     'rest_framework_jwt',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+
+    'apps.core',
+    'apps.notifications',
 ]
 
+# MIGRATION_MODULES = {
+#     'core': 'apps.core',
+#     'notifications': 'apps.notifications',
+#     'rest_framework.authtokenapps': 'rest_framework.authtokenapps'
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -164,7 +173,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-        'core.permissions.CustomObjectPermissions',
+        'apps.core.permissions.CustomObjectPermissions',
     ),
 }
 
@@ -174,7 +183,7 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
     'JWT_EXPIRATION_DELTA': timedelta(hours=1),
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'core.views.jwt_response_payload_handler',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'apps.core.views.jwt_response_payload_handler',
 }
 
 SWAGGER_SETTINGS = {
