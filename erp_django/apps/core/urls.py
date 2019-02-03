@@ -5,7 +5,7 @@ from rest_framework import routers
 from .views import InvoiceViewSet, ManagerViewSet, ProjectViewSet, DeveloperViewSet, \
     DevelopersOnProjectViewSet, ClientViewSet, VacationViewSet, GenerateInvoice, DaysOff, DevelopersCv, schema_view, \
     SetGetVacation, DashboardReport, UserEndpoint, GetAllHolidays, GenerateAct, ActOfPerfJobsViewSet, GetBankInfo, \
-    OwnerViewSet, GetSetOwnerInfo
+    OwnerViewSet, GetSetOwnerInfo, UserProfileEndpoint
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 
@@ -19,6 +19,8 @@ router.register(r'clients', ClientViewSet)
 router.register(r'vacations', VacationViewSet)
 router.register(r'acts_of_jobs', ActOfPerfJobsViewSet)
 router.register(r'owners', OwnerViewSet)
+router.register(r'profile', UserProfileEndpoint)
+
 
 urlpatterns = [url(r'', include(router.urls)),
                url(r'^auth-jwt/', obtain_jwt_token),

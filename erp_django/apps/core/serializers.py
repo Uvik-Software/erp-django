@@ -100,3 +100,10 @@ class ProjectsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'birthday_date', 'email', 'additional_info', 'tax_number',
+                  'phone',)

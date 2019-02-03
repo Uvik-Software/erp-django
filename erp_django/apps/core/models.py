@@ -20,6 +20,11 @@ class User(AbstractUser):
     position = models.CharField(max_length=128, default='', blank=True)
     birthday_date = models.DateField(null=True)
     tax_number = models.CharField(max_length=20, default='')
+    date_joined_company = models.DateField(null=True)
+    vacation_days = models.IntegerField(default=0)
+    hospital_days = models.IntegerField(default=0)
+    additional_info = models.TextField(default='', blank=True)
+    phone = models.CharField(max_length=16, default='')
 
 
 # TODO: do normalization
@@ -63,7 +68,6 @@ class Owner(models.Model):
 
 class Client(User):
     company_name = models.CharField(max_length=300)
-    phone = models.CharField(max_length=50)
     identification_number = models.CharField(max_length=32, default='')
     owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
 

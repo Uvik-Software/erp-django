@@ -1,4 +1,4 @@
-export type UserTypes = "MANAGER" | "DEVELOPER" | "CLIENT" | "JUST_CREATED";
+export type UserTypes = "MANAGER" | "DEVELOPER" | "CLIENT" | "JUST_CREATED" | "ADMIN";
 
 export class User {
   date_joined: Date;
@@ -15,6 +15,10 @@ export class User {
   password: string;
   user_permissions: Array<string>;
   user_type: UserTypes;
+  phone: string;
+  tax_number: string;
+  additional_info: string;
+  birthday: Date;
 }
 
 export class getAllUsers {
