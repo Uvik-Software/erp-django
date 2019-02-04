@@ -1,0 +1,45 @@
+<div class="components-container-gt-xs" style="background-color: white; margin: 3%;">
+  <form [formGroup]="profileForm" (ngSubmit)="save()">
+    <div class="form-group">
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="First name" formControlName="first_name">
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field>
+          <input matInput placeholder="Last name" formControlName="last_name">
+        </mat-form-field>
+      </div>
+
+      <mat-form-field>
+        <input matInput placeholder="Email" formControlName="email">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Username" formControlName="username">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Birthday" type="date" formControlName="birthday">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Tax number" formControlName="tax_number">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Phone" formControlName="phone">
+      </mat-form-field>
+    </div>
+
+    <div>
+      <mat-form-field style="width: 100%">
+        <textarea matInput placeholder="Additional info" matTextareaAutosize matAutosizeMinRows="4" formControlName="additional_info"></textarea>
+      </mat-form-field>
+    </div>
+
+    <button mat-raised-button color="primary" style="margin: 1%" type="submit" [disabled]="!profileForm.valid">Save</button>
+  </form>
+</div>

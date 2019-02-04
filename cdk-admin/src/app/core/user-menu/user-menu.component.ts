@@ -11,6 +11,7 @@ import { User } from "../../interfaces/user";
 export class UserMenuComponent implements OnInit {
 	isOpen: boolean = false;
   currentUserData:User = JSON.parse(localStorage.getItem('currentUser')).user;
+  profileLink: string = '/dashboard/profile/';
 
 
   	@Input() currentUser = this.currentUserData;

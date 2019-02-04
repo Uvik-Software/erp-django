@@ -18,7 +18,7 @@ from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, C
     ActOfPerfJobs, BankInfo, Owner
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer, VacationSerializer, \
-    ActOfPerfJobsSerializer, OwnerSerializer, UsersSerializer, ProjectsSerializer
+    ActOfPerfJobsSerializer, OwnerSerializer, UsersSerializer, ProjectsSerializer, ProfileSerializer
 
 from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency, \
     get_developer_bank_data, get_owner_bank_data
@@ -1024,3 +1024,9 @@ class GetSetOwnerInfo(APIView):
 #
 #     def delete(self, request):
 #         pass
+
+
+class UserProfileEndpoint(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = (IsAuthenticated,)

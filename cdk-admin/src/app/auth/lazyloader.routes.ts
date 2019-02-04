@@ -20,5 +20,6 @@ export const appRoutes: Routes = [{
         { path: 'vacations', loadChildren: '../vacations/vacations.module#VacationsModule' },
         { path: 'users', loadChildren: '../users/users.module#UsersModule' },
         { path: 'owners', loadChildren: '../owners/owners.module#OwnersModule' },
+        { path: 'profile', loadChildren: '../profile/profile.module#ProfileModule' },
     ]
 }];
