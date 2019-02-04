@@ -6,7 +6,7 @@
   </h1>
   <form [formGroup]="vacationCreateForm" (ngSubmit)="save()">
     <div class="form-group">
-      <mat-form-field *ngIf="user.user_type === 'MANAGER' || user.is_staff">
+      <mat-form-field *ngIf="user.type === 'MANAGER' || user.is_staff">
         <mat-select placeholder="User" formControlName="user">
           <mat-option *ngFor="let developer of developers" [value]="developer.id">
             {{ developer.first_name }} {{ developer.last_name }}
