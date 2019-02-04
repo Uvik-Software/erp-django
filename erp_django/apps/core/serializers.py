@@ -38,7 +38,8 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Developer
-        fields = ('id', 'first_name', 'last_name', 'email', 'hourly_rate', 'monthly_salary', 'birthday_date',)
+        fields = ('id', 'first_name', 'last_name', 'email', 'hourly_rate', 'monthly_salary', 'birthday_date',
+                  'vacation_days',)
 
 
 class DevelopersOnProjectSerializer(serializers.ModelSerializer):

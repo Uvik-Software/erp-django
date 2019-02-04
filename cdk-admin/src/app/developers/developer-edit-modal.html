@@ -1,4 +1,4 @@
-<div style="width:80%">
+<div>
 
   <h1 class="mat-headline center-align">Edit {{dev_data.first_name}} {{dev_data.last_name}} information</h1>
 
@@ -21,6 +21,9 @@
     </mat-form-field>
     <mat-form-field>
       <input matInput placeholder="Birthday Date" type="date" formControlName="birthday_date">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Available vacation days" type="number" formControlName="vacation_days">
     </mat-form-field>
   </div>
   <button mat-raised-button color="warn" style="margin: 1%" (click)="discard()">Discard</button>

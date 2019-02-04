@@ -10,6 +10,7 @@ export class DeveloperInterface {
   hours?: number;
   description?: string;
   developer?: number;
+  vacation_days: number;
 }
 
 export class DeveloperListResponse {
