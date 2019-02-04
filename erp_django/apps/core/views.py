@@ -1,9 +1,11 @@
 import datetime
+import workdays
 
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view, renderer_classes, authentication_classes, permission_classes
+from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import viewsets, renderers, schemas, response
+from rest_framework import viewsets, renderers, schemas, response, status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_swagger.renderers import SwaggerUIRenderer, OpenAPIRenderer
 from rest_framework.schemas import AutoSchema
@@ -134,6 +136,35 @@ class VacationViewSet(viewsets.ModelViewSet):
                 return [permission() for permission in [IsAuthenticated]]
             return [permission() for permission in [ManagerFullAccess]]
         return [permission() for permission in [IsAuthenticated]]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        user = User.objects.get(id=data['user'])
+
+        from_date = data['from_date'].split('-')
+        from_date = datetime.date(year=int(from_date[0]), month=int(from_date[1]), day=int(from_date[2]))
+
+        to_date = data['to_date'].split('-')
+        to_date = datetime.date(year=int(to_date[0]), month=int(to_date[1]), day=int(to_date[2]))
+
+        bdays = workdays.networkdays(from_date, to_date)
+
+        if bdays > user.vacation_days:
+            message = f'Requested days exceeds {user.vacation_days} business days for this user!'
+            res = {
+                'success': True,
+                'massage': message
+            }
+            return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        user.vacation_days = user.vacation_days - bdays
+        user.save()
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):

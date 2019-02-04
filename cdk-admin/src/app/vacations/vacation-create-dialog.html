@@ -4,10 +4,11 @@
   <h1 class="mat-headline center-align" *ngIf="vacationCreateForm.value.id">
     Update Vacation
   </h1>
+  <p style="font-family: Roboto; color: rgba(0, 0, 0, 0.54)">Available vacation days: <span>{{ vacation_days }}</span></p>
   <form [formGroup]="vacationCreateForm" (ngSubmit)="save()">
     <div class="form-group">
       <mat-form-field *ngIf="user.type === 'MANAGER' || user.is_staff">
-        <mat-select placeholder="User" formControlName="user">
+        <mat-select placeholder="User" formControlName="user" (ngModelChange)="onChange($event)">
           <mat-option *ngFor="let developer of developers" [value]="developer.id">
             {{ developer.first_name }} {{ developer.last_name }}
           </mat-option>

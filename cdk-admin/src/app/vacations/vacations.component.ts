@@ -148,9 +148,10 @@ export class VacationCreateDialog {
   developers: any = [];
   user = JSON.parse(localStorage.getItem('currentUser')).user;
   vacation: any;
+  vacation_days: number = this.user.vacation_days;
 
   vacationCreateForm = new FormGroup ({
-    developer_id: new FormControl(),
+    user: new FormControl(),
     from_date: new FormControl(),
     to_date: new FormControl(),
     comments: new FormControl(),
@@ -174,6 +175,9 @@ export class VacationCreateDialog {
     this.developersService.get_developers().subscribe((response:DeveloperListResponse) => {
       this.developers = response.results;
       this.developers.push(this.user);
+
+      let id = this.vacationCreateForm.controls['user'].value;
+      this.vacation_days = this.developers.find(o => o.id === id).vacation_days;
       })
   }
 
@@ -203,6 +207,10 @@ export class VacationCreateDialog {
     this.vacationsService.deleteVacation(id).subscribe(() => {
       this.dialogRef.close({ deleted: true });
     });
+  }
+
+  onChange(id) {
+    this.vacation_days = this.developers.find(o => o.id === id).vacation_days;
   }
 
 }

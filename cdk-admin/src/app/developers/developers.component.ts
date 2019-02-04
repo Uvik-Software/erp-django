@@ -75,6 +75,7 @@ export class DeveloperEditDialog {
     hourly_rate: new FormControl(),
     monthly_salary: new FormControl(),
     birthday_date: new FormControl(),
+    vacation_days: new FormControl(),
   });
 
   constructor(public dialogRef: MatDialogRef<DeveloperEditDialog>,
@@ -105,7 +106,8 @@ export class DeveloperEditDialog {
                                             Validators.pattern(/^-?(0|[1-9]\d*)?$/)
                                           ])],
       birthday_date: [this.dev_data.birthday_date, Validators.required],
-      user: this.dev_data.user
+      user: this.dev_data.user,
+      vacation_days: this.dev_data.vacation_days
     });
 }
 
