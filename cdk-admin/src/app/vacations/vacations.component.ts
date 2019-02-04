@@ -5,6 +5,8 @@ import { VacationsService } from "./vacations.service";
 import { getVacationsResponse, Vacation } from "../interfaces/vacations";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import {DeveloperListResponse} from "../interfaces/developer";
+import {DevelopersService} from "../developers/developers.service";
 
 @Component({
   selector: 'app-vacations',
@@ -155,7 +157,8 @@ export class VacationCreateDialog {
     approved: new FormControl({value: false, disabled: this.user.type == 'DEVELOPER'}),
   });
 
-  constructor(public dialogRef: MatDialogRef<any>,
+  constructor(private developersService: DevelopersService,
+              public dialogRef: MatDialogRef<any>,
               private fb: FormBuilder,
               private vacationsService: VacationsService,
               @Inject(MAT_DIALOG_DATA) data) {
@@ -164,7 +167,14 @@ export class VacationCreateDialog {
 
   ngOnInit() {
     this.createForm();
-    console.log(this.user)
+    this.getDevelopers();
+  }
+
+  getDevelopers() {
+    this.developersService.get_developers().subscribe((response:DeveloperListResponse) => {
+      this.developers = response.results;
+      this.developers.push(this.user);
+      })
   }
 
   createForm() {

@@ -1,4 +1,4 @@
-<div style="width:80%">
+<div>
 
   <h1 class="mat-headline center-align" *ngIf="!vacationCreateForm.value.id">Create Vacation</h1>
   <h1 class="mat-headline center-align" *ngIf="vacationCreateForm.value.id">
@@ -6,10 +6,10 @@
   </h1>
   <form [formGroup]="vacationCreateForm" (ngSubmit)="save()">
     <div class="form-group">
-      <mat-form-field style="width: 100%" *ngIf="user.user_type === 'MANAGER'">
-        <mat-select placeholder="Developer" formControlName="developer_id">
+      <mat-form-field *ngIf="user.user_type === 'MANAGER' || user.is_staff">
+        <mat-select placeholder="User" formControlName="user">
           <mat-option *ngFor="let developer of developers" [value]="developer.id">
-            {{ developer.name }} {{ developer.surname }}
+            {{ developer.first_name }} {{ developer.last_name }}
           </mat-option>
         </mat-select>
       </mat-form-field>
