@@ -1,5 +1,5 @@
 from django.db import models
-from .constants import PROJECT_TYPE_VARIATIONS, INVOICE_STATUS, NOTIFICATION_TYPES
+from .constants import INVOICE_STATUS, NOTIFICATION_TYPES
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -45,12 +45,12 @@ class BankInfo(models.Model):
     bank_account_number = models.CharField(max_length=50, null=True)
     bank_address = models.TextField(null=True)
     bank_code = models.CharField(max_length=20, null=True)
+    iban_code = models.CharField(max_length=64, default='', null=True)
 
     def __str__(self):
         return self.bank_name
 
 
-# rename to Customer ?
 class Owner(models.Model):
     first_name = models.CharField(max_length=20, null=True)
     last_name = models.CharField(max_length=50, null=True)
@@ -79,14 +79,26 @@ class Client(User):
 
 
 class Project(models.Model):
+    PROJECT_TYPE_VARIATIONS = (
+        ("OUTSTAFF", "outstaff"),
+        ("FIX_PRICE_PROJECT", "fix price project"),
+        ("TIME_AND_MATERIAL", "time & material")
+    )
+    STATUSES = (
+        ('IN_PROCESS', 'In process'),
+        ('SCHEDULED', 'Scheduled'),
+        ('FINISHED', 'Finished')
+    )
+
     project_name = models.CharField(max_length=200)
     project_type = models.CharField(choices=PROJECT_TYPE_VARIATIONS, max_length=50)
+    status = models.CharField(choices=STATUSES, max_length=16, default='SCHEDULED')
     project_description = models.TextField()
     currency = models.CharField(max_length=20)
-    basic_price = models.FloatField(null=True)
+    basic_price = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
     manager_info = models.ForeignKey(Manager, on_delete=models.SET_NULL, null=True)
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
-    all_time_money_spent = models.IntegerField(default=0)
+    all_time_money_spent = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
     owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
@@ -125,12 +137,12 @@ class Project(models.Model):
 
 class Developer(User):
     father_name = models.CharField(max_length=20, default='', blank=True)
-    hourly_rate = models.IntegerField()
-    monthly_salary = models.IntegerField()
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
+    monthly_salary = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
     sign = models.ImageField(upload_to='static/signs/', null=True)
     bank_info = models.OneToOneField(BankInfo, null=True, on_delete=models.SET_NULL)
+    # del
     owner = models.ForeignKey(Owner, null=True, on_delete=models.SET_NULL)
-    project = models.ForeignKey(Project, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"Developer {self.last_name} {self.first_name}, {self.email}"
@@ -144,7 +156,6 @@ class DevelopersOnProject(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     description = models.TextField(null=True)
     hours = models.FloatField(null=True)
-    owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
 
 
 class Invoice(models.Model):

@@ -93,19 +93,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Project.objects.all().order_by('-id')
 
         if user.type == "DEVELOPER":
-            project = Developer.objects.get(user_ptr=user).project
-            if project:
-                return Project.objects.filter(id=project.id)
-            else:
-                return []
+            project_ids = DevelopersOnProject.objects.filter(developer=user).values_list('project__id', flat=True)
+            return Project.objects.filter(id__in=project_ids)
 
         # if user.type == "MANAGER":
             # project = Manager.objects.get(user_ptr=user).project
             # return Project.objects.filter(id=project.id)
             # return []
-
-    def perform_create(self, serializer):
-        serializer.save()
 
 
 class DeveloperViewSet(viewsets.ModelViewSet):
@@ -118,10 +112,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, ManagerFullAccess)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-
-    def perform_create(self, serializer):
-        owner = Owner.objects.get(id=self.request.data.get('owner', None))
-        serializer.save(owner=owner, username=self.request.data.get('username', ''))
 
 
 class VacationViewSet(viewsets.ModelViewSet):
@@ -152,7 +142,7 @@ class VacationViewSet(viewsets.ModelViewSet):
         if bdays > user.vacation_days:
             message = f'Requested days exceeds {user.vacation_days} business days for this user!'
             res = {
-                'success': True,
+                'success': False,
                 'massage': message
             }
             return Response(res, status=status.HTTP_400_BAD_REQUEST)
@@ -160,11 +150,7 @@ class VacationViewSet(viewsets.ModelViewSet):
         user.vacation_days = user.vacation_days - bdays
         user.save()
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return super(VacationViewSet, self).create(request)
 
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
@@ -178,16 +164,6 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
             return DevelopersOnProject.objects.all().filter(project_id=project_id)
 
         return DevelopersOnProject.objects.all()
-
-    def perform_create(self, serializer):
-        data = self.request.data
-        project = Project.objects.get(id=data['project'])
-        dev = Developer.objects.get(id=data['developer'])
-
-        dev.project = project
-        dev.save()
-
-        serializer.save()
 
 
 class ActOfPerfJobsViewSet(viewsets.ModelViewSet):
@@ -586,7 +562,8 @@ class GetAllHolidays(APIView):
 
         if params.get('projects') == 'true':
             if request.user.type == 'DEVELOPER':
-                project = Developer.objects.get(user_ptr=request.user).project
+                # fix
+                project = DevelopersOnProject.objects.get(developer=request.user).select_realted('project').project
                 if project:
                     projects = Project.objects.filter(id=project.id)
                 else:
@@ -659,7 +636,7 @@ class UserEndpoint(APIView):
         if (not username) or (not user_password) or (not user_role):
             return json_response_error("You must fill 'Username', 'User password' and 'User role' fields")
 
-        if User.objects.filter(username=username).first():
+        if User.objects.filter(username=username).exists():
             return json_response_error("User with this username already exists")
 
         fields = {
