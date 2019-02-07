@@ -18,6 +18,8 @@ import {
 } from '@angular/material';
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
+import {ToastrModule} from 'ng6-toastr-notifications';
+
 export const ROUTES: Routes = [
    { path: '', component: DevelopersComponent },
 ];
@@ -46,6 +48,7 @@ export const ROUTES: Routes = [
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [DevelopersComponent, DeveloperEditDialog],
   entryComponents: [DeveloperEditDialog],

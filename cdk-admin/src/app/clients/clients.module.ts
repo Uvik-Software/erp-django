@@ -13,11 +13,18 @@ import {
   MatIconModule,
   MatTableModule,
   MatMenuModule,
-  MatSelectModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatDialogModule
+  MatSelectModule,
+  MatSortModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatPaginatorModule,
+  MatDialogModule,
+  MatCheckboxModule
 } from '@angular/material';
 import {ClientEditDialog, ClientsComponent} from "./clients.component";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
+import { ToastrModule } from 'ng6-toastr-notifications';
 
 export const ROUTES: Routes = [
    { path: '', component: ClientsComponent },
@@ -47,6 +54,7 @@ export const ROUTES: Routes = [
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [ClientsComponent, ClientEditDialog],
   entryComponents: [ClientEditDialog],

@@ -131,19 +131,14 @@ class VacationViewSet(viewsets.ModelViewSet):
         data = request.data
         user = User.objects.get(id=data['user'])
 
-        from_date = data['from_date'].split('-')
-        from_date = datetime.date(year=int(from_date[0]), month=int(from_date[1]), day=int(from_date[2]))
-
-        to_date = data['to_date'].split('-')
-        to_date = datetime.date(year=int(to_date[0]), month=int(to_date[1]), day=int(to_date[2]))
-
-        bdays = workdays.networkdays(from_date, to_date)
+        bdays = self.get_bdays(data['from_date'], data['to_date'])
 
         if bdays > user.vacation_days:
-            message = f'Requested days exceeds {user.vacation_days} business days for this user!'
+            message = f'Requested days exceeds {user.vacation_days} vacation days for this user!'
             res = {
                 'success': False,
-                'massage': message
+                'message': message,
+                'title': 'Create Error'
             }
             return Response(res, status=status.HTTP_400_BAD_REQUEST)
 
@@ -151,6 +146,44 @@ class VacationViewSet(viewsets.ModelViewSet):
         user.save()
 
         return super(VacationViewSet, self).create(request)
+
+    def update(self, request, *args, **kwargs):
+        data = request.data
+        user = User.objects.get(id=data['user'])
+        current_vacation = Vacation.objects.get(id=data['id'])
+
+        c_from_date = current_vacation.from_date
+        c_to_date = current_vacation.to_date
+
+        from_date = data['from_date']
+        to_date = data['to_date']
+
+        current_bdays = self.get_bdays(str(c_from_date), str(c_to_date))
+        bdays = self.get_bdays(from_date, to_date)
+
+        increase_bdays = bdays - current_bdays
+
+        if increase_bdays > user.vacation_days:
+            message = f'Requested days exceeds {user.vacation_days} vacation days for this user!'
+            res = {
+                'success': False,
+                'message': message,
+                'title': 'Update Error'
+            }
+            return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        return super(VacationViewSet, self).update(request)
+
+    def get_bdays(self, from_date, to_date):
+        from_date = from_date.split('-')
+        from_date = datetime.date(year=int(from_date[0]), month=int(from_date[1]), day=int(from_date[2]))
+
+        to_date = to_date.split('-')
+        to_date = datetime.date(year=int(to_date[0]), month=int(to_date[1]), day=int(to_date[2]))
+
+        bdays = workdays.networkdays(from_date, to_date)
+
+        return bdays
 
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):

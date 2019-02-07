@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import {Component, Inject, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
 import { CalendarComponent } from 'ng-fullcalendar';
 import { Options } from 'fullcalendar';
 import { VacationsService } from "./vacations.service";
@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef } from "@angu
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import {DeveloperListResponse} from "../interfaces/developer";
 import {DevelopersService} from "../developers/developers.service";
+import { ToastrManager } from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-vacations',
@@ -42,7 +43,8 @@ export class VacationsComponent implements OnInit {
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
 
   constructor(private vacationsService: VacationsService,
-              private dialog: MatDialog) {}
+              private dialog: MatDialog, private toastr: ToastrManager) {
+  }
 
   ngOnInit() {
     this.getAllDaysOff();
@@ -115,8 +117,9 @@ export class VacationsComponent implements OnInit {
               this.getAllDaysOff()
             }
             if (response && response.changed) {
-              this.vacationsService.changeVacation(id, response.data).subscribe(() => {
-                this.getAllDaysOff()
+              this.vacationsService.changeVacation(id, response.data).subscribe((res) => {
+                this.getAllDaysOff();
+                this.toastr.successToastr('Vacation was successfully updated', 'Vacation updated')
               })
             }
           });
@@ -125,8 +128,9 @@ export class VacationsComponent implements OnInit {
       let dialogRef = this.dialog.open(VacationCreateDialog).afterClosed()
         .subscribe(response => {
           if (response && response.changed) {
-            this.vacationsService.createVacation(response.data).subscribe(() => {
+            this.vacationsService.createVacation(response.data).subscribe((res) => {
               this.getAllDaysOff();
+              this.toastr.successToastr('Vacation was successfully created', 'Vacation created')
             })
           }
         });

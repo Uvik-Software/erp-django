@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CoreModule } from './core/core.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor, ErrorInterceptor } from 'app/_helpers';
+import { ToastrModule } from 'ng6-toastr-notifications';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { JwtInterceptor, ErrorInterceptor } from 'app/_helpers';
     LazyLoadModule,
     CoreModule,
     BrowserAnimationsModule,
+    ToastrModule.forRoot()
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
