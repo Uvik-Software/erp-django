@@ -11,6 +11,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 
 import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
 import { OwnersService } from "./owners.service";
+import {ToastrManager} from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-owners',
@@ -24,7 +25,7 @@ export class OwnersComponent implements OnInit {
   displayedColumns: string[] = ['name', 'tax_number', 'edit'];
   dataSource = new MatTableDataSource<OwnerInterface>([]);
 
-  constructor(private ownersService: OwnersService, private dialog: MatDialog) { }
+  constructor(private ownersService: OwnersService, private dialog: MatDialog, private toastr: ToastrManager) { }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -51,6 +52,7 @@ export class OwnersComponent implements OnInit {
           if (response && response.changed) {
             this.ownersService.update_owner(response.data).subscribe(() => {
               this.getOwners();
+              this.toastr.successToastr('Owner was successfully updated', 'Owner updated')
             })
           }
         });

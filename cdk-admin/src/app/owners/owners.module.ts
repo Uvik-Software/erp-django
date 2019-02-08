@@ -20,6 +20,7 @@ import { OwnersComponent, OwnersModalComponent } from "./owners.component";
 import { OwnersService } from "./owners.service";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
+import {ToastrModule} from 'ng6-toastr-notifications';
 
 export const ROUTES: Routes = [
    { path: '', component: OwnersComponent },
@@ -49,6 +50,7 @@ export const ROUTES: Routes = [
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [OwnersComponent, OwnersModalComponent],
   entryComponents: [OwnersModalComponent],

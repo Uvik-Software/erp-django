@@ -28,6 +28,8 @@ import { OwnersService } from "../owners/owners.service";
 import {ClientInterface, ClientListResponse} from "../interfaces/client";
 import {ManagersInterface, ManagersListResponse} from "../interfaces/managers";
 import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
+import {ProfileService} from "../profile/profile.service";
+import {ToastrManager} from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-projects',
@@ -41,7 +43,7 @@ export class ProjectsComponent implements OnInit {
   displayedColumns: string[] = ['project_name', 'project_type', 'edit'];
   dataSource = new MatTableDataSource<ProjectInterface>([]);
 
-  constructor(private projectsService: ProjectsService, private dialog: MatDialog) { }
+  constructor(private projectsService: ProjectsService, private dialog: MatDialog, private toastr: ToastrManager) { }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -72,6 +74,7 @@ export class ProjectsComponent implements OnInit {
           if (response && response.changed) {
             this.projectsService.update_project(response.data).subscribe(() => {
               this.getProjects();
+              this.toastr.successToastr('Project was successfully updated', 'Project updated')
             })
           }
         });
@@ -83,6 +86,7 @@ export class ProjectsComponent implements OnInit {
             console.log(response.data);
             this.projectsService.create_project(response.data).subscribe(() => {
               this.getProjects();
+              this.toastr.successToastr('Project was successfully created', 'Project created');
             })
           }
         });
@@ -190,12 +194,10 @@ export class ProjectEditDialog {
       project_type: [this.project_data.project_type, Validators.required],
       project_description: [this.project_data.project_description, Validators.required],
       currency: [this.project_data.currency, Validators.required],
-      basic_price: [this.project_data.basic_price, Validators.compose([
-                                            Validators.pattern(/^-?(0|[1-9]\d*)?$/)
-                                          ])],
+      basic_price: [this.project_data.basic_price || 0],
       // manager_info: this.project_data.manager_info,
       client: [this.client, Validators.required],
-      manager_info: [this.manager_info, Validators.required],
+      manager_info: [this.project_data.manager_info, Validators.required],
       all_time_money_spent: [{value: this.project_data.all_time_money_spent, disabled: true}],
       deadline: this.project_data.deadline,
       project_started_date: this.project_data.project_started_date,
@@ -204,6 +206,7 @@ export class ProjectEditDialog {
 }
 
   save() {
+    console.log(this.projectEditForm);
     if (!this.projectEditForm.invalid) {
       this.projectEditForm.value.client = this.client;
       this.dialogRef.close({ changed: this.projectEditForm.dirty,
