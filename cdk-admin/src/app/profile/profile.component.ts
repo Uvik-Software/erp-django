@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {User} from "../interfaces/user";
 import {ProfileService} from "./profile.service";
+import {MatDialog} from "@angular/material";
+import {ToastrManager} from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-profile',
@@ -12,7 +14,7 @@ export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   currentUser:User = JSON.parse(localStorage.getItem('currentUser')).user;
 
-  constructor(private fb: FormBuilder, private profileService: ProfileService) {
+  constructor(private fb: FormBuilder, private profileService: ProfileService, private toastr: ToastrManager) {
     this.initForm()
   }
 
@@ -40,7 +42,7 @@ export class ProfileComponent implements OnInit {
       console.log('Form Valid');
       console.log(this.profileForm);
       this.profileService.update_profile(this.profileForm.value).subscribe(() => {
-        console.log('In subscribe!')
+        this.toastr.successToastr('Profile was successfully updated', 'Profile updated')
       })
     }
   }

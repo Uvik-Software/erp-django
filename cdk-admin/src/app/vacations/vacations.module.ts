@@ -21,6 +21,7 @@ import {VacationCreateDialog, VacationsComponent} from "./vacations.component";
 import {VacationsService} from "./vacations.service";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
+import { ToastrModule } from 'ng6-toastr-notifications';
 
 export const ROUTES: Routes = [
    { path: '', component: VacationsComponent },
@@ -51,7 +52,8 @@ export const ROUTES: Routes = [
     FormsModule,
     ReactiveFormsModule,
     FullCalendarModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [VacationsComponent, VacationCreateDialog],
   entryComponents: [VacationCreateDialog],

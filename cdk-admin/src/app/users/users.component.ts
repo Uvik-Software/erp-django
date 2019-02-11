@@ -16,6 +16,7 @@ import {
 } from "@angular/forms";
 import { ProjectInterface } from "../interfaces/projects";
 import { User } from "../interfaces/user";
+import {ToastrManager} from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-users',
@@ -24,7 +25,8 @@ import { User } from "../interfaces/user";
 })
 export class UsersComponent implements OnInit {
 
-  constructor(private userService: UserService, private dialog: MatDialog, private fb: FormBuilder) { }
+  constructor(private userService: UserService, private dialog: MatDialog, private fb: FormBuilder,
+              private toastr: ToastrManager) { }
 
   users: User[];
   displayedColumns: string[] = ['name', 'email', 'user_type'];
@@ -53,6 +55,7 @@ export class UsersComponent implements OnInit {
         if (response && response.changed) {
           this.userService.createUser(response.data).subscribe(() => {
             this.getAllUsers();
+            this.toastr.successToastr('User was successfully created', 'User created')
           })
         }
       });

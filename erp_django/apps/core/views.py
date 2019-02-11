@@ -93,19 +93,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Project.objects.all().order_by('-id')
 
         if user.type == "DEVELOPER":
-            project = Developer.objects.get(user_ptr=user).project
-            if project:
-                return Project.objects.filter(id=project.id)
-            else:
-                return []
+            project_ids = DevelopersOnProject.objects.filter(developer=user).values_list('project__id', flat=True)
+            return Project.objects.filter(id__in=project_ids)
 
         # if user.type == "MANAGER":
             # project = Manager.objects.get(user_ptr=user).project
             # return Project.objects.filter(id=project.id)
             # return []
-
-    def perform_create(self, serializer):
-        serializer.save()
 
 
 class DeveloperViewSet(viewsets.ModelViewSet):
@@ -118,10 +112,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, ManagerFullAccess)
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-
-    def perform_create(self, serializer):
-        owner = Owner.objects.get(id=self.request.data.get('owner', None))
-        serializer.save(owner=owner, username=self.request.data.get('username', ''))
 
 
 class VacationViewSet(viewsets.ModelViewSet):
@@ -141,30 +131,59 @@ class VacationViewSet(viewsets.ModelViewSet):
         data = request.data
         user = User.objects.get(id=data['user'])
 
-        from_date = data['from_date'].split('-')
-        from_date = datetime.date(year=int(from_date[0]), month=int(from_date[1]), day=int(from_date[2]))
-
-        to_date = data['to_date'].split('-')
-        to_date = datetime.date(year=int(to_date[0]), month=int(to_date[1]), day=int(to_date[2]))
-
-        bdays = workdays.networkdays(from_date, to_date)
+        bdays = self.get_bdays(data['from_date'], data['to_date'])
 
         if bdays > user.vacation_days:
-            message = f'Requested days exceeds {user.vacation_days} business days for this user!'
+            message = f'Requested days exceeds {user.vacation_days} vacation days for this user!'
             res = {
-                'success': True,
-                'massage': message
+                'success': False,
+                'message': message,
+                'title': 'Create Error'
             }
             return Response(res, status=status.HTTP_400_BAD_REQUEST)
 
         user.vacation_days = user.vacation_days - bdays
         user.save()
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return super(VacationViewSet, self).create(request)
+
+    def update(self, request, *args, **kwargs):
+        data = request.data
+        user = User.objects.get(id=data['user'])
+        current_vacation = Vacation.objects.get(id=data['id'])
+
+        c_from_date = current_vacation.from_date
+        c_to_date = current_vacation.to_date
+
+        from_date = data['from_date']
+        to_date = data['to_date']
+
+        current_bdays = self.get_bdays(str(c_from_date), str(c_to_date))
+        bdays = self.get_bdays(from_date, to_date)
+
+        increase_bdays = bdays - current_bdays
+
+        if increase_bdays > user.vacation_days:
+            message = f'Requested days exceeds {user.vacation_days} vacation days for this user!'
+            res = {
+                'success': False,
+                'message': message,
+                'title': 'Update Error'
+            }
+            return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        return super(VacationViewSet, self).update(request)
+
+    def get_bdays(self, from_date, to_date):
+        from_date = from_date.split('-')
+        from_date = datetime.date(year=int(from_date[0]), month=int(from_date[1]), day=int(from_date[2]))
+
+        to_date = to_date.split('-')
+        to_date = datetime.date(year=int(to_date[0]), month=int(to_date[1]), day=int(to_date[2]))
+
+        bdays = workdays.networkdays(from_date, to_date)
+
+        return bdays
 
 
 class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
@@ -178,16 +197,6 @@ class DevelopersOnProjectViewSet(viewsets.ModelViewSet):
             return DevelopersOnProject.objects.all().filter(project_id=project_id)
 
         return DevelopersOnProject.objects.all()
-
-    def perform_create(self, serializer):
-        data = self.request.data
-        project = Project.objects.get(id=data['project'])
-        dev = Developer.objects.get(id=data['developer'])
-
-        dev.project = project
-        dev.save()
-
-        serializer.save()
 
 
 class ActOfPerfJobsViewSet(viewsets.ModelViewSet):
@@ -586,7 +595,8 @@ class GetAllHolidays(APIView):
 
         if params.get('projects') == 'true':
             if request.user.type == 'DEVELOPER':
-                project = Developer.objects.get(user_ptr=request.user).project
+                # fix
+                project = DevelopersOnProject.objects.get(developer=request.user).select_realted('project').project
                 if project:
                     projects = Project.objects.filter(id=project.id)
                 else:
@@ -659,7 +669,7 @@ class UserEndpoint(APIView):
         if (not username) or (not user_password) or (not user_role):
             return json_response_error("You must fill 'Username', 'User password' and 'User role' fields")
 
-        if User.objects.filter(username=username).first():
+        if User.objects.filter(username=username).exists():
             return json_response_error("User with this username already exists")
 
         fields = {

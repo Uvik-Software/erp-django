@@ -20,6 +20,7 @@ import {ProfileComponent} from "./profile.component";
 
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
+import {ToastrModule} from 'ng6-toastr-notifications';
 
 export const ROUTES: Routes = [
    { path: '', component: ProfileComponent },
@@ -50,6 +51,7 @@ export const ROUTES: Routes = [
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [ProfileComponent],
   entryComponents: [],

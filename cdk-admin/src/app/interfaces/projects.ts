@@ -15,7 +15,7 @@ export class ProjectInterface {
   project_type: "OUTSTAFF" | "FIX_PRICE_PROJECT" | "TIME_AND_MATERIAL";
   project_description: string;
   currency: string;
-  basic_price: number;
+  basic_price: string;
   manager_info: string;
   client: ClientInterface;
   all_time_money_spent: number;

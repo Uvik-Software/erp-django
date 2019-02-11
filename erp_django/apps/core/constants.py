@@ -2,12 +2,6 @@ INVOICE_REQUIRED_FIELDS = set(["invoice_date", "due_date", "project_id", "downlo
 
 ACT_JOBS_REQUIRED_FIELDS = set(["act_jobs_date", "act_jobs_numb", "developer_id", "download"])
 
-PROJECT_TYPE_VARIATIONS = (
-        ("OUTSTAFF", "outstaff"),
-        ("FIX_PRICE_PROJECT", "fix price project"),
-        ("TIME_AND_MATERIAL", "time & material")
-    )
-
 INVOICE_STATUS = (
     ("SENT", "sent"),
     ("WAITING_FOR_PAYMENT", "waiting for payment"),

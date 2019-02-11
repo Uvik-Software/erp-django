@@ -12,6 +12,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { ClientInterface, ClientListResponse } from "../interfaces/client";
 import { OwnersService } from "../owners/owners.service";
 import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
+import {ToastrManager} from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-clients',
@@ -25,7 +26,7 @@ export class ClientsComponent implements OnInit {
   dataSource = new MatTableDataSource<ClientInterface>([]);
 
   constructor(private clientsService: ClientsService,
-              private dialog: MatDialog) { }
+              private dialog: MatDialog, private toastr: ToastrManager) { }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -56,6 +57,7 @@ export class ClientsComponent implements OnInit {
           if (response && response.changed) {
             this.clientsService.update_client(response.data).subscribe(() => {
               this.getClients();
+              this.toastr.successToastr('Client was successfully updated', 'Client updated')
             })
           }
         });
@@ -69,6 +71,7 @@ export class ClientsComponent implements OnInit {
             if (response && response.changed) {
             this.clientsService.createClient(response.data).subscribe(() => {
               this.getClients();
+              this.toastr.successToastr('Client was successfully created', 'Client created')
             })
           }
          }

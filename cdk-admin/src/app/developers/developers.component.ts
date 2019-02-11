@@ -10,6 +10,7 @@ import {
 } from '@angular/material';
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {DeveloperInterface, DeveloperListResponse} from "../interfaces/developer";
+import { ToastrManager } from 'ng6-toastr-notifications';
 
 @Component({
   selector: 'app-developers',
@@ -23,7 +24,7 @@ export class DevelopersComponent implements OnInit {
   developers: Array<DeveloperInterface> = [];
 
   constructor(private developersService: DevelopersService,
-              private dialog: MatDialog) { }
+              private dialog: MatDialog, private toastr: ToastrManager) { }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -52,6 +53,7 @@ export class DevelopersComponent implements OnInit {
         if (response && response.changed) {
           this.developersService.update_developer(response.data).subscribe((response:DeveloperInterface) => {
             this.getDevelopers();
+            this.toastr.successToastr('Developer was successfully updated', 'Developer updated')
       })
         }
       });

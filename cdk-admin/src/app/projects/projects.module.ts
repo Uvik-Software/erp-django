@@ -18,6 +18,7 @@ import {
 import {ProjectAssignComponent, ProjectEditDialog, ProjectsComponent} from "./projects.component";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
+import {ToastrModule} from 'ng6-toastr-notifications';
 
 export const ROUTES: Routes = [
    { path: '', component: ProjectsComponent },
@@ -47,6 +48,7 @@ export const ROUTES: Routes = [
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
+    ToastrModule.forRoot(),
   ],
   declarations: [ProjectsComponent, ProjectEditDialog, ProjectAssignComponent],
   entryComponents: [ProjectEditDialog, ProjectAssignComponent],
