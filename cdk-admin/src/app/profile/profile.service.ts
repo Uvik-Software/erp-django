@@ -8,8 +8,6 @@ export class ProfileService {
     constructor(private http: HttpClient) { }
 
     update_profile(data) {
-      console.log('Put method');
-      console.log(data);
       return this.http.put<User>(`${environment.baseUrl}/profile/` + data.id + `/`, data)
     }
 }

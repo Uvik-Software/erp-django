@@ -1,5 +1,8 @@
 import datetime
+
+import pdfkit
 import workdays
+from django.template.loader import get_template
 
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view, renderer_classes, authentication_classes, permission_classes
@@ -16,13 +19,15 @@ from django.http import HttpResponse, JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 
+from apps.core.services1.invoices import get_project_developers_and_cost
+
 from .models import Invoice, Manager, Project, Developer, DevelopersOnProject, Client, Cv, Vacation, User, \
     ActOfPerfJobs, BankInfo, Owner
 from .serializers import InvoiceSerializer, ManagerSerializer, ProjectSerializer, \
     DeveloperSerializer, DevelopersOnProjectSerializer, ClientSerializer, UserSerializer, VacationSerializer, \
     ActOfPerfJobsSerializer, OwnerSerializer, UsersSerializer, ProjectsSerializer, ProfileSerializer
 
-from .services import get_project_developers_and_cost, get_project_details, get_company_details_by_currency, \
+from .services import get_project_details, get_company_details_by_currency, \
     get_developer_bank_data, get_owner_bank_data
 
 from .utils import pdf_to_google_drive, generate_pdf_from_html, is_manager, get_ua_days_off, \
@@ -257,18 +262,19 @@ class GenerateInvoice(APIView):
             client_info = Client.objects.get(id=project.client.id)
             manager_info = Manager.objects.get(id=project.manager_info.id)
             developers, all_time_cost = get_project_developers_and_cost(project)
-            total_cost = all_time_cost - project.all_time_money_spent
+            # total_cost = all_time_cost - project.all_time_money_spent
 
             # commented not to save projects and not to send files to google drive during dev.
             # should be uncommented later.
 
-            #project.project.all_time_money_spent = total_cost
-            #project.save()
+            # project.project.all_time_money_spent = total_cost
+            # project.save()
 
             invoice = Invoice(date=invoice_date,
                               expected_payout_date=due_date,
-                              project_id=project)
-            #invoice.save()
+                              project=project,
+                              owner_id=data['owner'])
+            invoice.save()
 
             data = dict(developers_on_project=developers,
                         company_details=model_to_dict(company_details),
@@ -276,19 +282,18 @@ class GenerateInvoice(APIView):
                         client_info=model_to_dict(client_info),
                         invoice=model_to_dict(invoice),
                         manager_info=model_to_dict(manager_info),
-                        total_cost=total_cost)
+                        total_cost=all_time_cost)
 
             pdf_response, html = generate_pdf_from_html("invoices/invoice_2.html", data)
-            #pdf_to_google_drive(html)
-            #gmail_sender(html, client_info.email, "Invoice")
+            # pdf_to_google_drive(html)
+            # gmail_sender(html, client_info.email, "Invoice")
 
             if not download:
                 data["company_details"]["sign"] = json.dumps(str(data["company_details"]["sign"]))
                 return json_response_success(data=data)
             return HttpResponse(pdf_response.getvalue(), content_type='application/pdf')
 
-        return json_response_error("Not all the required fields are filled up. %s are required."
-                                   % INVOICE_REQUIRED_FIELDS)
+        return json_response_error(f"Not all the required fields are filled up. {INVOICE_REQUIRED_FIELDS} are required.")
 
     def get(self, request):
         """

@@ -1,4 +1,4 @@
-from apps.core.models import DevelopersOnProject, Developer, Project, Company, Manager, \
+from apps.core.models import DevelopersOnProject, Developer, Project, CompanyBankInfo, Manager, \
     InvoiceNotifications, BirthdayNotification, DeadlineNotifications
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -12,25 +12,6 @@ from django.http import JsonResponse
 from .utils import gmail_sender
 
 
-def get_project_developers_and_cost(project):
-    developers_on_project = [dev for dev in DevelopersOnProject.objects.filter(project=project)]
-    developers = list()
-    total_cost = 0 if not project.basic_price else project.basic_price
-    for developer in developers_on_project:
-        dev_info = Developer.objects.get(id=developer.developer_id)
-        cost = dev_info.hourly_rate * developer.hours
-        dev = dict(id=developer.id,
-                   worked_hours=developer.hours,
-                   description=developer.description,
-                   hourly_rate=dev_info.hourly_rate,
-                   cost=cost)
-        if not project.basic_price:
-            total_cost += cost
-        developers.append(dev)
-
-    return developers, total_cost
-
-
 def get_project_details(project_id):
     try:
         project = Project.objects.get(id=project_id)
@@ -42,7 +23,7 @@ def get_project_details(project_id):
 
 def get_company_details_by_currency(currency):
     try:
-        company_details = Company.objects.get(currency=currency)
+        company_details = CompanyBankInfo.objects.get(currency=currency)
     except ObjectDoesNotExist:
         return JsonResponse({"status": "Please provide '%s' details for the company" % currency})
     else:

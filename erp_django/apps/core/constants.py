@@ -1,12 +1,6 @@
-INVOICE_REQUIRED_FIELDS = set(["invoice_date", "due_date", "project_id", "download"])
+INVOICE_REQUIRED_FIELDS = {"invoice_date", "due_date", "project_id", "download", "owner"}
 
-ACT_JOBS_REQUIRED_FIELDS = set(["act_jobs_date", "act_jobs_numb", "developer_id", "download"])
-
-INVOICE_STATUS = (
-    ("SENT", "sent"),
-    ("WAITING_FOR_PAYMENT", "waiting for payment"),
-    ("PAID", "paid")
-)
+ACT_JOBS_REQUIRED_FIELDS = {"act_jobs_date", "act_jobs_numb", "developer_id", "download"}
 
 NOTIFICATION_TYPES = (
     ("UNPAID_INVOICE", "unpaid invoice"),

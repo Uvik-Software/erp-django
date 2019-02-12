@@ -23,6 +23,7 @@
         <button mat-raised-button color="primary" style="margin: 1%;" (click)="openDialog(element.id)" [disabled]="!is_admin">Edit</button>
         <button mat-raised-button color="accent" style="margin: 1%;" (click)="deleteProject(element.id)" [disabled]="!is_admin">Delete</button>
         <button mat-raised-button color="warn" style="margin: 1%;" (click)="assignToProject(element.id)" [disabled]="!is_admin">Assign To Project</button>
+        <button mat-raised-button style="margin: 1%; color:white; background-color:#4b97a5" (click)="downloadInvoice(element.id)" [disabled]="!is_admin || is_manager">Generate invoice</button>
       </td>
     </ng-container>
 

@@ -1,5 +1,5 @@
 from django.db import models
-from .constants import INVOICE_STATUS, NOTIFICATION_TYPES
+from .constants import NOTIFICATION_TYPES
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -98,7 +98,7 @@ class Project(models.Model):
     basic_price = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
     manager_info = models.ForeignKey(Manager, on_delete=models.SET_NULL, null=True)
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
-    all_time_money_spent = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
+    # all_time_money_spent = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
     deadline = models.DateField(null=True)
     project_started_date = models.DateField(null=True)
     owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
@@ -155,10 +155,16 @@ class DevelopersOnProject(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     description = models.TextField(null=True)
-    hours = models.FloatField(null=True)
+    hours = models.DecimalField(max_digits=8, decimal_places=2, default=00.00)
 
 
 class Invoice(models.Model):
+    INVOICE_STATUS = (
+        ("SENT", "sent"),
+        ("WAITING_FOR_PAYMENT", "waiting for payment"),
+        ("PAID", "paid")
+    )
+
     date = models.DateField()
     expected_payout_date = models.DateField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -178,7 +184,7 @@ class ActOfPerfJobs(models.Model):
 
 
 # What about this??
-class Company(models.Model):
+class CompanyBankInfo(models.Model):
     currency = models.CharField(max_length=3)
     bank_account_number = models.IntegerField()
     beneficiary = models.CharField(max_length=50)

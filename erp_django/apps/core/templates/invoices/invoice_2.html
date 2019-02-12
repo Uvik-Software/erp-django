@@ -24,12 +24,12 @@
         <td><b>Supplier: </b> <br/>
             <b>Business name: </b> {{ manager_info.company_name }} <br/>
             <b>Address: </b> {{ manager_info.address }} <br/>
-            <b>Email: </b> {{ manager_info.manager_email }} <br/>
-            <b>Represented by: </b> {{ manager_info.manager_name }} {{ manager_info.manager_surname }}</td>
+            <b>Email: </b> {{ manager_info.email }} <br/>
+            <b>Represented by: </b> {{ manager_info.first_name }} {{ manager_info.last_name }}</td>
     </tr>
     <tr>
         <td><b>Customer: </b> <br/>
-            <b>Person: </b> {{ client_info.name }} <br/>
+            <b>Person: </b> {{ client_info.first_name }} <br/>
             <b>Position: </b> {{ client_info.position }} <br/>
             <b>Company name: </b> {{ client_info.company_name }} <br/>
             <b>Address: </b> {{ client_info.address }} <br/>
@@ -88,8 +88,7 @@
     <td></td>
     <td></td>
     <td class="padding"><b>Total: </b></td>
-    <td class="padding">{{ total_cost }}</td>
-
+    <td class="padding">{{ total_cost }} </td>
 
     </tbody>
 </table>
@@ -99,10 +98,10 @@
 </div>
 <div class="padding">
     {% load staticfiles %}
-    <img src="{{company_details.sign}}">
+    <img src="http://127.0.0.1:8000/media/{{ company_details.sign }}">
 </div>
 <div class="padding">
-    <b>Supplier: </b> {{ manager_info.manager_name }} {{ manager_info.manager_surname }}, {{ manager_info.manager_position }} <br/>
+    <b>Supplier: </b> {{ manager_info.first_name }} {{ manager_info.last_name }}, {{ manager_info.position }} <br/>
 </div>
 </body>
 </html>
