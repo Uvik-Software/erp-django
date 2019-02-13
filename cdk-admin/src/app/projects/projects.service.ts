@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { environment } from "../../environments/environment";
 import { devOnProject, getAssignedDevs, getProjectsResponse, ProjectInterface } from "../interfaces/projects";
+import {ResponseContentType} from "@angular/http";
 
 @Injectable({ providedIn: 'root' })
 export class ProjectsService {
@@ -37,5 +38,10 @@ export class ProjectsService {
 
     deleteDevFromProject(id) {
       return this.http.delete(`${environment.baseUrl}/developers_on_project/` + id + `/` )
+    }
+
+    generateInvoice(data) {
+      const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+      return this.http.post(`${environment.baseUrl}/generate_invoice/`, data, {headers: headers, responseType: 'blob'})
     }
 }

@@ -13,9 +13,15 @@ import {
   MatIconModule,
   MatTableModule,
   MatMenuModule,
-  MatSelectModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatDialogModule,
+  MatSelectModule,
+  MatSortModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatPaginatorModule,
+  MatDialogModule,
+  MatCheckboxModule,
 } from '@angular/material';
-import {ProjectAssignComponent, ProjectEditDialog, ProjectsComponent} from "./projects.component";
+import {ProjectAssignComponent, ProjectEditDialog, ProjectsComponent, ProjectGenerateInvoice} from "./projects.component";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ErrorInterceptor, JwtInterceptor} from "../_helpers";
 import {ToastrModule} from 'ng6-toastr-notifications';
@@ -49,9 +55,10 @@ export const ROUTES: Routes = [
     FormsModule,
     ReactiveFormsModule,
     ToastrModule.forRoot(),
+    MatCheckboxModule
   ],
-  declarations: [ProjectsComponent, ProjectEditDialog, ProjectAssignComponent],
-  entryComponents: [ProjectEditDialog, ProjectAssignComponent],
+  declarations: [ProjectsComponent, ProjectEditDialog, ProjectAssignComponent, ProjectGenerateInvoice],
+  entryComponents: [ProjectEditDialog, ProjectAssignComponent, ProjectGenerateInvoice],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

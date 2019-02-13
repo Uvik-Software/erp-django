@@ -22,7 +22,7 @@ class ManagerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Manager
-        fields = "__all__"
+        fields = ('id', 'first_name', 'last_name', 'position', 'email', 'company_name', 'address',)
 
 
 class ProjectSerializer(serializers.ModelSerializer):

@@ -9,6 +9,8 @@ import {
 } from "@angular/material";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 
+import saveAs from 'file-saver';
+
 import {
   Currency,
   devOnProject,
@@ -30,6 +32,7 @@ import {ManagersInterface, ManagersListResponse} from "../interfaces/managers";
 import { OwnerInterface, getOwnersResponse } from "../interfaces/owners";
 import {ProfileService} from "../profile/profile.service";
 import {ToastrManager} from 'ng6-toastr-notifications';
+import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-projects',
@@ -39,6 +42,7 @@ import {ToastrManager} from 'ng6-toastr-notifications';
 export class ProjectsComponent implements OnInit {
 
   is_admin: boolean = JSON.parse(localStorage.getItem('currentUser')).user.is_staff;
+  is_manager: boolean = JSON.parse(localStorage.getItem('currentUser')).user.type == 'MANAGER';
   projects: Array<ProjectInterface> = [];
   displayedColumns: string[] = ['project_name', 'project_type', 'edit'];
   dataSource = new MatTableDataSource<ProjectInterface>([]);
@@ -69,7 +73,7 @@ export class ProjectsComponent implements OnInit {
 
     if (id) {
       dialogConfig.data = this.projects.find(o => o.id === id);
-      let dialogRef = this.dialog.open(ProjectEditDialog, dialogConfig).afterClosed()
+      this.dialog.open(ProjectEditDialog, dialogConfig).afterClosed()
         .subscribe(response => {
           if (response && response.changed) {
             this.projectsService.update_project(response.data).subscribe(() => {
@@ -79,11 +83,9 @@ export class ProjectsComponent implements OnInit {
           }
         });
     } else {
-      let dialogRef = this.dialog.open(ProjectEditDialog).afterClosed().subscribe(response => {
+      this.dialog.open(ProjectEditDialog).afterClosed().subscribe(response => {
           if (response && response.changed) {
-            // response.data.owner = JSON.parse(localStorage.getItem('currentUser')).user.id;
             response.data.client = response.data.client.id;
-            console.log(response.data);
             this.projectsService.create_project(response.data).subscribe(() => {
               this.getProjects();
               this.toastr.successToastr('Project was successfully created', 'Project created');
@@ -103,7 +105,14 @@ export class ProjectsComponent implements OnInit {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.autoFocus = true;
     dialogConfig.data = this.projects.find(o => o.id === id);
-    let dialogRef = this.dialog.open(ProjectAssignComponent, dialogConfig)
+    this.dialog.open(ProjectAssignComponent, dialogConfig)
+  }
+
+  downloadInvoice(id) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = this.projects.find(o => o.id === id);
+    this.dialog.open(ProjectGenerateInvoice, dialogConfig)
   }
 }
 
@@ -206,7 +215,6 @@ export class ProjectEditDialog {
 }
 
   save() {
-    console.log(this.projectEditForm);
     if (!this.projectEditForm.invalid) {
       this.projectEditForm.value.client = this.client;
       this.dialogRef.close({ changed: this.projectEditForm.dirty,
@@ -283,20 +291,16 @@ export class ProjectAssignComponent {
 
           let data = {project: this.project.id,
                       developer: developer.id,
-                      // owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
                       hours: developer.hours,
                       description: developer.description};
-            this.projectsService.assignDevToProject(data).subscribe(() => {
-      })
+            this.projectsService.assignDevToProject(data).subscribe(() => {})
         } else if (this.assignedDevelopersAtStart.includes(developer)) {
           let data = {project: this.project.id,
                       id: developer.id,
-                      // owner: JSON.parse(localStorage.getItem('currentUser')).user.id,
                       hours: developer.hours,
                       description: developer.description,
                       developer: developer.developer};
-                  this.projectsService.updateDevOnProject(data).subscribe(() => {
-            })
+                  this.projectsService.updateDevOnProject(data).subscribe(() => {})
         }
     }
     for (let developer of this.availableDevelopers) {
@@ -304,6 +308,68 @@ export class ProjectAssignComponent {
           this.projectsService.deleteDevFromProject(developer.id).subscribe(() => {
       })
         }
+    }
+    this.dialogRef.close();
+  }
+
+  discard() {
+    this.dialogRef.close();
+  }
+
+}
+
+
+@Component({
+  selector: 'project-generate-invoice',
+  templateUrl: './project-invoice.html',
+})
+export class ProjectGenerateInvoice {
+  project: ProjectInterface;
+
+  projectInvoiceForm =  new FormGroup ({
+    invoice_date: new FormControl(),
+    due_date: new FormControl(),
+    download: new FormControl(),
+  });
+
+  constructor(private fb: FormBuilder,
+              private projectsService:ProjectsService,
+              public dialogRef: MatDialogRef<any>,
+              private sanitizer: DomSanitizer,
+              @Inject(MAT_DIALOG_DATA) data) {
+    this.project = data || {};
+    this.createForm();
+  }
+
+  ngOnInit() {
+  }
+
+  createForm() {
+    this.projectInvoiceForm = this.fb.group({
+      project_id: this.project.id,
+      invoice_date: ['', Validators.required],
+      due_date: ['', Validators.required],
+      download: [true, Validators.required],
+      owner: this.project.owner
+    });
+  }
+
+  generate() {
+    if (this.projectInvoiceForm.valid) {
+      this.projectsService.generateInvoice(this.projectInvoiceForm.value).subscribe(res => {
+        let url = window.URL.createObjectURL(res);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.setAttribute('style', 'display: none');
+        a.href = url;
+        a.download = 'invoice ' +
+          this.project.project_name + ' ' +
+          this.projectInvoiceForm.value['invoice_date'] +
+          '.pdf';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove(); // remove the element
+      });
     }
     this.dialogRef.close();
   }

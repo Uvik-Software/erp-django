@@ -1,0 +1,27 @@
+<h1 class="mat-headline center-align">Invoice for "{{ project.project_name }}"</h1>
+
+<form [formGroup]="projectInvoiceForm" (ngSubmit)="generate()">
+
+  <div class="form-group">
+
+    <mat-form-field>
+      <input matInput placeholder="Invoice Date" type="date" formControlName="invoice_date">
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Due Date" type="date" formControlName="due_date">
+    </mat-form-field>
+
+<!--
+   <div>
+      <mat-checkbox formControlName="download">Download</mat-checkbox>
+    </div>
+
+    <button mat-raised-button color="warn" style="margin-top: 2%" (click)="discard()">Discard</button>
+-->
+    <div>
+      <button mat-raised-button color="primary" style="margin-top: 2%; " type="submit" [disabled]="projectInvoiceForm.invalid">Download</button>
+    </div>
+
+  </div>
+</form>
