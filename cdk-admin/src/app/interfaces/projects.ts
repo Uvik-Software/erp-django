@@ -1,4 +1,5 @@
 import { ClientInterface } from "./client";
+import {ManagersInterface} from "./managers";
 
 export class ProjectTypes {
   value: string;
@@ -16,7 +17,7 @@ export class ProjectInterface {
   project_description: string;
   currency: string;
   basic_price: string;
-  manager_info: string;
+  manager_info: ManagersInterface;
   client: ClientInterface;
   all_time_money_spent: number;
   deadline: Date;

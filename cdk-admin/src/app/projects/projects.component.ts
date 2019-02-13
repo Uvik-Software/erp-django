@@ -86,7 +86,6 @@ export class ProjectsComponent implements OnInit {
       this.dialog.open(ProjectEditDialog).afterClosed().subscribe(response => {
           if (response && response.changed) {
             response.data.client = response.data.client.id;
-            console.log(response.data);
             this.projectsService.create_project(response.data).subscribe(() => {
               this.getProjects();
               this.toastr.successToastr('Project was successfully created', 'Project created');

@@ -11,42 +11,42 @@
     </mat-form-field>
     <mat-form-field>
       <mat-select placeholder="Project Type" formControlName="project_type" (selectionChange)="changeProjectType($event.value)">
-		    				<mat-option *ngFor="let projectType of projectTypes" [value]="projectType.value">
-		      								{{ projectType.name }}
-		    				</mat-option>
-	  					</mat-select>
+        <mat-option *ngFor="let projectType of projectTypes" [value]="projectType.value">
+                  {{ projectType.name }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field>
       <mat-select placeholder="Currency" formControlName="currency" (selectionChange)="changeCurrency($event.value)">
-		    				<mat-option *ngFor="let currency of currencies" [value]="currency.name">
-		      								{{ currency.name }}
-		    				</mat-option>
-	  					</mat-select>
+        <mat-option *ngFor="let currency of currencies" [value]="currency.name">
+                  {{ currency.name }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field>
       <mat-select placeholder="Client" formControlName="client" (selectionChange)="changeClient($event.value)">
-		    				<mat-option *ngFor="let client of clients" [value]="client.id">
-		      								{{ client.first_name }} {{ client.last_name }}
-		    				</mat-option>
-	  					</mat-select>
+        <mat-option *ngFor="let client of clients" [value]="client.id">
+                  {{ client.first_name }} {{ client.last_name }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field>
       <mat-select placeholder="Manager" formControlName="manager_info" (selectionChange)="changeManager($event.value)">
-		    				<mat-option *ngFor="let manager of managers" [value]="manager.id">
-		      								{{ manager.first_name }} {{ manager.last_name }}
-		    				</mat-option>
-	  					</mat-select>
+        <mat-option *ngFor="let manager_info of managers" [value]="manager_info.id">
+                  {{ manager_info.first_name }} {{ manager_info.last_name }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field>
       <mat-select placeholder="Owner" formControlName="owner" (selectionChange)="changeOwner($event.value)">
-		    				<mat-option *ngFor="let owner of owners" [value]="owner.id">
-		      								{{ owner.first_name }} {{ owner.last_name }}
-		    				</mat-option>
-	  					</mat-select>
+        <mat-option *ngFor="let owner of owners" [value]="owner.id">
+                  {{ owner.first_name }} {{ owner.last_name }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field *ngIf="projectEditForm.value.project_type === 'FIX_PRICE_PROJECT'">

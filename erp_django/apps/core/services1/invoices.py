@@ -7,7 +7,7 @@ def get_project_developers_and_cost(project):
     total_cost = 0 if not project.basic_price else project.basic_price
     for info in developers_on_project:
         dev = info.developer
-        cost = dev.hourly_rate * info.hours
+        cost = round(dev.hourly_rate * info.hours, 2)
         dev = dict(id=dev.id,
                    worked_hours=info.hours,
                    description=info.description,
