@@ -47,7 +47,7 @@ pytest-django==3.4.2
 python-dateutil==2.7.5
 python-google-calendar-api==0.5
 pytz==2018.9
-PyYAML==3.13
+PyYAML==5.4
 redis==2.10.6
 reportlab==3.5.12
 requests==2.19.1
