@@ -49,7 +49,7 @@ python-google-calendar-api==0.5
 pytz==2018.9
 PyYAML==3.13
 redis==2.10.6
-reportlab==3.5.12
+reportlab==3.5.55
 requests==2.19.1
 rsa==4.0
 simplejson==3.16.0
